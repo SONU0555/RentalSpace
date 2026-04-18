@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -38,8 +39,8 @@ public class User {
     //Tenant fiels
     private String address;
     private String aadhaarNumber;
-    private LocalDateTime rentStartDate;
-    private LocalDateTime rentEndDate;
+    private LocalDate rentStartDate;
+    private LocalDate rentEndDate;
     private Long propertyId;
     private String emergencyContect;
     
@@ -127,19 +128,19 @@ public class User {
         this.aadhaarNumber = aadhaarNumber;
     }
 
-    public LocalDateTime getRentStartDate() {
+    public LocalDate getRentStartDate() {
         return rentStartDate;
     }
 
-    public void setRentStartDate(LocalDateTime rentStartDate) {
+    public void setRentStartDate(LocalDate rentStartDate) {
         this.rentStartDate = rentStartDate;
     }
 
-    public LocalDateTime getRentEndDate() {
+    public LocalDate getRentEndDate() {
         return rentEndDate;
     }
 
-    public void setRentEndDate(LocalDateTime rentEndDate) {
+    public void setRentEndDate(LocalDate rentEndDate) {
         this.rentEndDate = rentEndDate;
     }
 

@@ -16,23 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/public/user")
-public class UserController {
+public class UserPublicController {
     
     private final UserService userService;
     
     @Autowired
-    public UserController(UserService userService){
+    public UserPublicController(UserService userService){
         this.userService = userService;
-    }
-    
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers(){
-        return ResponseEntity.ok(userService.fetchAllUsers());
-    }
-    
-    @GetMapping("/all/logedin")
-    public ResponseEntity<?> getAllLogedinUsers(){
-        return new ResponseEntity<>(userService.fetchAllLogedInUsers(), HttpStatus.OK);
     }
     
     
@@ -46,14 +36,7 @@ public class UserController {
         }
     }
     
-    @GetMapping("/find")
-    public ResponseEntity<?> findUserById(@RequestParam Long id){
-        try{
-            return ResponseEntity.ok(userService.fetchUserById(id));
-        }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
+
     
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequestDto request){

@@ -1,5 +1,6 @@
 package RentSpace.service;
 
+import RentSpace.dto.requestDto.UserDetailsRequestDto;
 import RentSpace.dto.requestDto.UserLoginRequestDto;
 import RentSpace.dto.requestDto.UserSignupReqDto;
 import RentSpace.dto.responseDto.LoginUserResponseDto;
@@ -7,6 +8,7 @@ import RentSpace.dto.responseDto.UserResponseDto;
 import RentSpace.entity.User;
 import RentSpace.entityResponseMapper.UserResponseMapper;
 import RentSpace.repository.UserRepository;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,6 +73,32 @@ public class UserService {
         }
         
         return "LoggedIn success user: " + user.getName();
+    }
+    
+    // Add user personal details
+    public void addUserPeronalDetails(UserDetailsRequestDto request, Long id){
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with Id: " + id));
+        
+        user.setPhone(request.getPhone());
+        user.setAddress(request.getAddress());
+        user.setAadhaarNumber(request.getAadhaarNumber());
+        user.setRentStartDate(LocalDate.now());
+        user.setRentEndDate(request.getRentEndDate());
+        user.setUpdatedDate(LocalDateTime.now());
+        user.setEmergencyContect(request.getEmergencyContect());
+        user.setPropertyId(10L);
+        user.setCompanyName("SKSpaceHub");
+        
+        userRepo.save(user);
+
+    }
+    
+    // Delete user
+    public void deleteUser(Long id){
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with Id: " + id));
+        userRepo.delete(user);
     }
 
 }

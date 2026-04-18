@@ -1,6 +1,7 @@
 package RentSpace.dto.responseDto;
 
 import RentSpace.entity.User.role;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 
@@ -22,12 +23,14 @@ public class UserResponseDto {
     //Tenant fiels
     private String address;
     private String aadhaarNumber;
-    private LocalDateTime rentStartDate;
-    private LocalDateTime rentEndDate;
+    private LocalDate rentStartDate;
+    private LocalDate rentEndDate;
     private Long propertyId;
     private String emergencyContect;
     
     private String companyName;
+    
+    
 
     public String getCompanyName() {
         return companyName;
@@ -117,19 +120,19 @@ public class UserResponseDto {
         this.aadhaarNumber = aadhaarNumber;
     }
 
-    public LocalDateTime getRentStartDate() {
+    public LocalDate getRentStartDate() {
         return rentStartDate;
     }
 
-    public void setRentStartDate(LocalDateTime rentStartDate) {
+    public void setRentStartDate(LocalDate rentStartDate) {
         this.rentStartDate = rentStartDate;
     }
 
-    public LocalDateTime getRentEndDate() {
+    public LocalDate getRentEndDate() {
         return rentEndDate;
     }
 
-    public void setRentEndDate(LocalDateTime rentEndDate) {
+    public void setRentEndDate(LocalDate rentEndDate) {
         this.rentEndDate = rentEndDate;
     }
 

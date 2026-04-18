@@ -30,6 +30,8 @@ public class UserResponseMapper {
         response.setPropertyId(user.getPropertyId());
         response.setRentStartDate(user.getRentStartDate());
         response.setRentEndDate(user.getRentEndDate());
+        response.setCompanyName(user.getCompanyName());
+        response.setRole(user.getRole());
         response.setCreatedDate(user.getCreatedDate());
         response.setUpdatedDate(user.getUpdatedDate());
         
