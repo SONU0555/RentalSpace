@@ -1,7 +1,6 @@
 package RentSpace.controller.Private;
 
 import RentSpace.dto.requestDto.UserDetailsRequestDto;
-import RentSpace.entity.User;
 import RentSpace.repository.UserRepository;
 import RentSpace.service.UserService;
 import jakarta.validation.Valid;

@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
@@ -24,6 +26,11 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepo){
         this.userRepo = userRepo;
+    }
+    
+//     Password Encoder use BCrytp
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
     }
     
     // Fetch all users with complete Details
@@ -43,10 +50,12 @@ public class UserService {
     public void createNewUser(UserSignupReqDto request){
         User user = new User();
         
+        System.out.println("user getting " + request.getName());
+        
         //Mapping Dto to Entity
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder().encode(request.getPassword()));
         user.setCreatedDate(LocalDateTime.now());
         user.setUpdatedDate(LocalDateTime.now());
         user.setRole(User.role.TENANT);
