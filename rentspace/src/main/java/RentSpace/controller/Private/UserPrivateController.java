@@ -1,6 +1,8 @@
 package RentSpace.controller.Private;
 
+import RentSpace.dto.requestDto.UpdateCredentailsRequestDto;
 import RentSpace.dto.requestDto.UserDetailsRequestDto;
+import RentSpace.dto.requestDto.UserSignupReqDto;
 import RentSpace.repository.UserRepository;
 import RentSpace.service.UserService;
 import jakarta.validation.Valid;
@@ -19,8 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/private/user")
 public class UserPrivateController {
     
-    private UserService userService;
-    private UserRepository userRepo;
+    private final UserService userService;
+    private final UserRepository userRepo;
     
     @Autowired
     public UserPrivateController(UserService userService, UserRepository userRepo){
@@ -28,25 +30,7 @@ public class UserPrivateController {
         this.userRepo = userRepo;
     }
     
-    @GetMapping("/all")
-    public ResponseEntity<?> getAllUsers(){
-        return ResponseEntity.ok(userService.fetchAllUsers());
-    }
-    
-    @GetMapping("/all/loggedin")
-    public ResponseEntity<?> getAllLogedinUsers(){
-        return new ResponseEntity<>(userService.fetchAllLogedInUsers(), HttpStatus.OK);
-    }    
-    
-    @GetMapping("/find")
-    public ResponseEntity<?> findUserById(@RequestParam Long id){
-        try{
-            return ResponseEntity.ok(userService.fetchUserById(id));
-        }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-    
+    // Updat users personal details
     @PutMapping("/add/personaldetails")
     public ResponseEntity<?> updateUserPersonalDetails(@Valid @RequestBody UserDetailsRequestDto request, @RequestParam Long id){
         try{
@@ -57,8 +41,21 @@ public class UserPrivateController {
         }
     }
     
+    // Update users credentials only username(email) and password
+    @PutMapping("/update")
+    public ResponseEntity<?> updateUserCredential(@RequestBody UpdateCredentailsRequestDto request, @RequestParam Long id){
+        
+        try{
+            userService.updateCredential(request, id);
+            return ResponseEntity.ok("Successfully updated");
+        }catch(Exception e){
+            return new ResponseEntity<>("ERROR " +  e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        
+    }    
+    
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@RequestParam Long id){
+    public ResponseEntity<?> deleteByUserName(@RequestParam Long id){
         try{
             userService.deleteUser(id);
             return new ResponseEntity<>("Deleted added", HttpStatus.OK);
