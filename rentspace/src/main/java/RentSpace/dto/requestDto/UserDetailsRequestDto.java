@@ -16,7 +16,6 @@ public class UserDetailsRequestDto {
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invlid phone number")
     private String phone;
     
-    //Tenant fiels
     @NotBlank(message = "Address is requeired")
     @Size(max = 225, message = "Address must not exceed 255 characters")
     private String address;

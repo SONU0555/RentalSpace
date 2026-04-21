@@ -1,9 +1,6 @@
 package RentSpace.service;
 
-import RentSpace.dto.requestDto.UpdateCredentailsRequestDto;
-import RentSpace.dto.requestDto.UserDetailsRequestDto;
-import RentSpace.dto.requestDto.UserLoginRequestDto;
-import RentSpace.dto.requestDto.UserSignupReqDto;
+import RentSpace.dto.requestDto.*;
 import RentSpace.dto.responseDto.LoginUserResponseDto;
 import RentSpace.dto.responseDto.UserResponseDto;
 import RentSpace.entity.User;
@@ -76,40 +73,63 @@ public class UserService {
     
     // Login back existing user
     public String login(UserLoginRequestDto request){
-        User user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepo.findByEmail(request.getEmail());
         
-        if(!request.getPassword().equals(user.getPassword())){
+        if(PasswordEncoder.matches(request.getPassword(), user.getPassword())){
+            return  "LoggedIn success user: " + user.getName();
+        }else{
             throw new RuntimeException("Invalid password");
         }
-        
-        return "LoggedIn success user: " + user.getName();
+  
     }
     
     // Add user personal details
     public void addUserPeronalDetails(UserDetailsRequestDto request, Long id){
-        User user = userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with Id: " + id));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findByEmail(authentication.getName());
         
-        user.setPhone(request.getPhone());
-        user.setAddress(request.getAddress());
-        user.setAadhaarNumber(request.getAadhaarNumber());
-        user.setRentStartDate(LocalDate.now());
-        user.setRentEndDate(request.getRentEndDate());
-        user.setUpdatedDate(LocalDateTime.now());
-        user.setEmergencyContect(request.getEmergencyContect());
-        user.setPropertyId(10L);
-        user.setCompanyName("SKSpaceHub");
+        if(user.getId().equals(id)){
+            user.setPhone(request.getPhone());
+            user.setAddress(request.getAddress());
+            user.setAadhaarNumber(request.getAadhaarNumber());
+            user.setRentStartDate(LocalDate.now());
+            user.setRentEndDate(request.getRentEndDate());
+            user.setUpdatedDate(LocalDateTime.now());
+            user.setEmergencyContect(request.getEmergencyContect());
+            user.setPropertyId(10L);
+            user.setCompanyName("SKSpaceHub");
+
+            userRepo.save(user);            
+        }else{
+            throw new RuntimeException("User not found with Id: " + id);
+        } 
+
+    }
+    
+    // Update user profile details
+    public void updateProfile(UserProfileUpdateRequestDto request, Long id){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findByEmail(authentication.getName());
         
-        userRepo.save(user);
+        if(user.getId().equals(id)){
+            user.setName(request.getName());
+            user.setEmail(request.getEmail());
+            user.setPhone(request.getPhone());
+            user.setAddress(request.getAddress());
+            user.setAadhaarNumber(request.getAadhaarNumber());
+            user.setUpdatedDate(LocalDateTime.now());
+            user.setEmergencyContect(request.getEmergencyContect());      
+            userRepo.save(user);
+        }else{
+        throw new RuntimeException("User not found with Id: " + id);
+      }
 
     }
     
     // Update Credentails of the user
     public void updateCredential(UpdateCredentailsRequestDto request, Long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepo.findByEmail(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found with this email: " + authentication.getName()));
+        User user = userRepo.findByEmail(authentication.getName());
         
         if(user.getId().equals(id)){
             if(PasswordEncoder.matches(request.getOldPassword(), user.getPassword())){

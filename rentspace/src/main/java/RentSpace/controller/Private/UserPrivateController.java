@@ -2,20 +2,14 @@ package RentSpace.controller.Private;
 
 import RentSpace.dto.requestDto.UpdateCredentailsRequestDto;
 import RentSpace.dto.requestDto.UserDetailsRequestDto;
-import RentSpace.dto.requestDto.UserSignupReqDto;
+import RentSpace.dto.requestDto.UserProfileUpdateRequestDto;
 import RentSpace.repository.UserRepository;
 import RentSpace.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/private/user")
@@ -30,9 +24,9 @@ public class UserPrivateController {
         this.userRepo = userRepo;
     }
     
-    // Updat users personal details
-    @PutMapping("/add/personaldetails")
-    public ResponseEntity<?> updateUserPersonalDetails(@Valid @RequestBody UserDetailsRequestDto request, @RequestParam Long id){
+    // add users personal details
+    @PutMapping("/add/personal-details")
+    public ResponseEntity<?> addUserPersonalDetails(@Valid @RequestBody UserDetailsRequestDto request, @RequestParam Long id){
         try{
             userService.addUserPeronalDetails(request, id);
             return new ResponseEntity<>("Successfully added", HttpStatus.OK);
@@ -41,8 +35,19 @@ public class UserPrivateController {
         }
     }
     
+    // Update users profile details
+    @PutMapping("/update/profile")
+    public ResponseEntity<?> updateUserProfile(@RequestBody UserProfileUpdateRequestDto request, @RequestParam Long id){
+        try{
+             userService.updateProfile(request, id);
+             return new ResponseEntity<>("Profile successfully updated", HttpStatus.ACCEPTED);
+        }catch(Exception e){
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+    
     // Update users credentials only username(email) and password
-    @PutMapping("/update")
+    @PutMapping("/update/credentials")
     public ResponseEntity<?> updateUserCredential(@RequestBody UpdateCredentailsRequestDto request, @RequestParam Long id){
         
         try{

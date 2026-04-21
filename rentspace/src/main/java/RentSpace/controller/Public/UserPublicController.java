@@ -33,9 +33,7 @@ public class UserPublicController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-    
 
-    
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequestDto request){
         try{
