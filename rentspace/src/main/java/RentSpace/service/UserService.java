@@ -1,8 +1,13 @@
 package RentSpace.service;
 
-import RentSpace.dto.requestDto.*;
+import RentSpace.requestDtos.User.UserProfileUpdateRequestDto;
+import RentSpace.requestDtos.User.UserLoginRequestDto;
+import RentSpace.requestDtos.User.UpdateCredentailsRequestDto;
+import RentSpace.requestDtos.User.UserSignupReqDto;
+import RentSpace.requestDtos.User.UserDetailsRequestDto;
 import RentSpace.dto.responseDto.LoginUserResponseDto;
 import RentSpace.dto.responseDto.UserResponseDto;
+import RentSpace.entity.Property;
 import RentSpace.entity.User;
 import RentSpace.entityResponseMapper.UserResponseMapper;
 import RentSpace.repository.UserRepository;
@@ -49,7 +54,7 @@ public class UserService {
     
     
     // Register new user as tenant
-    public void createNewUser(UserSignupReqDto request){
+    public void createNewUser(UserSignupReqDto request, String role){
         User user = new User();
                 
         //Mapping Dto to Entity
@@ -58,7 +63,7 @@ public class UserService {
         user.setPassword(passwordEncoder().encode(request.getPassword()));
         user.setCreatedDate(LocalDateTime.now());
         user.setUpdatedDate(LocalDateTime.now());
-        user.setRole(User.role.TENANT);
+        user.setRole(role.equalsIgnoreCase("tenant") ? User.role.TENANT : User.role.OWNER);
         userRepo.save(user);
     }
     
@@ -68,7 +73,14 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with Id: " + id));
         
         return UserResponseMapper.mapToUserResponseDto(user);
+    }
+    
+    // Find user by username
+    public UserResponseDto fetchUserByUserName(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepo.findByEmail(authentication.getName());
         
+        return fetchUserById(user.getId());
     }
     
     // Login back existing user
@@ -96,8 +108,6 @@ public class UserService {
             user.setRentEndDate(request.getRentEndDate());
             user.setUpdatedDate(LocalDateTime.now());
             user.setEmergencyContect(request.getEmergencyContect());
-            user.setPropertyId(10L);
-            user.setCompanyName("SKSpaceHub");
 
             userRepo.save(user);            
         }else{

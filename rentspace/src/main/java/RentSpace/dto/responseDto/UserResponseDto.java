@@ -1,8 +1,10 @@
 package RentSpace.dto.responseDto;
 
+import RentSpace.entity.Property;
 import RentSpace.entity.User.role;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 public class UserResponseDto {
@@ -25,7 +27,7 @@ public class UserResponseDto {
     private String aadhaarNumber;
     private LocalDate rentStartDate;
     private LocalDate rentEndDate;
-    private Long propertyId;
+    private List<Property> properties;
     private String emergencyContect;
     
     private String companyName;
@@ -136,12 +138,12 @@ public class UserResponseDto {
         this.rentEndDate = rentEndDate;
     }
 
-    public Long getPropertyId() {
-        return propertyId;
+    public List<Property> getProperties() {
+        return properties;
     }
 
-    public void setPropertyId(Long propertyId) {
-        this.propertyId = propertyId;
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
     }
 
     public String getEmergencyContect() {

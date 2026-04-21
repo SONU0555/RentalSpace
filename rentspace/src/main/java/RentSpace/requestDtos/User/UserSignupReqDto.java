@@ -1,19 +1,30 @@
-package RentSpace.dto.requestDto;
+package RentSpace.requestDtos.User;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 
-public class UserLoginRequestDto {
+public class UserSignupReqDto {
+    
+    @NotBlank(message = "Name is required")
+    private String name;
     
     @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email formate")
+    @Email(message = "Invalid Email formate")
     private String email;
     
-    @NotBlank(message = "password is required")
-    @Size(min = 6, message = "password must atleast 6 characters")
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must be atleast 6 characters")
     private String password;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getEmail() {
         return email;

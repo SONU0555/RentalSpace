@@ -1,4 +1,4 @@
-package RentSpace.dto.requestDto;
+package RentSpace.requestDtos.User;
 
 import RentSpace.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;

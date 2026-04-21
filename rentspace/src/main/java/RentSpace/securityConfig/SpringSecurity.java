@@ -19,7 +19,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SpringSecurity {
     
-    private CustomUserDetailsService myUserDetails;
+    private final CustomUserDetailsService myUserDetails;
     
     @Autowired
     public SpringSecurity(CustomUserDetailsService myUserDetails){
@@ -44,8 +44,9 @@ public class SpringSecurity {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/user/**").permitAll()
+                        .requestMatchers("/public/user/**", "/property/**").permitAll()
                         .requestMatchers("/private/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/private/owner/**").hasAnyRole("ADMIN","OWNER")
                         .anyRequest().authenticated()
                 )
                         .sessionManagement(session -> session

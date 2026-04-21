@@ -1,4 +1,4 @@
-package RentSpace.dto.requestDto;
+package RentSpace.requestDtos.User;
 
 
 public class UpdateAuthRequestDto {

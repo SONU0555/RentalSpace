@@ -6,9 +6,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -41,7 +43,9 @@ public class User {
     private String aadhaarNumber;
     private LocalDate rentStartDate;
     private LocalDate rentEndDate;
-    private Long propertyId;
+    
+    @OneToMany(mappedBy = "owner")
+    private List<Property> properties;
     private String emergencyContect;
     
     //Owner field
@@ -144,12 +148,12 @@ public class User {
         this.rentEndDate = rentEndDate;
     }
 
-    public Long getPropertyId() {
-        return propertyId;
+    public List<Property> getProperties() {
+        return properties;
     }
 
-    public void setPropertyId(Long propertyId) {
-        this.propertyId = propertyId;
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
     }
 
     public String getEmergencyContect() {

@@ -27,7 +27,7 @@ public class UserResponseMapper {
         response.setAddress(user.getAddress());
         response.setAadhaarNumber(user.getAadhaarNumber());
         response.setEmergencyContect(user.getEmergencyContect());
-        response.setPropertyId(user.getPropertyId());
+        response.setProperties(user.getProperties());
         response.setRentStartDate(user.getRentStartDate());
         response.setRentEndDate(user.getRentEndDate());
         response.setCompanyName(user.getCompanyName());

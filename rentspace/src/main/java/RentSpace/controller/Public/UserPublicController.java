@@ -1,7 +1,7 @@
 package RentSpace.controller.Public;
 
-import RentSpace.dto.requestDto.UserLoginRequestDto;
-import RentSpace.dto.requestDto.UserSignupReqDto;
+import RentSpace.requestDtos.User.UserLoginRequestDto;
+import RentSpace.requestDtos.User.UserSignupReqDto;
 import RentSpace.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ public class UserPublicController {
     @PostMapping("/register")
     public ResponseEntity<?> createNewUser(@Valid @RequestBody UserSignupReqDto request){
         try{
-            userService.createNewUser(request);
+            userService.createNewUser(request, "tenant");
             return new ResponseEntity<>(HttpStatus.CREATED);
         }catch(Exception e){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

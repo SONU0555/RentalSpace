@@ -1,4 +1,4 @@
-package RentSpace.dto.requestDto;
+package RentSpace.requestDtos.User;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

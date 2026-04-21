@@ -1,8 +1,8 @@
 package RentSpace.controller.Private;
 
-import RentSpace.dto.requestDto.UpdateCredentailsRequestDto;
-import RentSpace.dto.requestDto.UserDetailsRequestDto;
-import RentSpace.dto.requestDto.UserProfileUpdateRequestDto;
+import RentSpace.requestDtos.User.UpdateCredentailsRequestDto;
+import RentSpace.requestDtos.User.UserDetailsRequestDto;
+import RentSpace.requestDtos.User.UserProfileUpdateRequestDto;
 import RentSpace.repository.UserRepository;
 import RentSpace.service.UserService;
 import jakarta.validation.Valid;
