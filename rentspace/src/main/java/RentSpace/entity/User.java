@@ -50,7 +50,6 @@ public class User {
     
     //Owner field
     private String companyName;
-    private Integer totalProperties;
 
     public Long getId() {
         return id;
@@ -171,16 +170,5 @@ public class User {
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
-
-    public Integer getTotalProperties() {
-        return totalProperties;
-    }
-
-    public void setTotalProperties(Integer totalProperties) {
-        this.totalProperties = totalProperties;
-    }
-    
-    
-     
 
 }

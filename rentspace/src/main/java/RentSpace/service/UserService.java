@@ -11,6 +11,7 @@ import RentSpace.entity.Property;
 import RentSpace.entity.User;
 import RentSpace.entityResponseMapper.UserResponseMapper;
 import RentSpace.repository.UserRepository;
+import RentSpace.requestDtos.User.OwnerDetailsRequestDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -96,16 +97,16 @@ public class UserService {
     }
     
     // Add user personal details
-    public void addUserPeronalDetails(UserDetailsRequestDto request, Long id){
+    public void addUserProfileDetails(UserDetailsRequestDto request, Long id){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = userRepo.findByEmail(authentication.getName());
         
         if(user.getId().equals(id)){
             user.setPhone(request.getPhone());
             user.setAddress(request.getAddress());
-            user.setAadhaarNumber(request.getAadhaarNumber());
             user.setRentStartDate(LocalDate.now());
             user.setRentEndDate(request.getRentEndDate());
+            user.setAadhaarNumber(request.getAadhaarNumber());
             user.setUpdatedDate(LocalDateTime.now());
             user.setEmergencyContect(request.getEmergencyContect());
 
@@ -116,23 +117,38 @@ public class UserService {
 
     }
     
+    // Add Owner personal details
+    public void addOwnerProfileDetails(OwnerDetailsRequestDto request, Long id){
+        
+        User owner = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Wrong Id: " + id));
+        
+            owner.setPhone(request.getPhone());
+            owner.setAddress(request.getAddress());
+            owner.setAadhaarNumber(request.getAadhaarNumber());
+            owner.setUpdatedDate(LocalDateTime.now());
+            owner.setEmergencyContect(request.getEmergencyContect());
+            owner.setCompanyName(request.getCompanyName());
+
+            userRepo.save(owner);            
+
+    }    
+    
     // Update user profile details
     public void updateProfile(UserProfileUpdateRequestDto request, Long id){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepo.findByEmail(authentication.getName());
+        User owner = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Wrong owner Id: " + id));
         
-        if(user.getId().equals(id)){
-            user.setName(request.getName());
-            user.setEmail(request.getEmail());
-            user.setPhone(request.getPhone());
-            user.setAddress(request.getAddress());
-            user.setAadhaarNumber(request.getAadhaarNumber());
-            user.setUpdatedDate(LocalDateTime.now());
-            user.setEmergencyContect(request.getEmergencyContect());      
-            userRepo.save(user);
-        }else{
-        throw new RuntimeException("User not found with Id: " + id);
-      }
+            owner.setName(request.getName());
+            owner.setEmail(request.getEmail());
+            owner.setPhone(request.getPhone());
+            owner.setAddress(request.getAddress());
+            owner.setAadhaarNumber(request.getAadhaarNumber());
+            owner.setEmergencyContect(request.getEmergencyContect()); 
+            owner.setCompanyName(request.getCompanyName());
+            owner.setUpdatedDate(LocalDateTime.now());
+                 
+            userRepo.save(owner);
 
     }
     

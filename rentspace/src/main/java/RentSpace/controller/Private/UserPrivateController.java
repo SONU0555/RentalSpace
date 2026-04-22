@@ -28,7 +28,7 @@ public class UserPrivateController {
     @PutMapping("/add/personal-details")
     public ResponseEntity<?> addUserPersonalDetails(@Valid @RequestBody UserDetailsRequestDto request, @RequestParam Long id){
         try{
-            userService.addUserPeronalDetails(request, id);
+            userService.addUserProfileDetails(request, id);
             return new ResponseEntity<>("Successfully added", HttpStatus.OK);
         }catch(Exception e){
             return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.NOT_FOUND);
@@ -37,7 +37,7 @@ public class UserPrivateController {
     
     // Update users profile details
     @PutMapping("/update/profile")
-    public ResponseEntity<?> updateUserProfile(@RequestBody UserProfileUpdateRequestDto request, @RequestParam Long id){
+    public ResponseEntity<?> updateUserProfile(@Valid @RequestBody UserProfileUpdateRequestDto request, @RequestParam Long id){
         try{
              userService.updateProfile(request, id);
              return new ResponseEntity<>("Profile successfully updated", HttpStatus.ACCEPTED);
