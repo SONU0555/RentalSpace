@@ -1,6 +1,7 @@
 package RentSpace.controller.Private;
 
 import RentSpace.requestDtos.User.OwnerDetailsRequestDto;
+import RentSpace.requestDtos.User.OwnerProfileUpdateDto;
 import RentSpace.requestDtos.User.UserDetailsRequestDto;
 import RentSpace.requestDtos.User.UserProfileUpdateRequestDto;
 import RentSpace.service.UserService;
@@ -35,22 +36,14 @@ public class OwnerPrivateController {
     
     @PostMapping("/create-profile")
     public ResponseEntity<?> createProfile(@Valid @RequestBody OwnerDetailsRequestDto request, @RequestParam Long id){
-       try{
             userService.addOwnerProfileDetails(request, id);
             return new ResponseEntity<>("Successfully created", HttpStatus.OK);
-        }catch(Exception e){
-            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        }        
     }
     
     @PutMapping("/update")
-    public ResponseEntity<?> updateProfile(@Valid @RequestBody UserProfileUpdateRequestDto request, @RequestParam Long id){
-        try{
-             userService.updateProfile(request, id);
+    public ResponseEntity<?> updateProfile(@Valid @RequestBody OwnerProfileUpdateDto request, @RequestParam Long id){
+             userService.updateOwnerProfile(request, id);
              return new ResponseEntity<>("Profile successfully updated", HttpStatus.ACCEPTED);
-        }catch(Exception e){
-            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        }
     }
 
 }

@@ -1,4 +1,4 @@
-package RentSpace.dto.responseDto;
+package RentSpace.responseDto;
 
 import java.time.LocalDateTime;
 

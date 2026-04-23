@@ -1,4 +1,4 @@
-package RentSpace.dto.responseDto;
+package RentSpace.responseDto;
 
 import RentSpace.entity.Property;
 import RentSpace.entity.User.role;
@@ -13,7 +13,6 @@ public class UserResponseDto {
     
     private String name;
     private String email;
-    private String password;
     private String phone;
      
     private role role;
@@ -64,14 +63,6 @@ public class UserResponseDto {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getPhone() {

@@ -1,20 +1,23 @@
 package RentSpace.service;
 
+import RentSpace.Exception.UserNotFoundException;
 import RentSpace.requestDtos.User.UserProfileUpdateRequestDto;
 import RentSpace.requestDtos.User.UserLoginRequestDto;
 import RentSpace.requestDtos.User.UpdateCredentailsRequestDto;
 import RentSpace.requestDtos.User.UserSignupReqDto;
 import RentSpace.requestDtos.User.UserDetailsRequestDto;
-import RentSpace.dto.responseDto.LoginUserResponseDto;
-import RentSpace.dto.responseDto.UserResponseDto;
+import RentSpace.responseDto.LoginUserResponseDto;
+import RentSpace.responseDto.UserResponseDto;
 import RentSpace.entity.Property;
 import RentSpace.entity.User;
 import RentSpace.entityResponseMapper.UserResponseMapper;
 import RentSpace.repository.UserRepository;
 import RentSpace.requestDtos.User.OwnerDetailsRequestDto;
+import RentSpace.requestDtos.User.OwnerProfileUpdateDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -71,7 +74,7 @@ public class UserService {
     // Find User by Id
     public UserResponseDto fetchUserById(Long id){
         User user = userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with Id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with Id: " + id));
         
         return UserResponseMapper.mapToUserResponseDto(user);
     }
@@ -91,7 +94,7 @@ public class UserService {
         if(PasswordEncoder.matches(request.getPassword(), user.getPassword())){
             return  "LoggedIn success user: " + user.getName();
         }else{
-            throw new RuntimeException("Invalid password");
+            throw new RuntimeException("Wrong password");
         }
   
     }
@@ -112,7 +115,7 @@ public class UserService {
 
             userRepo.save(user);            
         }else{
-            throw new RuntimeException("User not found with Id: " + id);
+            throw new UserNotFoundException("User not found with Id: " + id);
         } 
 
     }
@@ -121,23 +124,22 @@ public class UserService {
     public void addOwnerProfileDetails(OwnerDetailsRequestDto request, Long id){
         
         User owner = userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Wrong Id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Wrong Id: " + id));
         
             owner.setPhone(request.getPhone());
             owner.setAddress(request.getAddress());
             owner.setAadhaarNumber(request.getAadhaarNumber());
-            owner.setUpdatedDate(LocalDateTime.now());
             owner.setEmergencyContect(request.getEmergencyContect());
             owner.setCompanyName(request.getCompanyName());
-
+            owner.setUpdatedDate(LocalDateTime.now());
             userRepo.save(owner);            
 
     }    
     
     // Update user profile details
-    public void updateProfile(UserProfileUpdateRequestDto request, Long id){
+    public void updateOwnerProfile(OwnerProfileUpdateDto request, Long id){
         User owner = userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Wrong owner Id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("Wrong owner Id: " + id));
         
             owner.setName(request.getName());
             owner.setEmail(request.getEmail());
@@ -149,7 +151,26 @@ public class UserService {
             owner.setUpdatedDate(LocalDateTime.now());
                  
             userRepo.save(owner);
+    }
+    
+    
+    // Update owner profile
+    public void updateUserProfile(UserProfileUpdateRequestDto request, Long id){
+            User user = userRepo.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("Wrong user Id: " + id));
 
+        
+            user.setName(request.getName());
+            user.setEmail(request.getEmail());
+            user.setPhone(request.getPhone());
+            user.setAddress(request.getAddress());
+            user.setAadhaarNumber(request.getAadhaarNumber());
+            user.setEmergencyContect(request.getEmergencyContect()); 
+            user.setUpdatedDate(LocalDateTime.now());
+                 
+            userRepo.save(user);
+                
+        
     }
     
     // Update Credentails of the user
@@ -166,7 +187,7 @@ public class UserService {
                 throw new RuntimeException("Old password missmatch");
             }
         } else{
-            throw new RuntimeException("User not found with Id: " + id);
+            throw new UserNotFoundException("User not found with Id: " + id);
         }
         
         
@@ -175,7 +196,7 @@ public class UserService {
     // Delete user
     public void deleteUser(Long id){
         User user = userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with Id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with Id: " + id));
         userRepo.delete(user);
     }
 

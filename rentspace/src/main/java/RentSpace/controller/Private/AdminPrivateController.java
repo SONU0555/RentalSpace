@@ -51,21 +51,13 @@ public class AdminPrivateController {
     
     @GetMapping("/user/find")
     public ResponseEntity<?> findUserById(@RequestParam Long id){
-        try{
             return ResponseEntity.ok(userService.fetchUserById(id));
-        }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
     }    
     
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUser(@RequestParam Long id){
-        try{
             userService.deleteUser(id);
             return new ResponseEntity<>("Deleted added", HttpStatus.OK);
-        }catch(Exception e){
-            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.NOT_FOUND);
-        }        
     }
 
 }

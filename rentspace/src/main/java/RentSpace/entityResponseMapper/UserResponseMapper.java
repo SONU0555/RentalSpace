@@ -1,7 +1,7 @@
 package RentSpace.entityResponseMapper;
 
-import RentSpace.dto.responseDto.LoginUserResponseDto;
-import RentSpace.dto.responseDto.UserResponseDto;
+import RentSpace.responseDto.LoginUserResponseDto;
+import RentSpace.responseDto.UserResponseDto;
 import RentSpace.entity.User;
 
 
