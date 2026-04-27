@@ -4,6 +4,7 @@ import RentSpace.requestDtos.User.OwnerDetailsRequestDto;
 import RentSpace.requestDtos.User.OwnerProfileUpdateDto;
 import RentSpace.requestDtos.User.UserDetailsRequestDto;
 import RentSpace.requestDtos.User.UserProfileUpdateRequestDto;
+import RentSpace.responseDto.UserResponseDto;
 import RentSpace.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +31,8 @@ public class OwnerPrivateController {
     }
     
     @GetMapping("/view")
-    public ResponseEntity<?> viewOwnerProfile(){
-        return new ResponseEntity<>(userService.fetchUserByUserName(), HttpStatus.OK);
+    public ResponseEntity<?> viewOwnerProfile(@RequestParam Long id){
+        return new ResponseEntity<>(userService.fetchUserById(id), HttpStatus.OK);
     }
     
     @PostMapping("/create-profile")
@@ -45,5 +46,8 @@ public class OwnerPrivateController {
              userService.updateOwnerProfile(request, id);
              return new ResponseEntity<>("Profile successfully updated", HttpStatus.ACCEPTED);
     }
+    
+//    @GetMapping("/view-tenants")
+//    public ResponseEntity<UserResponseDto> viewAllTenants()
 
 }

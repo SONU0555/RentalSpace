@@ -46,6 +46,10 @@ public class User {
     
     @OneToMany(mappedBy = "owner")
     private List<Property> properties;
+    
+    @OneToMany(mappedBy = "tenant")
+    private List<Property> tenantProperties;
+
     private String emergencyContect;
     
     //Owner field
@@ -169,6 +173,14 @@ public class User {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public List<Property> getTenantProperties() {
+        return tenantProperties;
+    }
+
+    public void setTenantProperties(List<Property> tenantProperties) {
+        this.tenantProperties = tenantProperties;
     }
 
 }

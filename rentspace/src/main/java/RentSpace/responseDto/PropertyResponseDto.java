@@ -1,44 +1,20 @@
-package RentSpace.entity;
+package RentSpace.responseDto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import RentSpace.entity.Property.Status;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "properties")
-public class Property {
+
+public class PropertyResponseDto {
     
-    public enum Status{
-        AVAILABLE,
-        RENTED;
-    }
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     private String title;
     private String description;
     private String location;
     private BigDecimal price;
-    
     private Status status;
-    
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
-    
-    @ManyToOne
-    @JoinColumn(name = "tenant_id")
-    private User tenant;
+    private Long owner;
     
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -91,11 +67,11 @@ public class Property {
         this.status = status;
     }
 
-    public User getOwner() {
+    public Long getOwner() {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(Long owner) {
         this.owner = owner;
     }
 
@@ -114,13 +90,7 @@ public class Property {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-
-    public User getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(User tenant) {
-        this.tenant = tenant;
-    }
+    
+    
 
 }

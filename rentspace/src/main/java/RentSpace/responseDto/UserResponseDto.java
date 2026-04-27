@@ -26,7 +26,7 @@ public class UserResponseDto {
     private String aadhaarNumber;
     private LocalDate rentStartDate;
     private LocalDate rentEndDate;
-    private List<Property> properties;
+    private List<PropertyResponseDto> properties;
     private String emergencyContect;
     
     private String companyName;
@@ -129,11 +129,11 @@ public class UserResponseDto {
         this.rentEndDate = rentEndDate;
     }
 
-    public List<Property> getProperties() {
+    public List<PropertyResponseDto> getProperties() {
         return properties;
     }
 
-    public void setProperties(List<Property> properties) {
+    public void setProperties(List<PropertyResponseDto> properties) {
         this.properties = properties;
     }
 

@@ -1,20 +1,28 @@
 package RentSpace.Exception;
 
 import RentSpace.responseDto.ErrorResponseDto;
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
+    
+    public static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     
     // Handle specific custom exception
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponseDto> handleUserNotFound(UserNotFoundException ex){
+        
+        logger.info("Creating exception for user not found");
+        
         ErrorResponseDto error = new ErrorResponseDto();
         error.setStatus(HttpStatus.NOT_FOUND.value());
         error.setMessage(ex.getMessage());
@@ -46,6 +54,17 @@ public class GlobalExceptionHandler {
         );
         
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+    
+    // Handle unauthorized access denied exceptions
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDto> handleAccessDeniedException(AccessDeniedException ex){
+        ErrorResponseDto error = new ErrorResponseDto();
+        error.setStatus(HttpStatus.FORBIDDEN.value());
+        error.setMessage(ex.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+        
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
 }

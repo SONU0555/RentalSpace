@@ -1,5 +1,6 @@
 package RentSpace.requestDtos.Property;
 
+import RentSpace.entity.Property;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -8,6 +9,7 @@ import java.math.BigDecimal;
 
 
 public class AddPropertyDto {
+    
     
     @NotBlank(message = "Title is required")
     private String title;
@@ -22,6 +24,9 @@ public class AddPropertyDto {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     @Digits(integer = 10, fraction = 2, message = "Price must have at most 2 decimal places")
     private BigDecimal price;
+    
+    @NotBlank(message = "Property status is required")
+    private String status;
 
     public String getTitle() {
         return title;
@@ -55,6 +60,12 @@ public class AddPropertyDto {
         this.price = price;
     }
 
-    
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+            this.status = status.trim().toUpperCase();
+    }
 
 }

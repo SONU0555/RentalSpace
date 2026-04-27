@@ -34,7 +34,7 @@ public class SpringSecurity {
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(myUserDetails);
         provider.setPasswordEncoder(passwordEncoder());
-        
+                
         return provider;
     }
 

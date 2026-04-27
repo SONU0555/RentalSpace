@@ -1,14 +1,9 @@
 package RentSpace.service;
 
 import RentSpace.Exception.UserNotFoundException;
-import RentSpace.requestDtos.User.UserProfileUpdateRequestDto;
-import RentSpace.requestDtos.User.UserLoginRequestDto;
-import RentSpace.requestDtos.User.UpdateCredentailsRequestDto;
-import RentSpace.requestDtos.User.UserSignupReqDto;
-import RentSpace.requestDtos.User.UserDetailsRequestDto;
+import RentSpace.requestDtos.User.*;
 import RentSpace.responseDto.LoginUserResponseDto;
 import RentSpace.responseDto.UserResponseDto;
-import RentSpace.entity.Property;
 import RentSpace.entity.User;
 import RentSpace.entityResponseMapper.UserResponseMapper;
 import RentSpace.repository.UserRepository;
@@ -17,9 +12,9 @@ import RentSpace.requestDtos.User.OwnerProfileUpdateDto;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -80,12 +75,12 @@ public class UserService {
     }
     
     // Find user by username
-    public UserResponseDto fetchUserByUserName(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepo.findByEmail(authentication.getName());
-        
-        return fetchUserById(user.getId());
-    }
+//    public UserResponseDto fetchUserByUserName(){
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        User user = userRepo.findByEmail(authentication.getName());
+//        
+//        return fetchUserById(user.getId());
+//    }
     
     // Login back existing user
     public String login(UserLoginRequestDto request){
@@ -136,7 +131,7 @@ public class UserService {
 
     }    
     
-    // Update user profile details
+    // Update Owner profile details
     public void updateOwnerProfile(OwnerProfileUpdateDto request, Long id){
         User owner = userRepo.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Wrong owner Id: " + id));
@@ -154,12 +149,16 @@ public class UserService {
     }
     
     
-    // Update owner profile
+    // Update user profile
     public void updateUserProfile(UserProfileUpdateRequestDto request, Long id){
-            User user = userRepo.findById(id)
+        // get user if exist with this Id
+        User user = userRepo.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Wrong user Id: " + id));
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User authUser = userRepo.findByEmail(authentication.getName());            
         
+        if(authUser.getId().equals(id)){
             user.setName(request.getName());
             user.setEmail(request.getEmail());
             user.setPhone(request.getPhone());
@@ -168,9 +167,11 @@ public class UserService {
             user.setEmergencyContect(request.getEmergencyContect()); 
             user.setUpdatedDate(LocalDateTime.now());
                  
-            userRepo.save(user);
-                
-        
+            userRepo.save(user); 
+        }else{
+            throw new AccessDeniedException("Given Id dosen't matches with requested user Id");
+        }
+
     }
     
     // Update Credentails of the user
