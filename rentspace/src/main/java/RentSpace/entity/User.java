@@ -49,6 +49,9 @@ public class User {
     
     @OneToMany(mappedBy = "tenant")
     private List<Property> tenantProperties;
+    
+    @OneToMany(mappedBy = "tenant")
+    private List<Booking> bookings;
 
     private String emergencyContect;
     
@@ -157,6 +160,14 @@ public class User {
 
     public void setProperties(List<Property> properties) {
         this.properties = properties;
+    }
+
+    public List<Booking> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
     }
 
     public String getEmergencyContect() {

@@ -26,11 +26,11 @@ public class Booking {
     private int id;
     
     @ManyToOne
-    @JoinColumn(name = "tenant_id")
+    @JoinColumn(name = "tenant_id", nullable = false)
     private User tenant;
     
     @ManyToOne
-    @JoinColumn(name = "property_id")
+    @JoinColumn(name = "property_id", nullable = false)
     private Property property;
     
     private LocalDate startDate;

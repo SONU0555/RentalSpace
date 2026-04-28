@@ -8,9 +8,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "properties")
@@ -39,6 +41,9 @@ public class Property {
     @ManyToOne
     @JoinColumn(name = "tenant_id")
     private User tenant;
+    
+    @OneToMany(mappedBy = "property")
+    private List<Booking> bookings;
     
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -121,6 +126,14 @@ public class Property {
 
     public void setTenant(User tenant) {
         this.tenant = tenant;
+    }
+
+    public List<Booking> getBookings() {
+        return bookings;
+    }
+
+    public void setBookings(List<Booking> bookings) {
+        this.bookings = bookings;
     }
 
 }
