@@ -44,9 +44,9 @@ public class SpringSecurity {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/public/user/**").permitAll()
+                        .requestMatchers("/public/user/**", "/public/property/**").permitAll()
                         .requestMatchers("/private/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/private/owner/**", "/property/**").hasAnyRole("ADMIN","OWNER")
+                        .requestMatchers("/private/owner/**", "/private/property/**").hasAnyRole("ADMIN","OWNER")
                         .anyRequest().authenticated()
                 )
                         .sessionManagement(session -> session
