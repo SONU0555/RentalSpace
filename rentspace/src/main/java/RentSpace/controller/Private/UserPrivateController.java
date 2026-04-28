@@ -51,15 +51,5 @@ public class UserPrivateController {
     public ResponseEntity<?> deleteByUserName(@RequestParam Long id){
             userService.deleteUser(id);
             return new ResponseEntity<>("Deleted added", HttpStatus.OK);     
-    }
-    
-    @GetMapping("/view-property") // It will return all properties of single specific owner
-    public ResponseEntity<List<PropertyResponseDto>> viewPropertyOfSingleOwner(@RequestParam Long ownerId){
-        return new ResponseEntity<>(propertyService.getPropertiesOfSingleOwner(ownerId), HttpStatus.OK);
-    }
-    
-    @GetMapping("/view-property") // It will return all properties of entire owners 
-    public ResponseEntity<List<PropertyResponseDto>> viewPropertyOfAllOwners(){
-        return new ResponseEntity<>(propertyService.getPropertiesOfAllOwners(), HttpStatus.OK);
-    }    
+    }  
 }
