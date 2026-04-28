@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/property")
+@RequestMapping("/private/property")
 public class PropertyController {
     
     public static final Logger logger = LoggerFactory.getLogger(PropertyController.class);
@@ -52,16 +52,6 @@ public class PropertyController {
     public ResponseEntity<?> deleteProperty(@RequestParam Long ownerId, @RequestParam Long propertyId){
         propertyService.deleteOwnerProperty(ownerId, propertyId);
         return new ResponseEntity<>("Property deleted successfully", HttpStatus.OK);
-    }
-    
-    @GetMapping("/view") // It will return all properties of single specific owner
-    public ResponseEntity<List<PropertyResponseDto>> viewPropertyOfSingleOwner(@RequestParam Long ownerId){
-        return new ResponseEntity<>(propertyService.getPropertiesOfSingleOwner(ownerId), HttpStatus.OK);
-    }
-    
-    @GetMapping("/view") // It will return all properties of entire owners 
-    public ResponseEntity<List<PropertyResponseDto>> viewPropertyOfAllOwners(){
-        return new ResponseEntity<>(propertyService.getPropertiesOfAllOwners(), HttpStatus.OK);
     }
 
 }
