@@ -1,0 +1,55 @@
+package rentalSpacePortfolio.mapper;
+
+import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
+import rentalSpacePortfolio.entity.User;
+//import RentSpace.Booking.BookingResponseMapper;
+import java.util.List;
+import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
+import rentalSpacePortfolio.entity.Admin;
+import rentalSpacePortfolio.entity.Tenant;
+
+
+public class UserResponseMapper {
+    
+//    public static LoginUserResponseDto mapToLoginResponseDto(User user){
+//        LoginUserResponseDto response = new LoginUserResponseDto();
+//        response.setId(user.getId());
+//        response.setName(user.getFull_name());
+//        response.setEmail(user.getEmail());
+//        response.setCreatedDate(user.getCreatedDate());
+//        response.setUpdatedDate(user.getUpdatedDate());
+//        
+//        return response;
+//    }
+    
+        public static TenantSummaryResponse mapToTenatResponseDto(Tenant tenant){
+        TenantSummaryResponse response = new TenantSummaryResponse();
+        response.setId(tenant.getUser().getId().toString());
+        response.setFull_name(tenant.getUser().getFull_name());
+        response.setEmail(tenant.getUser().getEmail());
+        response.setPhone(tenant.getUser().getPhone());
+        response.setEmergencyContect(tenant.getEmergencyContect());
+        response.setRentStartDate(tenant.getRentStartDate());
+        response.setRentEndDate(tenant.getRentEndDate());
+        response.setCreatedDate(tenant.getUser().getCreatedAt());
+        response.setUpdatedDate(tenant.getUser().getUpdatedAt());
+        
+        return response;
+    }
+        
+        
+//     map user Entity to AdminSummaryDto
+    public static AdminSummaryResponse mapUserToAdminSummaryDto(Admin admin){
+        AdminSummaryResponse response = new AdminSummaryResponse();
+        response.setId(admin.getAdmin().getId().toString());
+        response.setFull_name(admin.getAdmin().getFull_name());
+        response.setEmail(admin.getAdmin().getEmail());
+        response.setPhone(admin.getAdmin().getPhone());
+//        response.setProperty_assigned(admin.getProperty().getId());
+        response.setCreatedDate(admin.getAdmin().getCreatedAt());
+        response.setUpdatedDate(admin.getAdmin().getUpdatedAt());
+        
+        return response;
+    }
+
+}
