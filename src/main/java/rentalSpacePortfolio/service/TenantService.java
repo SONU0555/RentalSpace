@@ -1,20 +1,16 @@
 package rentalSpacePortfolio.service;
 
-import rentalSpacePortfolio.dto.request.tenant.DetailsRequest;
 import rentalSpacePortfolio.dto.request.tenant.ProfileUpdateRequest;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
 import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
 import rentalSpacePortfolio.exception.UserNotFoundException;
-import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.mapper.TenantResponseMapper;
@@ -27,8 +23,8 @@ public class TenantService {
     
     private final static Logger logger = LoggerFactory.getLogger(TenantService.class);
     
-    public final UserRepository userRepo;
-    public final TenantRepository tenantRepo;
+    private final UserRepository userRepo;
+    private final TenantRepository tenantRepo;
     
     @Autowired
     public TenantService(UserRepository userRepo,
@@ -38,7 +34,7 @@ public class TenantService {
     }
     
     // Service to get tenant Dashboard
-    public DashboardResponse getTenantDashboard(String tenantId){
+    public DashboardResponse getTenantDashboard(UUID tenantId){
         Tenant tenant = tenantRepo.findByUserId(tenantId)
                 .orElseThrow(() -> new UserNotFoundException("Tenant not found with ID: " + tenantId));
         
@@ -46,11 +42,11 @@ public class TenantService {
     }
     
     // Service to get tenant profile
-    public ProfileResponse getTenantProfile(String tenantId){
-        Tenant tenant = tenantRepo.findByUserId(tenantId)
-                .orElseThrow(() -> new UserNotFoundException("Tenant not found with ID: " + tenantId));
+    public ProfileResponse getTenantProfile(UUID userId){
+        User user = userRepo.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found for tenants ID: " + userId));
         
-        return TenantResponseMapper.mapToProfileResponse(tenant);
+        return TenantResponseMapper.mapToProfileResponse(user.getTenant());
     }
     
     // Add user personal details
@@ -75,7 +71,7 @@ public class TenantService {
 //    }
     
 //     Update user profile
-    public void updateTenantProfile(ProfileUpdateRequest request, String tenantId){
+    public void updateTenantProfile(ProfileUpdateRequest request, UUID tenantId){
         // get user if exist with this Id
         
         logger.info("Processing of updating user profile");
@@ -88,7 +84,6 @@ public class TenantService {
            request.getPhone().ifPresent(tenant::setPhone);
                  
             userRepo.save(tenant); 
-    
     }
-
+    
 }
