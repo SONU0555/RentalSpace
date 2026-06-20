@@ -10,21 +10,31 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import rentalSpacePortfolio.dto.request.user.UpdateCredentailsRequest;
 import rentalSpacePortfolio.dto.request.auth.RegisterRequest;
+import rentalSpacePortfolio.entity.Admin;
+import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.enums.Role;
+import rentalSpacePortfolio.repository.AdminRepository;
+import rentalSpacePortfolio.repository.TenantRepository;
 import rentalSpacePortfolio.repository.UserRepository;
 
 
 @Service
 public class AuthService {
     
-    public UserRepository userRepo;
+    private final UserRepository userRepo;
+    private final AdminRepository adminRepo;
+    private final TenantRepository tenantRepo;
     public PasswordEncoder passwordEncoder;
     
     @Autowired
     public AuthService(UserRepository userRepo,
+            AdminRepository adminRepo,
+            TenantRepository tenantRepo,
             PasswordEncoder passwordEncoder){
         this.userRepo = userRepo;
+        this.adminRepo = adminRepo;
+        this.tenantRepo = tenantRepo;
         this.passwordEncoder = passwordEncoder;
     }
     
@@ -49,6 +59,15 @@ public class AuthService {
             throw new RuntimeException("Duplicate owner creation exception");
         }
         
+        Admin admin = null;
+        Tenant tenant = null;
+        
+        if(role.equalsIgnoreCase("ADMIN")){
+            admin = new Admin();
+        }else if(role.equalsIgnoreCase("TENANT")){
+            tenant = new Tenant();
+        }
+        
         User user = new User();
                 
         //Mapping Dto to Entity
@@ -60,7 +79,17 @@ public class AuthService {
                       case "OWNER"  -> Role.OWNER;
                       default       -> Role.TENANT;
         });
+        
         userRepo.save(user);
+        
+        if(admin != null){
+            admin.setAdmin(user);
+            adminRepo.save(admin);
+        }
+        if(tenant != null){
+            tenant.setUser(user);
+            tenantRepo.save(tenant);
+        }
     }
     
     // Login back existing user
