@@ -3,6 +3,7 @@ package rentalSpacePortfolio.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,6 @@ public interface UserRepository extends JpaRepository<User, Long>{
     User findOwnerByRole(@Param("role") Role role);
     
     @Query("SELECT u FROM User u WHERE u.id = :userId")
-    Optional<User> findByUserId(@Param("userId") String userId);
+    Optional<User> findByUserId(@Param("userId") UUID userId);
     
 }
