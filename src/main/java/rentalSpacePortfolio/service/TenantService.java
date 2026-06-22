@@ -1,19 +1,24 @@
 package rentalSpacePortfolio.service;
 
+import java.util.List;
 import rentalSpacePortfolio.dto.request.tenant.ProfileUpdateRequest;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
 import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
+import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.exception.UserNotFoundException;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.mapper.TenantResponseMapper;
+import rentalSpacePortfolio.mapper.UserResponseMapper;
 import rentalSpacePortfolio.repository.TenantRepository;
 import rentalSpacePortfolio.repository.UserRepository;
 
@@ -49,6 +54,23 @@ public class TenantService {
         return TenantResponseMapper.mapToProfileResponse(user.getTenant());
     }
     
+    // Service to get all tenants
+    public List<TenantSummaryResponse> getAllTenants(UUID userId){
+        
+        User user = userRepo.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        
+        List<Tenant> tenants = null;
+        
+        if(user.getRole().toString().equals("ADMIN")){
+            tenants = tenantRepo.findAllTenantByPropertyId(12l);
+        }
+        tenants = tenantRepo.findAll();
+        
+        return tenants.stream().map(tenant -> UserResponseMapper.mapToTenatResponseDto(tenant))
+                .collect(Collectors.toList());
+    } 
+    
     // Add user personal details
 //    public void addTenantProfile(DetailsRequest request, Long id){
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -71,19 +93,22 @@ public class TenantService {
 //    }
     
 //     Update user profile
+    @Transactional
     public void updateTenantProfile(ProfileUpdateRequest request, UUID tenantId){
         // get user if exist with this Id
         
         logger.info("Processing of updating user profile");
         
-        User tenant = userRepo.findByUserId(tenantId)
+        User user = userRepo.findByUserId(tenantId)
                 .orElseThrow(() -> new UserNotFoundException("Wrong user Id: " + tenantId));  
         
-           request.getFull_name().ifPresent(tenant::setFull_name);
-           request.getEmail().ifPresent(tenant::setEmail);
-           request.getPhone().ifPresent(tenant::setPhone);
+        Tenant tenant = user.getTenant();
+        
+           request.getPhone().ifPresent(user::setPhone);
+           request.getEmergencyContect().ifPresent(tenant::setEmergencyContect);
                  
-            userRepo.save(tenant); 
+            userRepo.save(user); 
+            tenantRepo.save(tenant);
     }
     
 }
