@@ -3,14 +3,19 @@ package rentalSpacePortfolio.auth;
 import rentalSpacePortfolio.dto.request.auth.LoginRequest;
 import rentalSpacePortfolio.dto.request.auth.RegisterRequest;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
 import rentalSpacePortfolio.exception.BadRequestException;
+import rentalSpacePortfolio.security.SecurityUnits;
 
 
 @RestController
@@ -34,6 +39,17 @@ public class AuthController {
             throw new BadRequestException(e.getMessage());
         }
     }
+    
+    @PostMapping("/create")
+    @PreAuthorize("hasRole('OWNER')")
+    public ResponseEntity<String> createAdminUser(@Valid @RequestBody RegisterRequest request){
+        try{
+            authService.createNewUser(request, "ADMIN");
+            return new ResponseEntity<>("Admin created",HttpStatus.CREATED);
+        }catch(Exception e){
+            throw new BadRequestException(e.getMessage());
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request){
@@ -42,6 +58,19 @@ public class AuthController {
             return ResponseEntity.ok(success);
         }catch (Exception e){
             return ResponseEntity.ok("FAILED: " + e.getMessage());
+        }
+    }
+    
+    // Change user password
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequest request){
+        
+        String userId = SecurityUnits.getCurrentUserId();
+        try{
+            authService.changeTenantPassword(request, UUID.fromString(userId));
+            return ResponseEntity.ok("Password successfully updated!");
+        }catch(Exception e){
+            throw new BadRequestException(e.getMessage());
         }
     }
 

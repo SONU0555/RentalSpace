@@ -1,6 +1,9 @@
 package rentalSpacePortfolio.auth;
 
 
+import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rentalSpacePortfolio.dto.request.auth.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -10,10 +13,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import rentalSpacePortfolio.dto.request.user.UpdateCredentailsRequest;
 import rentalSpacePortfolio.dto.request.auth.RegisterRequest;
+import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
 import rentalSpacePortfolio.entity.Admin;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.enums.Role;
+import rentalSpacePortfolio.exception.UserNotFoundException;
 import rentalSpacePortfolio.repository.AdminRepository;
 import rentalSpacePortfolio.repository.TenantRepository;
 import rentalSpacePortfolio.repository.UserRepository;
@@ -21,6 +26,8 @@ import rentalSpacePortfolio.repository.UserRepository;
 
 @Service
 public class AuthService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
     
     private final UserRepository userRepo;
     private final AdminRepository adminRepo;
@@ -48,6 +55,7 @@ public class AuthService {
         
         boolean isOwnerExist = false;
         
+        // Prevent to create duplicate owner
         if(role.equalsIgnoreCase("OWNER")){
             User owner = userRepo.findOwnerByRole(Role.OWNER);
             if(owner != null){
@@ -82,6 +90,7 @@ public class AuthService {
         
         userRepo.save(user);
         
+        // To store the reference key of user table in admin or tenant table
         if(admin != null){
             admin.setAdmin(user);
             adminRepo.save(admin);
@@ -102,6 +111,29 @@ public class AuthService {
             throw new RuntimeException("Wrong password");
         }
     }
+    
+    // Change password credential of the user
+    public void changeTenantPassword(ChangePasswordRequest request, UUID userId){
+        
+        logger.info("Changing tenant password credentials");
+
+           User user = userRepo.findByUserId(userId)
+                   .orElseThrow(() -> new UserNotFoundException("User not found with Id: " + userId));
+           
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
+              throw new IllegalArgumentException("Current password is incorrect");
+        }
+        if(user.getPassword().equals(request.getNewPassword())){
+            throw new IllegalArgumentException("New password must be differnt form current password");
+        }
+        if(!request.getConfirmPassword().equals(request.getNewPassword())){
+            throw new IllegalArgumentException("New password and confirm password do not match");
+        }
+        
+        user.setPassword(passwordEncoder.encode(request.getConfirmPassword()));
+        userRepo.save(user);
+    }
+
     
     // Update Credentails of the user
     public void updateCredential(UpdateCredentailsRequest request){
