@@ -8,6 +8,8 @@ public class ProfileResponse {
     private String email;
     private String phone;
     private String emergencyContect;
+    private String isVarified;
+    private String role;
 
     public String getFull_name() {
         return full_name;
@@ -39,6 +41,22 @@ public class ProfileResponse {
 
     public void setEmergencyContect(String alternate_phone) {
         this.emergencyContect = alternate_phone;
+    }
+
+    public String getIsVarified() {
+        return isVarified;
+    }
+
+    public void setIsVarified(String isVarified) {
+        this.isVarified = isVarified;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
     
 }
