@@ -9,37 +9,38 @@ import java.util.Optional;
 
 public class ProfileUpdateRequest{
     
-    private Optional<String> full_name = Optional.empty();
+    @NotBlank(message = "Name is required")
+    private String full_name;
     
+    @NotBlank(message = "Email is required")
     @Email(message = "Please provide a valid email")
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@(.+)$", 
              message = "Email must be valid format")
-    private Optional<String> email = Optional.empty();
+    private String email;
     
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invlid phone number")
     private Optional<String> phone  = Optional.empty();
     
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invlid phone number")
+    private Optional<String> emergencyContect  = Optional.empty();
+    
 //    @NotBlank(message = "Aadhaar number is required")
 //    @Pattern(regexp = "^[2-9]{1}[0-9]{11}$", message = "Invalid aadhaar number")
 //    private String aadhaarNumber;
-//    
-//    @NotBlank(message = "Emergency contact is required")
-//    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid emergency contact number")    
-//    private Optional<String> emergencyContect  = Optional.empty();  
 
-    public Optional<String> getFull_name() {
+    public String getFull_name() {
         return full_name;
     }
 
-    public void setFull_name(Optional<String> full_name) {
+    public void setFull_name(String full_name) {
         this.full_name = full_name;
     }
 
-    public Optional<String> getEmail() {
+    public String getEmail() {
         return email;
     }
 
-    public void setEmail(Optional<String> email) {
+    public void setEmail(String email) {
         this.email = email;
     }
 
@@ -51,14 +52,13 @@ public class ProfileUpdateRequest{
         this.phone = phone;
     }
 
-//    public Optional<String> getEmergencyContect() {
-//        return emergencyContect;
-//    }
-//
-//    public void setEmergencyContect(Optional<String> emergencyContect) {
-//        this.emergencyContect = emergencyContect;
-//    }
-//  
+    public Optional<String> getEmergencyContect() {
+        return emergencyContect;
+    }
+
+    public void setEmergencyContect(Optional<String> emergencyContect) {
+        this.emergencyContect = emergencyContect;
+    }
     
 
 }
