@@ -2,15 +2,18 @@ package rentalSpacePortfolio.controller;
 
 import rentalSpacePortfolio.dto.request.tenant.ProfileUpdateRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
 import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
+import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.exception.BadRequestException;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.TenantService;
@@ -46,6 +49,21 @@ public class TenantController {
             ProfileResponse profile = tenantService.getTenantProfile(UUID.fromString(userId));
             return new ResponseEntity<>(profile, HttpStatus.OK);
     }
+
+    @GetMapping // endpoint to get all admins
+    @PreAuthorize("hasRole('ADMIN','OWNER')")
+    public ResponseEntity<List<TenantSummaryResponse>> getAllTenants(){
+        
+        String userId = SecurityUnits.getCurrentUserId();
+        
+        return new ResponseEntity<>(tenantService.getAllTenants(UUID.fromString(userId)), HttpStatus.OK);
+    }
+    
+    @GetMapping("/{tenantId}")
+    @PreAuthorize("hasRole('ADMIN','OWNER')")
+    public ResponseEntity<TenantSummaryResponse> getTenantById(@PathVariable UUID tenantId){
+        return new ResponseEntity<>(userCommonService.getTenantById(tenantId), HttpStatus.OK);
+    }
     
     
     // Update users profile details
@@ -56,19 +74,6 @@ public class TenantController {
         
              tenantService.updateTenantProfile(request, UUID.fromString(userId));
              return new ResponseEntity<>("Profile successfully updated", HttpStatus.ACCEPTED);
-    }
-    
-    // Change user password
-    @PutMapping("/change-password")
-    public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordRequest request){
-        
-        String userId = SecurityUnits.getCurrentUserId();
-        try{
-            userCommonService.changeTenantPassword(request, UUID.fromString(userId));
-            return ResponseEntity.ok("Change password successfull");
-        }catch(Exception e){
-            throw new BadRequestException(e.getMessage());
-        }
     }
     
 }
