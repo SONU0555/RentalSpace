@@ -47,35 +47,4 @@ public class UserCommonService {
         
         return UserResponseMapper.mapToTenatResponseDto(tenant);
     }
-    
-    // Service to get admin by id to view admin details
-    public AdminSummaryResponse getAdminById(UUID adminId){
-        Admin admin = adminRepo.findByUserId(adminId)
-                .orElseThrow(() -> new UserNotFoundException("Admin not found with ID: " + adminId));
-        
-        return UserResponseMapper.mapUserToAdminSummaryDto(admin);
-    }
-    
-    // Change password credential of the user
-    public void changeTenantPassword(ChangePasswordRequest request, UUID userId){
-        
-        logger.info("Changing tenant password credentials");
-
-           User user = userRepo.findByUserId(userId)
-                   .orElseThrow(() -> new UserNotFoundException("User not found with Id: " + userId));
-           
-        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-              throw new IllegalArgumentException("Current password is incorrect");
-        }
-        if(user.getPassword().equals(request.getNewPassword())){
-            throw new IllegalArgumentException("New password must be differnt form current password");
-        }
-        if(!request.getConfirmPassword().equals(request.getNewPassword())){
-            throw new IllegalArgumentException("New password and confirm password do not match");
-        }
-        
-        user.setPassword(passwordEncoder.encode(request.getConfirmPassword()));
-        userRepo.save(user);
-    }
-
 }
