@@ -32,7 +32,7 @@ public class AuthService {
     private final UserRepository userRepo;
     private final AdminRepository adminRepo;
     private final TenantRepository tenantRepo;
-    public PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     
     @Autowired
     public AuthService(UserRepository userRepo,

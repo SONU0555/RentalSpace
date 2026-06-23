@@ -1,19 +1,11 @@
 package rentalSpacePortfolio.service;
 
-import rentalSpacePortfolio.dto.request.owner.DetailsRequest;
-import rentalSpacePortfolio.dto.request.owner.ProfileUpdateRequest;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import rentalSpacePortfolio.exception.UserNotFoundException;
-import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
-import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
-import rentalSpacePortfolio.entity.Admin;
-import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.entity.User;
-import rentalSpacePortfolio.enums.Role;
+import org.springframework.stereotype.Service;
+import rentalSpacePortfolio.dto.response.user.ProfileResponse;
+import rentalSpacePortfolio.exception.UserNotFoundException;
 import rentalSpacePortfolio.mapper.UserResponseMapper;
 import rentalSpacePortfolio.repository.AdminRepository;
 import rentalSpacePortfolio.repository.TenantRepository;
@@ -36,22 +28,13 @@ public class OwnerService {
         this.tenantRepo = tenantRepo;
     }
     
-    // Service to get all admins
-    public List<AdminSummaryResponse> getAllAdmins(){
-        List<Admin> admins = adminRepo.findAll();
+    // Service to get profile
+    public ProfileResponse getOwnerProfile(UUID userId){
+        User user = userRepo.findByUserId(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         
-        return admins.stream().map(admin -> UserResponseMapper.mapUserToAdminSummaryDto(admin))
-                .collect(Collectors.toList());
-    } 
-    
-    // Service to get all tenants
-    public List<TenantSummaryResponse> getAllTenants(){
-        List<Tenant> tenants = tenantRepo.findAll();
-        
-        return tenants.stream().map(tenant -> UserResponseMapper.mapToTenatResponseDto(tenant))
-                .collect(Collectors.toList());
-    } 
-    
+        return UserResponseMapper.mapToOwnerProfile(user);
+    }
     
     // Add Owner personal details
 //    public void addOwnerProfileDetails(DetailsRequest request, Long id){
