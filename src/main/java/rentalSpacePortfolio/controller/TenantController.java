@@ -6,21 +6,20 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
+import rentalSpacePortfolio.constants.ApiPaths;
+import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
-import rentalSpacePortfolio.exception.BadRequestException;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.TenantService;
 import rentalSpacePortfolio.service.UserCommonService;
 
 @RestController
-@RequestMapping("/api/tenants")
+@RequestMapping(ApiPaths.BASE + "/tenants")
 public class TenantController {
     
     private final TenantService tenantService;
@@ -42,12 +41,12 @@ public class TenantController {
     }
     
     @GetMapping("/profile") // View user profile
-    public ResponseEntity<ProfileResponse> getProfile(){
+    public ResponseEntity<ApiResponse<ProfileResponse>> getProfile(){
         
             String userId = SecurityUnits.getCurrentUserId();
         
             ProfileResponse profile = tenantService.getTenantProfile(UUID.fromString(userId));
-            return new ResponseEntity<>(profile, HttpStatus.OK);
+            return ResponseEntity.ok(ApiResponse.success("Profile fetched successfully", profile));
     }
 
     @GetMapping // endpoint to get all admins
@@ -61,14 +60,15 @@ public class TenantController {
     
     @GetMapping("/{tenantId}")
     @PreAuthorize("hasRole('ADMIN','OWNER')")
-    public ResponseEntity<TenantSummaryResponse> getTenantById(@PathVariable UUID tenantId){
-        return new ResponseEntity<>(userCommonService.getTenantById(tenantId), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<TenantSummaryResponse>> getTenantById(@PathVariable UUID tenantId){
+        TenantSummaryResponse tenant = userCommonService.getTenantById(tenantId);
+        return ResponseEntity.ok(ApiResponse.success("Admin fetched by Id successfully", tenant));
     }
     
     
     // Update users profile details
     @PatchMapping("/profile")
-    public ResponseEntity<?> updateProfile(@Valid @RequestBody ProfileUpdateRequest request){
+    public ResponseEntity<String> updateProfile(@Valid @RequestBody ProfileUpdateRequest request){
         
             String userId = SecurityUnits.getCurrentUserId();
         

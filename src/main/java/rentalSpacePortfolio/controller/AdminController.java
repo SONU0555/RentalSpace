@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rentalSpacePortfolio.auth.AuthService;
+import rentalSpacePortfolio.constants.ApiPaths;
+import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
 import rentalSpacePortfolio.dto.response.admin.ProfileResponse;
 import rentalSpacePortfolio.repository.UserRepository;
@@ -24,7 +26,7 @@ import rentalSpacePortfolio.service.AdminService;
 
 
 @RestController
-@RequestMapping("/api/admins")
+@RequestMapping(ApiPaths.BASE + "/admins")
 public class AdminController {
     
     private final AuthService authService;
@@ -45,12 +47,12 @@ public class AdminController {
     
     
     @GetMapping("/profile")
-    public ResponseEntity<ProfileResponse> getProfile(){
+    public ResponseEntity<ApiResponse<ProfileResponse>> getProfile(){
         
             String userId = SecurityUnits.getCurrentUserId();
             
             ProfileResponse profile = adminService.getAdminProfile(UUID.fromString(userId));
-            return new ResponseEntity<>(profile, HttpStatus.OK);
+            return ResponseEntity.ok(ApiResponse.success("Profile fetched successfully", profile));
     }
     
     @GetMapping // endpoint to get all admins
@@ -60,11 +62,11 @@ public class AdminController {
     }
     
     @GetMapping("/{adminId}")
-    public ResponseEntity<AdminSummaryResponse> getAdminById(@PathVariable UUID adminId){
+    public ResponseEntity<ApiResponse<AdminSummaryResponse>> getAdminById(@PathVariable UUID adminId){
         
         AdminSummaryResponse admin = adminService.getAdminById(adminId);
         
-        return new ResponseEntity<>(admin, HttpStatus.OK);
+        return ResponseEntity.ok(ApiResponse.success("Admin fetched by Id successfully", admin));
     }
     
     @DeleteMapping("/delete")
