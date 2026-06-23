@@ -16,6 +16,8 @@ public class TenantResponseMapper {
         response.setEmail(request.getUser().getEmail());
         response.setPhone(request.getUser().getPhone());
         response.setEmergencyContect(request.getEmergencyContect());
+        response.setIsVarified(request.getIsVerified() ? "VARIFIED" : "NOT-VARIFIED");
+        response.setRole(request.getUser().getRole().toString());
         
         return response;
     }

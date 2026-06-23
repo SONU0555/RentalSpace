@@ -2,8 +2,10 @@ package rentalSpacePortfolio.mapper;
 
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
+import rentalSpacePortfolio.dto.response.user.ProfileResponse;
 import rentalSpacePortfolio.entity.Admin;
 import rentalSpacePortfolio.entity.Tenant;
+import rentalSpacePortfolio.entity.User;
 
 
 public class UserResponseMapper {
@@ -57,6 +59,15 @@ public class UserResponseMapper {
         response.setEmail(admin.getAdmin().getEmail());
         response.setPhone(admin.getAdmin().getPhone());
         
+        return response;
+    }
+    
+    // map to owner profile response
+    public static ProfileResponse mapToOwnerProfile(User owner){
+        ProfileResponse response = new ProfileResponse();
+        response.setFullName(owner.getFull_name());
+        response.setEmail(owner.getEmail());
+        response.setRole(owner.getRole().toString());
         return response;
     }
 
