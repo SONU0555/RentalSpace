@@ -11,6 +11,7 @@ A real-time platform for managing property rentals, maintenance requests, and am
 - **Payment Integration** — online rent payments and transaction history
 - **Admin Dashboard** — manage properties, tenants, and maintenance staff from a central panel
 - **Tenant Dashboard** — track properties, amenity bookings, raised complains, and rent payment
+- **SuperAdmin Dashboard** — track and monitor add properties, admins, tenants, and rent payment
 
 ## Tech Stack
 
