@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import rentalSpacePortfolio.entity.User;
 import org.springframework.stereotype.Service;
 import rentalSpacePortfolio.dto.response.user.ProfileResponse;
-import rentalSpacePortfolio.exception.UserNotFoundException;
+import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.mapper.UserResponseMapper;
 import rentalSpacePortfolio.repository.AdminRepository;
 import rentalSpacePortfolio.repository.TenantRepository;
@@ -31,7 +31,7 @@ public class OwnerService {
     // Service to get profile
     public ProfileResponse getOwnerProfile(UUID userId){
         User user = userRepo.findByUserId(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         return UserResponseMapper.mapToOwnerProfile(user);
     }
@@ -40,7 +40,7 @@ public class OwnerService {
 //    public void addOwnerProfileDetails(DetailsRequest request, Long id){
 //        
 //        User owner = userRepo.findById(id)
-//                .orElseThrow(() -> new UserNotFoundException("Wrong Id: " + id));
+//                .orElseThrow(() -> new ResourceNotFoundException("Wrong Id: " + id));
 //        
 //            owner.setPhone(request.getPhone());
 //            owner.setAddress(request.getAddress());
@@ -55,7 +55,7 @@ public class OwnerService {
     // Update Owner profile details
 //    public void updateOwnerProfile(ProfileUpdateRequest request, Long id){
 //        User owner = userRepo.findById(id)
-//                .orElseThrow(() -> new UserNotFoundException("Wrong owner Id: " + id));
+//                .orElseThrow(() -> new ResourceNotFoundException("Wrong owner Id: " + id));
 //        
 //            owner.setFull_name(request.getName());
 //            owner.setEmail(request.getEmail());

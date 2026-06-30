@@ -14,7 +14,7 @@ import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
 import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
-import rentalSpacePortfolio.exception.UserNotFoundException;
+import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.mapper.TenantResponseMapper;
@@ -41,7 +41,7 @@ public class TenantService {
     // Service to get tenant Dashboard
     public DashboardResponse getTenantDashboard(UUID tenantId){
         Tenant tenant = tenantRepo.findByUserId(tenantId)
-                .orElseThrow(() -> new UserNotFoundException("Tenant not found with ID: " + tenantId));
+                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found with ID: " + tenantId));
         
         return TenantResponseMapper.mapToDashboardResponse(tenant);
     }
@@ -49,7 +49,7 @@ public class TenantService {
     // Service to get tenant profile
     public ProfileResponse getTenantProfile(UUID userId){
         User user = userRepo.findByUserId(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found for tenants ID: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for tenants ID: " + userId));
         
         return TenantResponseMapper.mapToProfileResponse(user.getTenant());
     }
@@ -58,7 +58,7 @@ public class TenantService {
     public List<TenantSummaryResponse> getAllTenants(UUID userId){
         
         User user = userRepo.findByUserId(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         List<Tenant> tenants = null;
         
@@ -88,7 +88,7 @@ public class TenantService {
 //
 //            userRepo.save(user);            
 //        }else{
-//            throw new UserNotFoundException("User not found with Id: " + id);
+//            throw new ResourceNotFoundException("User not found with Id: " + id);
 //        } 
 //    }
     
@@ -100,7 +100,7 @@ public class TenantService {
         logger.info("Processing of updating user profile");
         
         User user = userRepo.findByUserId(tenantId)
-                .orElseThrow(() -> new UserNotFoundException("Wrong user Id: " + tenantId));  
+                .orElseThrow(() -> new ResourceNotFoundException("Wrong user Id: " + tenantId));  
         
         Tenant tenant = user.getTenant();
         

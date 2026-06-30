@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
 import rentalSpacePortfolio.dto.response.admin.ProfileResponse;
 import rentalSpacePortfolio.entity.Admin;
-import rentalSpacePortfolio.exception.UserNotFoundException;
+import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.mapper.AdminResponseMapper;
 import rentalSpacePortfolio.mapper.UserResponseMapper;
@@ -36,7 +36,7 @@ public class AdminService {
     // Service to get admin profile
     public ProfileResponse getAdminProfile(UUID userId){
         User user = userRepo.findByUserId(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
         
         return AdminResponseMapper.mapToProfileResponse(user);
     }
@@ -57,7 +57,7 @@ public class AdminService {
                 -> auth.getAuthority().equals("ROLE_TENANT"));
         
         Admin admin = adminRepo.findByUserId(adminId)
-                .orElseThrow(() -> new UserNotFoundException("Admin not found with ID: " + adminId));
+                .orElseThrow(() -> new ResourceNotFoundException("Admin not found with ID: " + adminId));
         
         if(isTenant){
             return UserResponseMapper.mapUserToAdminSummaryDtoForTenant(admin);
@@ -70,7 +70,7 @@ public class AdminService {
     // Delete user
     public void deleteUser(Long id){
         User user = userRepo.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found with Id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + id));
         userRepo.delete(user);
     }
 
