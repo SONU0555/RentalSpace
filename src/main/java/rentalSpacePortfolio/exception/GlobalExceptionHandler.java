@@ -17,14 +17,18 @@ public class GlobalExceptionHandler {
     
     public static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     
-    // Handle user not found  exception
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> handleUserNotFound(UserNotFoundException ex){
+    // Handle Resource not found  exception
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleResourceNotFound(ResourceNotFoundException ex){
         
-        logger.info("Creating exception for user not found");
+        logger.info("Resource not found exception occure");
         
-        ErrorResponseDto response = handleErrorResponse(ex);
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        ErrorResponseDto error = new ErrorResponseDto();
+        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setMessage(ex.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+        
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
     
     // Handle generic exceptions
@@ -75,16 +79,16 @@ public class GlobalExceptionHandler {
     }
     
     
-    // Handle property not found exception
-//    @ExceptionHandler(PropertyNotAvailableException.class)
-//    public ResponseEntity<ErrorResponseDto> handlePropertyNotAvailableException(PropertyNotAvailableException ex){
-//        ErrorResponseDto error = new ErrorResponseDto();
-//        error.setStatus(HttpStatus.CONFLICT.value());
-//        error.setMessage(ex.getMessage());
-//        error.setTimeStamp(System.currentTimeMillis());
-//        
-//        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-//    }
+//     Handle add duplicate property exception
+    @ExceptionHandler(DuplicatePropertyException.class)
+    public ResponseEntity<ErrorResponseDto> HandleDuplicatePropertyException(DuplicatePropertyException ex){
+        ErrorResponseDto error = new ErrorResponseDto();
+        error.setStatus(HttpStatus.CONFLICT.value());
+        error.setMessage(ex.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+        
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
     
     // Handle property not found exception
 //    @ExceptionHandler(BookingNotFoundException.class)
@@ -110,14 +114,5 @@ public class GlobalExceptionHandler {
 //        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
 //    }
     
-    // Common method to create error response message for NOT_FOUND
-    private ErrorResponseDto handleErrorResponse(Exception ex){
-        ErrorResponseDto error = new ErrorResponseDto();
-        error.setStatus(HttpStatus.NOT_FOUND.value());
-        error.setMessage(ex.getMessage());
-        error.setTimeStamp(System.currentTimeMillis());
-        
-        return error;
-    }
 
 }
