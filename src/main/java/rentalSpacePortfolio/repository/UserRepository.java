@@ -12,13 +12,10 @@ import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.enums.Role;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, UUID>{
     User findByEmail(String email);
     
     @Query("SELECT r FROM User r WHERE r.role = :role")
     User findOwnerByRole(@Param("role") Role role);
-    
-    @Query("SELECT u FROM User u WHERE u.id = :userId")
-    Optional<User> findByUserId(@Param("userId") UUID userId);
     
 }

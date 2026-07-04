@@ -2,6 +2,8 @@ package rentalSpacePortfolio.entity;
 
 
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 import rentalSpacePortfolio.enums.Role;
 
 @Entity
@@ -24,9 +26,8 @@ public class User extends BaseEnity{
     @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Admin admin;
     
-    
-//    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    private List<Property> properties;
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Property> properties = new ArrayList<>();
     
 //    @OneToMany(mappedBy = "tenant", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 //    private List<Booking> bookings;
@@ -101,14 +102,13 @@ public class User extends BaseEnity{
         this.role = role;
     }
 
+    public List<Property> getProperties() {
+        return properties;
+    }
 
-//    public List<Property> getProperties() {
-//        return properties;
-//    }
-//
-//    public void setProperties(List<Property> properties) {
-//        this.properties = properties;
-//    }
+    public void setProperties(List<Property> properties) {
+        this.properties = properties;
+    }
 
 //    public List<Booking> getBookings() {
 //        return bookings;
