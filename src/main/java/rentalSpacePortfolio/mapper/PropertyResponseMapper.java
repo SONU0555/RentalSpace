@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.entity.Property;
+import rentalSpacePortfolio.entity.PropertyImage;
 
 
 
@@ -23,7 +24,11 @@ public class PropertyResponseMapper {
         response.setCity(request.getCity());
         response.setState(request.getState());
         response.setStatus(request.getStatus().toString());
-        response.setCoverImage(request.getCoverImage());
+        response.setCoverImage(request.getPropertyImages().stream()
+                .filter(PropertyImage::getIsCoverImage)
+                .map(PropertyImage::getImageUrl)
+                .findFirst()
+                .orElse(null));
         response.setMiniumRent(request.getMiniumRent());
         response.setMaximumRent(request.getMaximumRent());
         

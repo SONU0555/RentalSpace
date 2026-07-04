@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 
 
@@ -37,8 +38,7 @@ private String pinCode;
 @NotBlank(message = "Status is required")
 private String status;
 
-@NotBlank(message = "Cover image is required")
-private String coverImage;
+private List<PropertyImageRequest> propertyImages;
 
 @NotNull(message = "Minimum rent is required")
 @Positive(message = "Minimum rent must be greater than 0")
@@ -104,12 +104,12 @@ private Double maximumRent;
         this.status = status;
     }
 
-    public String getCoverImage() {
-        return coverImage;
+    public List<PropertyImageRequest> getPropertyImages() {
+        return propertyImages;
     }
 
-    public void setCoverImage(String coverImage) {
-        this.coverImage = coverImage;
+    public void setPropertyImages(List<PropertyImageRequest> propertyImages) {
+        this.propertyImages = propertyImages;
     }
 
     public Double getMinimumRent() {

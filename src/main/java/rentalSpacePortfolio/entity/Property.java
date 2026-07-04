@@ -1,9 +1,11 @@
 package rentalSpacePortfolio.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -27,13 +29,19 @@ public class Property extends BaseEnity{
    @Enumerated(EnumType.STRING)
    private PropertyStatus status;
    
-   private String coverImage;
    private Double miniumRent;
    private Double maximumRent;
    
+   @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+   private List<PropertyImage> propertyImages = new ArrayList<>();
+   
    @OneToOne
-   @JoinColumn(name = "admin_id")
+   @JoinColumn(name = "admin_id", unique = true)
    private Admin admin;
+   
+   @ManyToOne
+   @JoinColumn(name = "owner_id")
+   private User owner;
    
    @OneToMany(mappedBy = "property")
    private List<Building> buildings = new ArrayList();
@@ -94,8 +102,12 @@ public class Property extends BaseEnity{
         this.status = status;
     }
 
-    public String getCoverImage() {
-        return coverImage;
+    public List<PropertyImage> getPropertyImages() {
+        return propertyImages;
+    }
+
+    public void setPropertyImages(List<PropertyImage> propertyImages) {
+        this.propertyImages = propertyImages;
     }
 
     public Double getMiniumRent() {
@@ -114,16 +126,20 @@ public class Property extends BaseEnity{
         this.maximumRent = maximumRent;
     }
 
-    public void setCoverImage(String coverImage) {
-        this.coverImage = coverImage;
-    }
-
     public Admin getAdmin() {
         return admin;
     }
 
     public void setAdmin(Admin admin) {
         this.admin = admin;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public List<Building> getBuildings() {
