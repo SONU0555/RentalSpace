@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,20 +18,20 @@ import rentalSpacePortfolio.service.PropertyService;
 
 
 @RestController
-@RequestMapping(ApiPaths.BASE + "/public/properties")
-public class PublicPropertyController {
+@RequestMapping(ApiPaths.BASE + "/public")
+public class PublicController {
     
     private static final Logger logger = LoggerFactory.getLogger(PropertyController.class);
     
     private final PropertyService propertyService;
     
     @Autowired
-    public PublicPropertyController(PropertyService propertyService){
+    public PublicController(PropertyService propertyService){
         this.propertyService = propertyService;
     }
     
     // Endpoint to fetch all properties
-    @GetMapping
+    @GetMapping("/properties")
     public ResponseEntity<ApiResponse<List<PropertyResponse>>> getAllProperty(){
         
         logger.info("/properties endpoint hit to fetch all properties");
@@ -40,8 +41,11 @@ public class PublicPropertyController {
     }
     
     // Endpoint to get property by id
-    @GetMapping("/view")
-    public ResponseEntity<ApiResponse<PropertyResponse>> getPropertyById(@RequestParam("id") String propertyId){
+    @GetMapping("/properties/{id}")
+    public ResponseEntity<ApiResponse<PropertyResponse>> getPropertyById(@PathVariable("id") String propertyId){
+       
+        logger.info("Received get property request. PropertyId: {}", propertyId);
+       
         PropertyResponse property = propertyService.getPropertyById(UUID.fromString(propertyId));
         return ResponseEntity.ok(ApiResponse.success("Property fetched successfully by Id", property));
     }
