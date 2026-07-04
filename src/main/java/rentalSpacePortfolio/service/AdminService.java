@@ -35,7 +35,7 @@ public class AdminService {
     
     // Service to get admin profile
     public ProfileResponse getAdminProfile(UUID userId){
-        User user = userRepo.findByUserId(userId)
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
         
         return AdminResponseMapper.mapToProfileResponse(user);
@@ -68,7 +68,7 @@ public class AdminService {
     
     
     // Delete user
-    public void deleteUser(Long id){
+    public void deleteUser(UUID id){
         User user = userRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + id));
         userRepo.delete(user);

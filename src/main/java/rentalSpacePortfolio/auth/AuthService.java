@@ -18,7 +18,7 @@ import rentalSpacePortfolio.entity.Admin;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.enums.Role;
-import rentalSpacePortfolio.exception.UserNotFoundException;
+import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.repository.AdminRepository;
 import rentalSpacePortfolio.repository.TenantRepository;
 import rentalSpacePortfolio.repository.UserRepository;
@@ -117,8 +117,8 @@ public class AuthService {
         
         logger.info("Changing tenant password credentials");
 
-           User user = userRepo.findByUserId(userId)
-                   .orElseThrow(() -> new UserNotFoundException("User not found with Id: " + userId));
+           User user = userRepo.findById(userId)
+                   .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + userId));
            
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
               throw new IllegalArgumentException("Current password is incorrect");
