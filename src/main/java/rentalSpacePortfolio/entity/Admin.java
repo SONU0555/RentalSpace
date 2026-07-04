@@ -14,8 +14,11 @@ public class Admin extends BaseEnity{
     @JoinColumn(name = "admin_id", nullable = false)
     private User admin;
     
+    @OneToOne(mappedBy = "admin")
+    private Property property;
+    
     private String location;            
-    private String employeeCode;   
+    private String employeeCode; 
 
     public User getAdmin() {
         return admin;
@@ -40,5 +43,15 @@ public class Admin extends BaseEnity{
     public void setEmployeeCode(String employeeCode) {
         this.employeeCode = employeeCode;
     }
+
+    public Property getProperty() {
+        return property;
+    }
+
+    public void setProperty(Property property) {
+        this.property = property;
+    }
+    
+    
  
 }
