@@ -8,11 +8,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseEnity {
@@ -27,31 +32,5 @@ public abstract class BaseEnity {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
-    
 
 }
