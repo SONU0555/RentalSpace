@@ -7,8 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import lombok.Data;
 
-
+@Data
 public class DetailsRequest {
     
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invlid phone number")
@@ -30,47 +31,5 @@ public class DetailsRequest {
     @NotBlank(message = "Emergency contact is required")
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid emergency contact number")    
     private String emergencyContect;
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getAadhaarNumber() {
-        return aadhaarNumber;
-    }
-
-    public void setAadhaarNumber(String aadhaarNumber) {
-        this.aadhaarNumber = aadhaarNumber;
-    }
-
-    public LocalDate getRentEndDate() {
-        return rentEndDate;
-    }
-
-    public void setRentEndDate(LocalDate rentEndDate) {
-        this.rentEndDate = rentEndDate;
-    }
-
-    public String getEmergencyContect() {
-        return emergencyContect;
-    }
-
-    public void setEmergencyContect(String emergencyContect) {
-        this.emergencyContect = emergencyContect;
-    }
-    
-    
 
 }

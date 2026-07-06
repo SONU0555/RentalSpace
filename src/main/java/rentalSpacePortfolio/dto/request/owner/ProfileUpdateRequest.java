@@ -1,9 +1,10 @@
 package rentalSpacePortfolio.dto.request.owner;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
-
-public class ProfileUpdateRequest extends rentalSpacePortfolio.dto.request.tenant.ProfileUpdateRequest{
+@Data
+public class ProfileUpdateRequest{
     
     @NotBlank(message = "Company name is required")
     private String companyName;
@@ -15,6 +16,4 @@ public class ProfileUpdateRequest extends rentalSpacePortfolio.dto.request.tenan
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
     }
-    
-
 }

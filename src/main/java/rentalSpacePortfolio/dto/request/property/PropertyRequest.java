@@ -6,10 +6,11 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import lombok.Data;
 
 
-
-public class AddRequest {
+@Data
+public class PropertyRequest {
     
 @NotBlank(message = "Name is required")
 @Size(min = 3, max = 100, message = "Name must be between 3 and 100 characters")
@@ -47,88 +48,5 @@ private Double minimumRent;
 @NotNull(message = "Maximum rent is required")
 @Positive(message = "Maximum rent must be greater than 0")
 private Double maximumRent;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
-    }
-
-    public String getPinCode() {
-        return pinCode;
-    }
-
-    public void setPinCode(String pinCode) {
-        this.pinCode = pinCode;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public List<PropertyImageRequest> getPropertyImages() {
-        return propertyImages;
-    }
-
-    public void setPropertyImages(List<PropertyImageRequest> propertyImages) {
-        this.propertyImages = propertyImages;
-    }
-
-    public Double getMinimumRent() {
-        return minimumRent;
-    }
-
-    public void setMinimumRent(Double minimumRent) {
-        this.minimumRent = minimumRent;
-    }
-
-    public Double getMaximumRent() {
-        return maximumRent;
-    }
-
-    public void setMaximumRent(Double maximumRent) {
-        this.maximumRent = maximumRent;
-    }
-
-
-
 
 }

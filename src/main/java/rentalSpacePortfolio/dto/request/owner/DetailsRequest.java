@@ -3,8 +3,9 @@ package rentalSpacePortfolio.dto.request.owner;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 
-
+@Data
 public class DetailsRequest{
     
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invlid phone number")
@@ -24,47 +25,5 @@ public class DetailsRequest{
     
     @NotBlank(message = "Company name is required")
     private String companyName;
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getAadhaarNumber() {
-        return aadhaarNumber;
-    }
-
-    public void setAadhaarNumber(String aadhaarNumber) {
-        this.aadhaarNumber = aadhaarNumber;
-    }
-
-    public String getEmergencyContect() {
-        return emergencyContect;
-    }
-
-    public void setEmergencyContect(String emergencyContect) {
-        this.emergencyContect = emergencyContect;
-    }
-    
-    
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
 
 }

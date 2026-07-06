@@ -1,7 +1,9 @@
 package rentalSpacePortfolio.dto.response.tenant;
 
+import lombok.Data;
 
 
+@Data
 public class ProfileResponse {
     
     private String full_name;
@@ -11,52 +13,4 @@ public class ProfileResponse {
     private String isVarified;
     private String role;
 
-    public String getFull_name() {
-        return full_name;
-    }
-
-    public void setFull_name(String full_name) {
-        this.full_name = full_name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getEmergencyContect() {
-        return emergencyContect;
-    }
-
-    public void setEmergencyContect(String alternate_phone) {
-        this.emergencyContect = alternate_phone;
-    }
-
-    public String getIsVarified() {
-        return isVarified;
-    }
-
-    public void setIsVarified(String isVarified) {
-        this.isVarified = isVarified;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-    
 }

@@ -1,10 +1,9 @@
 package rentalSpacePortfolio.dto.response;
 
 import java.time.LocalDateTime;
+import lombok.Data;
 
-
-
-
+@Data
 public class ApiResponse<T> {
     
     private boolean success;
@@ -28,39 +27,5 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> error(String message, T data){
         return new ApiResponse<>(false, message, null);
     }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public LocalDateTime getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(LocalDateTime timeStamp) {
-        this.timeStamp = timeStamp;
-    }
     
-    
-
 }

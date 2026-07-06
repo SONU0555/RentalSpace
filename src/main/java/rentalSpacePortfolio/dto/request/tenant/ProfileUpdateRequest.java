@@ -5,8 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.Optional;
+import lombok.Data;
 
-
+@Data
 public class ProfileUpdateRequest{
     
     @NotBlank(message = "Name is required")
@@ -27,38 +28,5 @@ public class ProfileUpdateRequest{
 //    @NotBlank(message = "Aadhaar number is required")
 //    @Pattern(regexp = "^[2-9]{1}[0-9]{11}$", message = "Invalid aadhaar number")
 //    private String aadhaarNumber;
-
-    public String getFull_name() {
-        return full_name;
-    }
-
-    public void setFull_name(String full_name) {
-        this.full_name = full_name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Optional<String> getPhone() {
-        return phone;
-    }
-
-    public void setPhone(Optional<String> phone) {
-        this.phone = phone;
-    }
-
-    public Optional<String> getEmergencyContect() {
-        return emergencyContect;
-    }
-
-    public void setEmergencyContect(Optional<String> emergencyContect) {
-        this.emergencyContect = emergencyContect;
-    }
-    
 
 }
