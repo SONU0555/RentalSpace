@@ -30,7 +30,7 @@ public class OwnerService {
     
     // Service to get profile
     public ProfileResponse getOwnerProfile(UUID userId){
-        User user = userRepo.findByUserId(userId)
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         return UserResponseMapper.mapToOwnerProfile(user);

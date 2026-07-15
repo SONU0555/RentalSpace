@@ -6,10 +6,14 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PropertyRequest {
     
 @NotBlank(message = "Name is required")
@@ -38,8 +42,6 @@ private String pinCode;
 
 @NotBlank(message = "Status is required")
 private String status;
-
-private List<PropertyImageRequest> propertyImages;
 
 @NotNull(message = "Minimum rent is required")
 @Positive(message = "Minimum rent must be greater than 0")

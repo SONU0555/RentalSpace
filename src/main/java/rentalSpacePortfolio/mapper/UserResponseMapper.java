@@ -27,11 +27,11 @@ public class UserResponseMapper {
         response.setFull_name(tenant.getUser().getFull_name());
         response.setEmail(tenant.getUser().getEmail());
         response.setPhone(tenant.getUser().getPhone());
-        response.setEmergencyContect(tenant.getEmergencyContect());
-        response.setRentStartDate(tenant.getRentStartDate());
-        response.setRentEndDate(tenant.getRentEndDate());
-        response.setCreatedDate(tenant.getUser().getCreatedAt());
-        response.setUpdatedDate(tenant.getUser().getUpdatedAt());
+        response.setEmergencyContect(tenant.getUser().getTenant().getEmergencyContect());
+        response.setRentStartDate(tenant.getUser().getTenant().getRentStartDate());
+        response.setRentEndDate(tenant.getUser().getTenant().getRentEndDate());
+        response.setCreatedDate(tenant.getCreatedAt());
+        response.setUpdatedDate(tenant.getUpdatedAt());
         
         return response;
     }

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,7 +27,7 @@ public class ImageStorageServiceTest {
         MultipartFile file = mock(MultipartFile.class);
         when(file.getContentType()).thenReturn(null);
         
-        RuntimeException ex = Assertions.assertThrows(RuntimeException.class, () 
+        HttpMediaTypeNotSupportedException ex = Assertions.assertThrows(HttpMediaTypeNotSupportedException.class, () 
                 -> imageStorageService.saveImage(file, "property"));
         
         assertEquals("Only JPG, WEBP, allowed", ex.getMessage());
@@ -37,7 +38,7 @@ public class ImageStorageServiceTest {
         MultipartFile file = mock(MultipartFile.class);
         when(file.getContentType()).thenReturn("application/pdf");
 
-        RuntimeException ex = assertThrows(RuntimeException.class, () ->
+        HttpMediaTypeNotSupportedException ex = assertThrows(HttpMediaTypeNotSupportedException.class, () ->
             imageStorageService.saveImage(file, "property"));
 
         assertEquals("Only JPG, WEBP, allowed", ex.getMessage());

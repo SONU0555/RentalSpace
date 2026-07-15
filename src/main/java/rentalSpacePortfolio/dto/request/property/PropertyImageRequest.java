@@ -3,10 +3,17 @@ package rentalSpacePortfolio.dto.request.property;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PropertyImageRequest {
+    
+    private UUID id;
 
     @NotNull(message = "isCoverImage must be true or false — it cannot be missing")
     private Boolean isCoverImage;

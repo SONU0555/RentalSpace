@@ -16,6 +16,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import rentalSpacePortfolio.enums.PropertyStatus;
+import rentalSpacePortfolio.enums.PropertyVisbility;
 
 
 @Data
@@ -36,8 +37,14 @@ public class Property extends BaseEnity{
    @Enumerated(EnumType.STRING)
    private PropertyStatus status;
    
+   @Enumerated(EnumType.STRING)
+   private PropertyVisbility visibility;
+   
    private Double miniumRent;
    private Double maximumRent;
+   
+   private int setp = 0;
+   private String tab = "property";
    
    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
    private List<PropertyImage> propertyImages = new ArrayList<>();

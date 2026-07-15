@@ -6,13 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
-import rentalSpacePortfolio.exception.UserNotFoundException;
-import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
+import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
-import rentalSpacePortfolio.entity.Admin;
 import rentalSpacePortfolio.entity.Tenant;
-import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.mapper.UserResponseMapper;
 import rentalSpacePortfolio.repository.AdminRepository;
 import rentalSpacePortfolio.repository.TenantRepository;
@@ -43,7 +39,7 @@ public class UserCommonService {
 //     Service to get tenant by Id
     public TenantSummaryResponse getTenantById(UUID tenantId){
         Tenant tenant = tenantRepo.findByUserId(tenantId)
-                .orElseThrow(() -> new UserNotFoundException("User tenant not found with Id: " + tenantId));
+                .orElseThrow(() -> new ResourceNotFoundException("User tenant not found with Id: " + tenantId));
         
         return UserResponseMapper.mapToTenatResponseDto(tenant);
     }

@@ -70,7 +70,7 @@ public class AdminController {
     }
     
     @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteUser(@RequestParam Long id){
+    public ResponseEntity<?> deleteUser(@RequestParam UUID id){
             adminService.deleteUser(id);
             return new ResponseEntity<>("Deleted", HttpStatus.OK);
     }

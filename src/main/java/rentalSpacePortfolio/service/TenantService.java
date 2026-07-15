@@ -48,7 +48,7 @@ public class TenantService {
     
     // Service to get tenant profile
     public ProfileResponse getTenantProfile(UUID userId){
-        User user = userRepo.findByUserId(userId)
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for tenants ID: " + userId));
         
         return TenantResponseMapper.mapToProfileResponse(user.getTenant());
@@ -57,7 +57,7 @@ public class TenantService {
     // Service to get all tenants
     public List<TenantSummaryResponse> getAllTenants(UUID userId){
         
-        User user = userRepo.findByUserId(userId)
+        User user = userRepo.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         
         List<Tenant> tenants = null;
@@ -99,7 +99,7 @@ public class TenantService {
         
         logger.info("Processing of updating user profile");
         
-        User user = userRepo.findByUserId(tenantId)
+        User user = userRepo.findById(tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("Wrong user Id: " + tenantId));  
         
         Tenant tenant = user.getTenant();

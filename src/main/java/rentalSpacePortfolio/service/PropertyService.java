@@ -1,8 +1,11 @@
 package rentalSpacePortfolio.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,102 +14,143 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rentalSpacePortfolio.dto.request.property.AddRequest;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.multipart.MultipartFile;
+import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyImageRequest;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
-import rentalSpacePortfolio.entity.Admin;
-import rentalSpacePortfolio.entity.Property;
-import rentalSpacePortfolio.entity.PropertyImage;
-import rentalSpacePortfolio.entity.User;
+import rentalSpacePortfolio.entity.*;
 import rentalSpacePortfolio.enums.PropertyStatus;
+import rentalSpacePortfolio.enums.PropertyVisbility;
 import rentalSpacePortfolio.enums.Role;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.mapper.PropertyResponseMapper;
-import rentalSpacePortfolio.repository.AdminRepository;
-import rentalSpacePortfolio.repository.PropertyImageRepository;
-import rentalSpacePortfolio.repository.PropertyRepository;
-import rentalSpacePortfolio.repository.UserRepository;
+import rentalSpacePortfolio.repository.*;
 
 
-
+@Slf4j
 @Service
 public class PropertyService {
-    
-    private static final Logger logger = LoggerFactory.getLogger(PropertyService.class);
-    
+        
     private final PropertyRepository propertyRepo;
     private final AdminRepository adminRepo;
     private final UserRepository userRepo;
     private final PropertyImageRepository propertyImgRepo;
+    private final ImageStorageService imageStorageService;
     
     @Autowired
     public PropertyService(PropertyRepository propertyRepo,
             UserRepository userRepo,
             AdminRepository adminRepo,
-            PropertyImageRepository propertyImgRepo){
+            PropertyImageRepository propertyImgRepo,
+            ImageStorageService imageStorageService){
         this.propertyRepo = propertyRepo;
         this.userRepo = userRepo;
         this.adminRepo = adminRepo;
         this.propertyImgRepo = propertyImgRepo;
+        this.imageStorageService = imageStorageService;
     }
     
     // Service to fetch all properties
     public List<PropertyResponse> getAllProperties(){
         
-        logger.info("Requestd to get all properties");
+        log.info("Requestd to get all properties");
         List<Property> properties = propertyRepo.findAll();
         return properties.stream().map(p -> 
                 PropertyResponseMapper.mapToPropertyResponse(p)).collect(Collectors.toList());
     }
     
-    // Service to add new property
+    // Service to save new property
     @Transactional
-    public void addProperty(AddRequest request, UUID ownerId){
+    public void saveProperty(List<MultipartFile> images, 
+            List<PropertyImageRequest> imageDetails, 
+            PropertyRequest propertyData, UUID ownerId) throws IOException, HttpMediaTypeNotSupportedException{
         
         User owner = userRepo.findById(ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + ownerId));
         
-        boolean exists = false;
+        log.info("Validating is the same property already exists");
         
-        if(propertyRepo.existsByAddress(request.getAddress()) != null){
-            exists = true;
-        }
-        
-        if(exists){
-            logger.warn("Failed to add propety: Trying to add same property twice");
+        if(propertyRepo.existsByAddress(propertyData.getAddress())){
+            log.warn("Failed to add propety: Trying to add same property twice");
             throw new DuplicatePropertyException("Property with the same address already exist in system.");
         }
         
         Property property = new Property();
-        property.setName(request.getName());
-        property.setDescription(request.getDescription());
-        property.setAddress(request.getAddress());
-        property.setCity(request.getCity());
-        property.setState(request.getState());
-        property.setPinCode(request.getPinCode());
-        property.setOwner(owner);
-        property.setStatus(selectPropertyStatus(request.getStatus()));
-        property.setMiniumRent(request.getMinimumRent());
-        property.setMaximumRent(request.getMaximumRent());
+        mapToPropertyEntity(property, propertyData, owner);
         
-        propertyRepo.save(property);
+        Property savedProperty = propertyRepo.save(property);
         
-        for(PropertyImageRequest image : request.getPropertyImages()){
-        PropertyImage propertyImage = new PropertyImage();
-        
-            propertyImage.setImageUrl(image.getImageUrl());
-            propertyImage.setIsCoverImage(image.getIsCoverImage());
-            propertyImage.setDisplayOrder(image.getDisplayOrder());
-            propertyImage.setProperty(property);
-            
-            propertyImgRepo.save(propertyImage);
-        }
+        log.info("Property data successfully with Id: {}", savedProperty.getId());
                 
-        logger.info("Property added successfully with Id: {}", property.getId());
+        // save the list of images FK references in property
+        savedProperty.setPropertyImages(saveImageToStorage(images, imageDetails, savedProperty));
+        savedProperty.setVisibility(PropertyVisbility.DRAFT);
+        propertyRepo.save(savedProperty);
+                
+        log.info("Property added successfully with Id: {}", property.getId());
     }
     
-    // Service to update property
+    // Service to update property details
+    @Transactional
+    public void updateProperty(
+            List<MultipartFile> images, 
+            List<PropertyImageRequest> imageDetails, 
+            PropertyRequest propertyData,
+            UUID propertyId,
+            UUID ownerId) throws IOException, HttpMediaTypeNotSupportedException{
+        
+        userRepo.findById(ownerId)
+                .orElseThrow(() -> {
+                    return new ResourceNotFoundException("User not found with Id: " + ownerId);
+                });
+        
+        Property property = propertyRepo.findById(propertyId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + propertyId));
+        
+        log.info("Owner with Id: {} requested to update property: {} details", ownerId, propertyId);
+        
+        List<PropertyImage> propertyImages = propertyImgRepo.findAllImagesByPropertyId(propertyId);
+        
+        List<MultipartFile> newImages = new ArrayList<>();
+        List<PropertyImageRequest> newImageDetails = new ArrayList<>();
+        
+        for(PropertyImageRequest details : imageDetails){
+            if(details.getId() == null){
+                PropertyImage image = propertyImgRepo.findImageByDisplayOrder(property.getId(), details.getDisplayOrder());
+                if(image != null){
+                    propertyImgRepo.delete(image);
+                    log.info("Existing image from place: {} removed form DB and disk to store new image at same place", 
+                        details.getDisplayOrder());
+                    
+                    log.info("Removing image file from local disk");
+                    imageStorageService.deleteImageFromDisk(image.getImageUrl());
+                }
+                                
+                newImages.add(images.get(details.getDisplayOrder() - 1));
+                newImageDetails.add(details);          
+            }else{
+                boolean exists = propertyImages.stream()
+                     .anyMatch(image -> details.getId().equals(image.getId()));
+
+                if (!exists) {
+                   log.warn("Update image failed! uploaded image Id: {} does not belongs to property images", details.getId());
+                   throw new ResourceNotFoundException("Image not found with Id: " + details.getId());
+                }
+            }
+        }
+        
+        log.info("Mapping property to dto and saving to database");
+        mapToPropertyEntity(property, propertyData, null);
+        Property savedProperty = propertyRepo.save(property);
+        
+        log.info("Updating images in DB and local disk, Setting image to saved property: {}", savedProperty.getId());
+        savedProperty.setPropertyImages(saveImageToStorage(newImages, newImageDetails, savedProperty));
+        propertyRepo.save(savedProperty);
+        
+        log.info("Property image and data successfully updated with Id: {}", savedProperty.getId());
+    }
     
     // Method to convert String property status into enum status type
     private PropertyStatus selectPropertyStatus(String status){
@@ -118,15 +162,59 @@ public class PropertyService {
         };
     }
     
+    // shared method to map dto to entity for property
+    private void mapToPropertyEntity(Property property, PropertyRequest propertyData, User owner){
+        property.setName(propertyData.getName());
+        property.setDescription(propertyData.getDescription());
+        property.setAddress(propertyData.getAddress());
+        property.setCity(propertyData.getCity());
+        property.setState(propertyData.getState());
+        property.setPinCode(propertyData.getPinCode());
+        if(owner != null){
+            property.setOwner(owner);
+        }
+        property.setStatus(selectPropertyStatus(propertyData.getStatus()));
+        property.setMiniumRent(propertyData.getMinimumRent());
+        property.setMaximumRent(propertyData.getMaximumRent());        
+    }
+   
+    // shared method to save image to storage and propertyImage table
+    private List<PropertyImage> saveImageToStorage(
+            List<MultipartFile> images,
+            List<PropertyImageRequest> imageDetails,
+            Property property) throws IOException, HttpMediaTypeNotSupportedException{
+        
+        List<PropertyImage> propertyImages = new ArrayList<>();
+        
+        for(int i = 0; i < images.size(); i++){
+            MultipartFile file = images.get(i); // get actual image file
+            PropertyImageRequest req = imageDetails.get(i); // get image details
+            
+            // save image to disk, get back URL
+            String imageUrl = imageStorageService.saveImage(file, "property");
+            
+            PropertyImage image = new PropertyImage();
+            image.setImageUrl(imageUrl);
+            image.setDisplayOrder(req.getDisplayOrder());
+            image.setIsCoverImage(req.getIsCoverImage());
+            image.setProperty(property);
+            
+            propertyImages.add(image);
+        }
+        
+        List<PropertyImage> savedImages = propertyImgRepo.saveAll(propertyImages);
+        
+        return savedImages;
+    }
+    
     // Service to get property by Id
     public PropertyResponse getPropertyById(UUID propertyId){
-        logger.info("Requested to get property by Id {}", propertyId);
-        Property property = propertyRepo.findByPropertyId(propertyId);
-        
-        if(property == null){
-            logger.info("Can't find property due to Invalid or wrong property Id");
-            throw new ResourceNotFoundException("Property not found");
-        }
+        log.info("Requested to get property by Id {}", propertyId);
+        Property property = propertyRepo.findById(propertyId)
+                .orElseThrow(() -> {
+                     log.warn("Property assignment failed: Property not found with id: {}", propertyId);
+                     return new ResourceNotFoundException("Property not found with Id: " + propertyId);
+                });
         
         return PropertyResponseMapper.mapToPropertyResponse(property);
     }
@@ -135,30 +223,30 @@ public class PropertyService {
     @Transactional
     public void assignPropertyToAdmin(UUID propertyId, UUID adminId, UUID ownerId){
 
-        Property property = propertyRepo.findByPropertyId(propertyId);
-        if(property == null){
-           logger.warn("Property assignment failed: Property not found with id: {}", propertyId);
-            throw new ResourceNotFoundException("Property not found with id: " + propertyId);
-        };
+        Property property = propertyRepo.findById(propertyId)
+                .orElseThrow(() -> {
+                    log.warn("Property assignment failed: Property not found with id: {}", propertyId);
+                     return new ResourceNotFoundException("Property not found with Id: " + propertyId);
+                });
 
         if (!property.getOwner().getId().equals(ownerId)) {
-            logger.warn("Security Alert: User [{}] attempted unauthorized admin assignment on property [{}] owned by [{}]", 
+            log.warn("Security Alert: User [{}] attempted unauthorized admin assignment on property [{}] owned by [{}]", 
                     ownerId, propertyId, property.getOwner().getId());
             throw new AccessDeniedException("You are not authorized. Only the owner can assign an admin.");
         }
 
         Admin admin = adminRepo.findByUserId(adminId)
                 .orElseThrow(() -> {
-                    logger.warn("Property assignment failed: Target admin not found with id: {}", adminId);
+                    log.warn("Property assignment failed: Target admin not found with id: {}", adminId);
                     return new ResourceNotFoundException("User not found with id: " + adminId);
                 });
         
         if (!admin.getAdmin().getRole().equals(Role.ADMIN)) {
-            logger.warn("Property assignment failed: User [{}] does not hold an ADMIN role. Found role: {}", adminId, admin.getAdmin().getRole());
+            log.warn("Property assignment failed: User [{}] does not hold an ADMIN role. Found role: {}", adminId, admin.getAdmin().getRole());
             throw new IllegalArgumentException("The assigned user must have an ADMIN role.");
         }
 
-        logger.debug("Current admin for property [{}] is [{}]. Updating to new admin [{}].", 
+        log.debug("Current admin for property [{}] is [{}]. Updating to new admin [{}].", 
                 propertyId, 
                 property.getAdmin() != null ? property.getAdmin().getId() : "NONE", 
                 adminId);
@@ -168,6 +256,6 @@ public class PropertyService {
         propertyRepo.save(property);
         adminRepo.save(admin);
 
-        logger.info("Successfully assigned adminId: {} to propertyId: {} by ownerId: {}", adminId, propertyId, ownerId);
+        log.info("Successfully assigned adminId: {} to propertyId: {} by ownerId: {}", adminId, propertyId, ownerId);
     }
 }

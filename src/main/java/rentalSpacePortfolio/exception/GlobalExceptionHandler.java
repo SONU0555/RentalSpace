@@ -4,6 +4,7 @@ import RentSpace.common.dto.ErrorResponseDto;
 import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.tomcat.util.http.fileupload.InvalidFileNameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -93,6 +94,17 @@ public class GlobalExceptionHandler {
     // Handle upload max file limit exceeded
     @ExceptionHandler(MaxUploadCountExceededException.class)
     public ResponseEntity<ErrorResponseDto> HandleMaxUploadCountExceededException(MaxUploadCountExceededException ex){
+        ErrorResponseDto error = new ErrorResponseDto();
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setMessage(ex.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+        
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+    
+    // Handle upload max file limit exceeded
+    @ExceptionHandler(InvalidFileNameException.class)
+    public ResponseEntity<ErrorResponseDto> HandleInvalidFileNameException(InvalidFileNameException ex){
         ErrorResponseDto error = new ErrorResponseDto();
         error.setStatus(HttpStatus.BAD_REQUEST.value());
         error.setMessage(ex.getMessage());

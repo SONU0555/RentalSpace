@@ -3,9 +3,13 @@ package rentalSpacePortfolio.dto.request.owner;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DetailsRequest{
     
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invlid phone number")

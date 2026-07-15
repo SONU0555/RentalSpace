@@ -7,10 +7,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import rentalSpacePortfolio.enums.FlatStatus;
 
 @Data
+@NoArgsConstructor  
+@AllArgsConstructor 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "flats")
 public class Flat extends BaseEnity{

@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.dto.request.user.UpdateCredentailsRequest;
 import rentalSpacePortfolio.dto.request.auth.RegisterRequest;
 import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
@@ -51,7 +52,10 @@ public class AuthService {
     }
     
     // Service to register new user tenant or admin
+    @Transactional
     public void createNewUser(RegisterRequest request, String role){
+        
+        logger.info("Received request to create new user with role: {}", role);
         
         boolean isOwnerExist = false;
         
@@ -69,7 +73,7 @@ public class AuthService {
         
         Admin admin = null;
         Tenant tenant = null;
-        
+                
         if(role.equalsIgnoreCase("ADMIN")){
             admin = new Admin();
         }else if(role.equalsIgnoreCase("TENANT")){
@@ -89,6 +93,8 @@ public class AuthService {
         });
         
         userRepo.save(user);
+        
+        logger.info("user generated Id: {}", user.getId());
         
         // To store the reference key of user table in admin or tenant table
         if(admin != null){

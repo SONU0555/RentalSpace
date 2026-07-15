@@ -9,12 +9,10 @@ import org.springframework.stereotype.Repository;
 import rentalSpacePortfolio.entity.Property;
 
 @Repository
-public interface PropertyRepository extends JpaRepository<Property, Long>{
+public interface PropertyRepository extends JpaRepository<Property, UUID>{
     
-    @Query("SELECT p FROM Property p WHERE p.address = :address")
-    Property existsByAddress(@Param("address") String address);
+//    @Query("SELECT p FROM Property p WHERE p.address = :address")
+//    boolean existsByAddress(@Param("address") String address);
     
-    @Query("SELECT p FROM Property p WHERE p.id = :propertyId")
-    Property findByPropertyId(@Param("propertyId") UUID propertyId);
-    
+    boolean existsByAddress(String address);
 }

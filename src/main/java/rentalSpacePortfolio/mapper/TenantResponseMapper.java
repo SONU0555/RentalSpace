@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
 import rentalSpacePortfolio.entity.Tenant;
+import rentalSpacePortfolio.entity.User;
 
 
 
@@ -12,6 +13,7 @@ public class TenantResponseMapper {
     // Profile mapper
     public static ProfileResponse mapToProfileResponse(Tenant request){
         ProfileResponse response = new ProfileResponse();
+        
         response.setFull_name(request.getUser().getFull_name());
         response.setEmail(request.getUser().getEmail());
         response.setPhone(request.getUser().getPhone());
