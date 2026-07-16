@@ -6,12 +6,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -53,11 +52,13 @@ public class PropertyService {
     }
     
     // Service to fetch all properties
-    public List<PropertyResponse> getAllProperties(){
+    public List<PropertyResponse> getAllProperties(int page, int size){
         
         log.info("Requestd to get all properties");
-        List<Property> properties = propertyRepo.findAll();
-        return properties.stream().map(p -> 
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Property> propertyPage = propertyRepo.findAllWithImages(pageable);
+        
+        return propertyPage.stream().map(p -> 
                 PropertyResponseMapper.mapToPropertyResponse(p)).collect(Collectors.toList());
     }
     
