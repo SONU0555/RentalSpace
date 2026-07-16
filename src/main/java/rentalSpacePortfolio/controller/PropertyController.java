@@ -10,6 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -29,7 +32,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @RestController
-@RequestMapping(ApiPaths.BASE + "/owners/properties")
+@RequestMapping(ApiPaths.BASE + "/owner/properties")
 public class PropertyController {
         
     private final PropertyService propertyService;
@@ -73,7 +76,6 @@ public class PropertyController {
     
     // Endpoint to add new property
     @PostMapping(value = "/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<?> addProperty (
             @RequestParam("step") int step,
             @RequestParam("tab") String tab,
@@ -93,7 +95,6 @@ public class PropertyController {
     
     // Endpoint to update new property
     @PutMapping(value = "/{propertyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<?> updateProperty (
             @RequestParam("step") int step,
             @RequestParam("tab") String tab,
@@ -112,9 +113,18 @@ public class PropertyController {
         return new ResponseEntity<>((new ApiResponse<>(true, "Property updated successfully!", "updated")), HttpStatus.CREATED); 
     }
     
+    // Endpoint to soft delete property
+    @PatchMapping("/{propertyId}")
+    public ResponseEntity<Void> softDeleteProperty(
+            @PathVariable("propertyId") UUID propertyId,
+            @RequestParam("isActive") boolean isActive
+    ) {
+           propertyService.softDelete(propertyId, isActive);
+        return ResponseEntity.noContent().build();
+    }
+    
     // Endpoint to assign admin to a specific property
     @PostMapping("/{propertyId}/assign")
-    @PreAuthorize("hasRole('OWNER')")
     public ResponseEntity<ApiResponse<String>> assingAdminToProperty(@PathVariable("propertyId") UUID propertyId,
             @RequestParam("admin") UUID adminId){
         

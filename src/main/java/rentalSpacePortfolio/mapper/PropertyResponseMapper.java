@@ -28,7 +28,7 @@ public class PropertyResponseMapper {
         response.setState(request.getState());
         response.setStatus(request.getStatus().toString());
         response.setImages(mapToPropertyImageResponse(request.getPropertyImages()));
-        response.setMiniumRent(request.getMiniumRent());
+        response.setMiniumRent(request.getMinimumRent());
         response.setMaximumRent(request.getMaximumRent());
         
         logger.info("Property Enity mapped succesfully into PropertyResponseDto");

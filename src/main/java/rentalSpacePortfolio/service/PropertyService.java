@@ -175,7 +175,7 @@ public class PropertyService {
             property.setOwner(owner);
         }
         property.setStatus(selectPropertyStatus(propertyData.getStatus()));
-        property.setMiniumRent(propertyData.getMinimumRent());
+        property.setMinimumRent(propertyData.getMinimumRent());
         property.setMaximumRent(propertyData.getMaximumRent());        
     }
    
@@ -218,6 +218,20 @@ public class PropertyService {
                 });
         
         return PropertyResponseMapper.mapToPropertyResponse(property);
+    }
+    
+    // Service to activate and deactivate property
+    public void softDelete(UUID propertyId, boolean isActive){
+        log.info("Requested to soft delete property by Id {}", propertyId);
+        Property property = propertyRepo.findById(propertyId)
+                .orElseThrow(() -> {
+                     log.warn("Soft deletion failed: Property not found with id: {}", propertyId);
+                     return new ResourceNotFoundException("Property not found with Id: " + propertyId);
+                });
+        
+        property.setActive(isActive);
+        propertyRepo.save(property);
+        log.info("Property: {} succefully deactivated", propertyId);
     }
     
     // Service to assign specific property to an admin

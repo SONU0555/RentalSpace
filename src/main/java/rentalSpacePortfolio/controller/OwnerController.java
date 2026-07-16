@@ -16,7 +16,7 @@ import rentalSpacePortfolio.service.UserCommonService;
 
 
 @RestController
-@RequestMapping(ApiPaths.BASE + "/owners")
+@RequestMapping(ApiPaths.BASE + "/owner")
 public class OwnerController {
     
     private final OwnerService ownerService;

@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(ApiPaths.BASE + "/auth/**",
                                 ApiPaths.BASE +  "/public/**").permitAll()
-                        .requestMatchers("/api/owner/**").hasRole("OWNER")
+                        .requestMatchers("/api/owner/**", ApiPaths.BASE + "/owner/properties").hasRole("OWNER")
                         .anyRequest().authenticated()
                 )
                         .sessionManagement(session -> session

@@ -39,11 +39,12 @@ public class Property extends BaseEnity{
    
    @Enumerated(EnumType.STRING)
    private PropertyVisbility visibility;
+   private boolean isActive;
    
-   private Double miniumRent;
+   private Double minimumRent;
    private Double maximumRent;
    
-   private int setp = 0;
+   private int step = 0;
    private String tab = "property";
    
    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)

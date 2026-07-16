@@ -104,7 +104,7 @@ public class PropertyServiceTest {
             () -> Assertions.assertEquals("Pune", saved.getCity()),
             () -> Assertions.assertEquals("MH", saved.getState()),
             () -> Assertions.assertEquals("411001", saved.getPinCode()),
-            () -> Assertions.assertEquals(20000.0, saved.getMiniumRent()),
+            () -> Assertions.assertEquals(20000.0, saved.getMinimumRent()),
             () -> Assertions.assertEquals(50000.0, saved.getMaximumRent()),
             () -> Assertions.assertEquals(owner, saved.getOwner())
         );
