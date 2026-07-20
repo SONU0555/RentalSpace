@@ -26,8 +26,8 @@ public class Building extends BaseEnity{
     @Enumerated(EnumType.STRING)
     private BuildingStatus status;
     
-    @ManyToOne
-    @JoinColumn(name = "property_id")
-    private Property property;
+//    @ManyToOne
+//    @JoinColumn(name = "property_id")
+//    private Property property;
 
 }

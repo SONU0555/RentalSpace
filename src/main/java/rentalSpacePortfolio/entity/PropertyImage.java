@@ -1,5 +1,6 @@
 package rentalSpacePortfolio.entity;
 
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -16,10 +17,9 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "property_images")
 public class PropertyImage extends BaseEnity{
-    
-    private String imageUrl;                
-    private Boolean isCoverImage;     
-    private Integer displayOrder;     
+
+    @Embedded
+    private ImageDetails imageDetails = new ImageDetails();
 
     @ManyToOne
     @JoinColumn(name = "property_id")

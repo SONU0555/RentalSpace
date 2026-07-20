@@ -94,7 +94,7 @@ public class PropertyController {
     }
     
     // Endpoint to update new property
-    @PutMapping(value = "/{propertyId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{propertyId}/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateProperty (
             @RequestParam("step") int step,
             @RequestParam("tab") String tab,
@@ -122,7 +122,7 @@ public class PropertyController {
            propertyService.softDelete(propertyId, isActive);
         return ResponseEntity.noContent().build();
     }
-    
+        
     // Endpoint to assign admin to a specific property
     @PostMapping("/{propertyId}/assign")
     public ResponseEntity<ApiResponse<String>> assingAdminToProperty(@PathVariable("propertyId") UUID propertyId,

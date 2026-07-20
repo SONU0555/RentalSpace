@@ -131,9 +131,9 @@ public class PropertyServiceTest {
         Mockito.verify(propertyImgRepo).saveAll(captor.capture());
         
         List<PropertyImage> savedImages = captor.getValue();
-        Assertions.assertEquals("url1", savedImages.get(0).getImageUrl());
-        Assertions.assertEquals(1, savedImages.get(0).getDisplayOrder());
-        Assertions.assertTrue(savedImages.get(0).getIsCoverImage());
+        Assertions.assertEquals("url1", savedImages.get(0).getImageDetails().getImageUrl());
+        Assertions.assertEquals(1, savedImages.get(0).getImageDetails().getDisplayOrder());
+        Assertions.assertTrue(savedImages.get(0).getImageDetails().getIsCoverImage());
         
     }
     

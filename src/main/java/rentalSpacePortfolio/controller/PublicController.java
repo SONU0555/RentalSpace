@@ -2,8 +2,7 @@ package rentalSpacePortfolio.controller;
 
 import java.util.List;
 import java.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,21 +12,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.response.ApiResponse;
+import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
+import rentalSpacePortfolio.service.FlatService;
 import rentalSpacePortfolio.service.PropertyService;
 
-
+@Slf4j
 @RestController
 @RequestMapping(ApiPaths.BASE + "/public")
 public class PublicController {
-    
-    private static final Logger logger = LoggerFactory.getLogger(PropertyController.class);
-    
+        
     private final PropertyService propertyService;
+    private final FlatService flatService;
     
     @Autowired
-    public PublicController(PropertyService propertyService){
+    public PublicController(PropertyService propertyService, FlatService flatService){
         this.propertyService = propertyService;
+        this.flatService = flatService;
     }
     
     // Endpoint to fetch all properties
@@ -36,7 +37,7 @@ public class PublicController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "2") int size){
         
-        logger.info("/properties endpoint hit to fetch all properties");
+        log.info("/properties endpoint hit to fetch all properties");
         
         List<PropertyResponse> properties = propertyService.getAllProperties(page, size);
         return ResponseEntity.ok(ApiResponse.success("All properties fetched succesfully", properties));
@@ -46,10 +47,18 @@ public class PublicController {
     @GetMapping("/properties/{id}")
     public ResponseEntity<ApiResponse<PropertyResponse>> getPropertyById(@PathVariable("id") String propertyId){
        
-        logger.info("Received get property request. PropertyId: {}", propertyId);
+        log.info("Received get property request. PropertyId: {}", propertyId);
        
         PropertyResponse property = propertyService.getPropertyById(UUID.fromString(propertyId));
         return ResponseEntity.ok(ApiResponse.success("Property fetched successfully by Id", property));
+    }
+    
+    // Endpoint to get all flats
+    @GetMapping("/{propertyId}/flats")
+    public ResponseEntity<ApiResponse<List<FlatResponse>>> getPropertyAllFlat(@PathVariable UUID propertyId){
+        log.info("Received request to fetch all flat of property: {}", propertyId);
+        List<FlatResponse> flats = flatService.getPropertyAllFlat(propertyId);
+        return ResponseEntity.ok(ApiResponse.success("All properties fetched succesfully", flats));
     }
 
 }

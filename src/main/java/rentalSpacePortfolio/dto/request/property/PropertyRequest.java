@@ -43,6 +43,9 @@ private String pinCode;
 @NotBlank(message = "Status is required")
 private String status;
 
+@NotBlank(message = "Tier is required")
+private String propertyTier;
+
 @NotNull(message = "Minimum rent is required")
 @Positive(message = "Minimum rent must be greater than 0")
 private Double minimumRent;

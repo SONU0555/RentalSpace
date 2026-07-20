@@ -27,6 +27,7 @@ public class PropertyResponseMapper {
         response.setCity(request.getCity());
         response.setState(request.getState());
         response.setStatus(request.getStatus().toString());
+        response.setPropertyTier(request.getTier().toString());
         response.setImages(mapToPropertyImageResponse(request.getPropertyImages()));
         response.setMiniumRent(request.getMinimumRent());
         response.setMaximumRent(request.getMaximumRent());
@@ -43,9 +44,9 @@ public class PropertyResponseMapper {
         for(PropertyImage img : images){
             ImageResponse response = new ImageResponse();
             response.setId(img.getId());
-            response.setImageUrl(img.getImageUrl());
-            response.setDisplayOrder(img.getDisplayOrder());
-            response.setIsCoverImage(img.getIsCoverImage());
+            response.setImageUrl(img.getImageDetails().getImageUrl());
+            response.setDisplayOrder(img.getImageDetails().getDisplayOrder());
+            response.setIsCoverImage(img.getImageDetails().getIsCoverImage());
             
             responseList.add(response);
         }

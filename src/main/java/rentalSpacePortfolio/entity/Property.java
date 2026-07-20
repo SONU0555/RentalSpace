@@ -1,6 +1,7 @@
 package rentalSpacePortfolio.entity;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,6 +17,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import rentalSpacePortfolio.enums.PropertyStatus;
+import rentalSpacePortfolio.enums.PropertyTier;
 import rentalSpacePortfolio.enums.PropertyVisbility;
 
 
@@ -39,6 +41,11 @@ public class Property extends BaseEnity{
    
    @Enumerated(EnumType.STRING)
    private PropertyVisbility visibility;
+   
+   @Enumerated(EnumType.STRING)
+   @Column(name = "property_tier")
+   private PropertyTier tier;
+   
    private boolean isActive;
    
    private Double minimumRent;
@@ -58,7 +65,7 @@ public class Property extends BaseEnity{
    @JoinColumn(name = "owner_id")
    private User owner;
    
-   @OneToMany(mappedBy = "property")
-   private List<Building> buildings = new ArrayList();
+//   @OneToMany(mappedBy = "property")
+//   private List<Building> buildings = new ArrayList();
 
 }

@@ -7,13 +7,13 @@ import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.exception.InvalidFileTypeException;
 
 @Slf4j
-@Service
+@Component
 public class ImageStorageService {
     
     @Value("${app.upload-dir}")

@@ -17,6 +17,7 @@ public class PropertyResponse {
     private String city;
     private String state;
     private String status;
+    private String propertyTier;
     private List<ImageResponse> images;
     private Double miniumRent;
     private Double maximumRent;

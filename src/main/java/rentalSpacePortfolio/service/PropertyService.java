@@ -20,6 +20,7 @@ import rentalSpacePortfolio.dto.request.property.PropertyImageRequest;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.entity.*;
 import rentalSpacePortfolio.enums.PropertyStatus;
+import rentalSpacePortfolio.enums.PropertyTier;
 import rentalSpacePortfolio.enums.PropertyVisbility;
 import rentalSpacePortfolio.enums.Role;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
@@ -79,11 +80,10 @@ public class PropertyService {
         }
         
         Property property = new Property();
-        mapToPropertyEntity(property, propertyData, owner);
+        mapToPropertyDto(property, propertyData, owner);
         
         Property savedProperty = propertyRepo.save(property);
-        
-        log.info("Property data successfully with Id: {}", savedProperty.getId());
+        log.info("Property data successfully added with Id: {}", savedProperty.getId());
                 
         // save the list of images FK references in property
         savedProperty.setPropertyImages(saveImageToStorage(images, imageDetails, savedProperty));
@@ -126,7 +126,7 @@ public class PropertyService {
                         details.getDisplayOrder());
                     
                     log.info("Removing image file from local disk");
-                    imageStorageService.deleteImageFromDisk(image.getImageUrl());
+                    imageStorageService.deleteImageFromDisk(image.getImageDetails().getImageUrl());
                 }
                                 
                 newImages.add(images.get(details.getDisplayOrder() - 1));
@@ -143,7 +143,7 @@ public class PropertyService {
         }
         
         log.info("Mapping property to dto and saving to database");
-        mapToPropertyEntity(property, propertyData, null);
+        mapToPropertyDto(property, propertyData, null);
         Property savedProperty = propertyRepo.save(property);
         
         log.info("Updating images in DB and local disk, Setting image to saved property: {}", savedProperty.getId());
@@ -151,6 +151,16 @@ public class PropertyService {
         propertyRepo.save(savedProperty);
         
         log.info("Property image and data successfully updated with Id: {}", savedProperty.getId());
+    }
+    
+    // Method to convert String property tier into enum tier type
+    private PropertyTier selectPropertyTier(String propertyTier){
+     return switch (propertyTier.toUpperCase()){
+            case "ECONOMY" -> PropertyTier.ECONOMY;
+            case "DELUXE" -> PropertyTier.DELUXE;
+            case "LUXURY" -> PropertyTier.LUXURY;
+            default -> PropertyTier.ECONOMY;
+        };
     }
     
     // Method to convert String property status into enum status type
@@ -164,7 +174,7 @@ public class PropertyService {
     }
     
     // shared method to map dto to entity for property
-    private void mapToPropertyEntity(Property property, PropertyRequest propertyData, User owner){
+    private void mapToPropertyDto(Property property, PropertyRequest propertyData, User owner){
         property.setName(propertyData.getName());
         property.setDescription(propertyData.getDescription());
         property.setAddress(propertyData.getAddress());
@@ -175,6 +185,7 @@ public class PropertyService {
             property.setOwner(owner);
         }
         property.setStatus(selectPropertyStatus(propertyData.getStatus()));
+        property.setTier(selectPropertyTier(propertyData.getPropertyTier()));
         property.setMinimumRent(propertyData.getMinimumRent());
         property.setMaximumRent(propertyData.getMaximumRent());        
     }
@@ -195,9 +206,9 @@ public class PropertyService {
             String imageUrl = imageStorageService.saveImage(file, "property");
             
             PropertyImage image = new PropertyImage();
-            image.setImageUrl(imageUrl);
-            image.setDisplayOrder(req.getDisplayOrder());
-            image.setIsCoverImage(req.getIsCoverImage());
+            image.getImageDetails().setImageUrl(imageUrl);
+            image.getImageDetails().setDisplayOrder(req.getDisplayOrder());
+            image.getImageDetails().setIsCoverImage(req.getIsCoverImage());
             image.setProperty(property);
             
             propertyImages.add(image);
