@@ -1,0 +1,94 @@
+package rentalSpacePortfolio.controller;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import rentalSpacePortfolio.constants.ApiPaths;
+import rentalSpacePortfolio.dto.request.flat.FlatDataRequest;
+import rentalSpacePortfolio.dto.request.flat.FlatImageDataRequest;
+import rentalSpacePortfolio.dto.request.property.PropertyImageRequest;
+import rentalSpacePortfolio.dto.response.ApiResponse;
+import rentalSpacePortfolio.exception.MaxUploadCountExceededException;
+import rentalSpacePortfolio.service.FlatService;
+import tools.jackson.databind.ObjectMapper;
+
+@Slf4j
+@RestController
+@RequestMapping(ApiPaths.BASE + "/owner")
+public class FlatController {
+    
+    private final FlatService flatService;
+    
+    @Autowired
+    public FlatController(FlatService flatService){
+        this.flatService = flatService;
+    }
+    
+    // shared validation method for add and update flat
+    private List<FlatImageDataRequest> validateAndParseRequest(
+             int step,
+             String tab,
+             List<MultipartFile> images,
+             String imageDetails){
+        
+    if (step != 1 || !tab.equals("flat")) {
+        log.warn("Validation failed: requested path step or tab data is wrong");
+        throw new IllegalArgumentException("Incorrect Path");
+    }
+
+    if (images.size() > 5) {
+        log.warn("Image upload failed: max limit is 5");
+        throw new MaxUploadCountExceededException("Maximum file upload limit is 5");
+    }
+
+    ObjectMapper mapper = new ObjectMapper();
+    List<FlatImageDataRequest> imageRequests = mapper.readValue(
+            imageDetails, 
+            mapper.getTypeFactory().constructCollectionType(List.class, FlatImageDataRequest.class)
+    );
+
+    if (imageRequests.size() > 5) {
+        log.warn("Image validation failed: max JSON details limit is 5");
+        throw new MaxUploadCountExceededException("Maximum file upload limit is 5");
+    }
+
+    if (images.size() != imageRequests.size()) {
+        throw new IllegalArgumentException("Images count and image details count must match");
+    }
+
+    return imageRequests;
+    }
+    
+    // Endpoint to add property flats
+    @PostMapping(value = "/properties/{propertyId}/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addFlat(
+            @PathVariable UUID propertyId,
+            @RequestParam("step") int step,
+            @RequestParam("tab") String tab,
+            @RequestParam("images") List<MultipartFile> images,
+            @RequestParam("imageDetails") String imageDetails,
+            @RequestPart("flatData") FlatDataRequest flatData
+            ) throws IOException, HttpMediaTypeNotSupportedException{
+        
+        log.info("Received request to add new property flat");
+        List<FlatImageDataRequest> imageRequests = validateAndParseRequest(step, tab, images, imageDetails);
+        
+        flatService.saveFlat(images, imageRequests, flatData, propertyId);
+        return new ResponseEntity<>((new ApiResponse<>(true, "Flat added successfully!", "Empty")), HttpStatus.CREATED);
+        
+    }
+
+}

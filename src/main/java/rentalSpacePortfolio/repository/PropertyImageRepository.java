@@ -15,14 +15,14 @@ public interface PropertyImageRepository extends JpaRepository<PropertyImage, UU
     @Query("SELECT i FROM PropertyImage i WHERE i.property.id = :propertyId")
     List<PropertyImage> findAllImagesByPropertyId(@Param("propertyId") UUID propertyId);
     
-    @Query("SELECT i FROM PropertyImage i WHERE i.property.id = :propertyId AND i.displayOrder = :orderNum")
+    @Query("SELECT i FROM PropertyImage i WHERE i.property.id = :propertyId AND i.imageDetails.displayOrder = :orderNum")
     PropertyImage findImageByDisplayOrder(
             @Param("propertyId") UUID propertyId,
             @Param("orderNum") Integer orderNum
     );
     
     @Modifying
-    @Query("DELETE FROM PropertyImage i WHERE i.property.id = :propertyId AND i.displayOrder = :orderNum")
+    @Query("DELETE FROM PropertyImage i WHERE i.property.id = :propertyId AND i.imageDetails.displayOrder = :orderNum")
     int deleteImageByImageOrder(
             @Param("propertyId") UUID propertyId,
             @Param("orderNum") Integer orderNum

@@ -1,12 +1,16 @@
 package rentalSpacePortfolio.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.util.List;
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -21,6 +25,7 @@ import rentalSpacePortfolio.enums.FlatStatus;
 @Table(name = "flats")
 public class Flat extends BaseEnity{
     
+        private String buildingName;
         private String flatNumber;
         private Integer floorNumber;
         private String type;
@@ -30,9 +35,16 @@ public class Flat extends BaseEnity{
         @Enumerated(EnumType.STRING)
         private FlatStatus status;
         
+        private int step = 1;
+        private String tab = "flat";
+        private boolean isDeleted;
+        
+        @OneToMany(mappedBy = "flat", cascade = CascadeType.ALL)
+        private List<FlatImage> flatImages = new ArrayList<>();
+        
         @ManyToOne
-        @JoinColumn(name = "building_id")
-        private Building building;
+        @JoinColumn(name = "property_id")
+        private Property property;
         
         @OneToOne
         private Tenant currentTenant;
