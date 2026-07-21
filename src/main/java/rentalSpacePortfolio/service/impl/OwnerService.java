@@ -1,4 +1,4 @@
-package rentalSpacePortfolio.service;
+package rentalSpacePortfolio.service.impl;
 
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;

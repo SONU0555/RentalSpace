@@ -1,4 +1,4 @@
-package rentalSpacePortfolio.service;
+package rentalSpacePortfolio.service.impl;
 
 import java.io.IOException;
 import java.nio.file.Files;

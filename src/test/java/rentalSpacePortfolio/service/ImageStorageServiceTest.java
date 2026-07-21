@@ -1,9 +1,9 @@
 package rentalSpacePortfolio.service;
 
+import rentalSpacePortfolio.service.interfaces.ImageStorageService;
 import org.junit.jupiter.api.Assertions;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.Mockito.mock;
@@ -17,18 +17,13 @@ public class ImageStorageServiceTest {
     
     private ImageStorageService imageStorageService;
     
-    @BeforeEach
-    void setUp(){
-        imageStorageService = new ImageStorageService();
-    }
-    
     @Test
     void shouldThrowException_whenContentTypeNull(){
         MultipartFile file = mock(MultipartFile.class);
         when(file.getContentType()).thenReturn(null);
         
         HttpMediaTypeNotSupportedException ex = Assertions.assertThrows(HttpMediaTypeNotSupportedException.class, () 
-                -> imageStorageService.saveImage(file, "property"));
+                -> imageStorageService.upload(file, "property"));
         
         assertEquals("Only JPG, WEBP, allowed", ex.getMessage());
     }
@@ -39,7 +34,7 @@ public class ImageStorageServiceTest {
         when(file.getContentType()).thenReturn("application/pdf");
 
         HttpMediaTypeNotSupportedException ex = assertThrows(HttpMediaTypeNotSupportedException.class, () ->
-            imageStorageService.saveImage(file, "property"));
+            imageStorageService.upload(file, "property"));
 
         assertEquals("Only JPG, WEBP, allowed", ex.getMessage());
     }
@@ -51,7 +46,7 @@ public class ImageStorageServiceTest {
         when(file.getSize()).thenReturn(6 * 1024 * 1024L); // 6MB
 
         RuntimeException ex = assertThrows(RuntimeException.class, () ->
-            imageStorageService.saveImage(file, "property"));
+            imageStorageService.upload(file, "property"));
 
         assertEquals("File size must not exceed 5MB", ex.getMessage());
     }

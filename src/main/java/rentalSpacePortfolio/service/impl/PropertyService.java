@@ -1,4 +1,4 @@
-package rentalSpacePortfolio.service;
+package rentalSpacePortfolio.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyImageRequest;
@@ -27,6 +26,7 @@ import rentalSpacePortfolio.exception.DuplicatePropertyException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.mapper.PropertyResponseMapper;
 import rentalSpacePortfolio.repository.*;
+import rentalSpacePortfolio.service.interfaces.ImageStorageService;
 
 
 @Slf4j
@@ -67,7 +67,7 @@ public class PropertyService {
     @Transactional
     public void saveProperty(List<MultipartFile> images, 
             List<PropertyImageRequest> imageDetails, 
-            PropertyRequest propertyData, UUID ownerId) throws IOException, HttpMediaTypeNotSupportedException{
+            PropertyRequest propertyData, UUID ownerId) throws IOException{
         
         User owner = userRepo.findById(ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + ownerId));
@@ -100,7 +100,7 @@ public class PropertyService {
             List<PropertyImageRequest> imageDetails, 
             PropertyRequest propertyData,
             UUID propertyId,
-            UUID ownerId) throws IOException, HttpMediaTypeNotSupportedException{
+            UUID ownerId) throws IOException{
         
         userRepo.findById(ownerId)
                 .orElseThrow(() -> {
@@ -126,7 +126,7 @@ public class PropertyService {
                         details.getDisplayOrder());
                     
                     log.info("Removing image file from local disk");
-                    imageStorageService.deleteImageFromDisk(image.getImageDetails().getImageUrl());
+                    imageStorageService.delete(image.getImageDetails().getImageUrl());
                 }
                                 
                 newImages.add(images.get(details.getDisplayOrder() - 1));
@@ -194,7 +194,7 @@ public class PropertyService {
     private List<PropertyImage> saveImageToStorage(
             List<MultipartFile> images,
             List<PropertyImageRequest> imageDetails,
-            Property property) throws IOException, HttpMediaTypeNotSupportedException{
+            Property property) throws IOException{
         
         List<PropertyImage> propertyImages = new ArrayList<>();
         
@@ -203,7 +203,7 @@ public class PropertyService {
             PropertyImageRequest req = imageDetails.get(i); // get image details
             
             // save image to disk, get back URL
-            String imageUrl = imageStorageService.saveImage(file, "property");
+            String imageUrl = imageStorageService.upload(file, "property");
             
             PropertyImage image = new PropertyImage();
             image.getImageDetails().setImageUrl(imageUrl);

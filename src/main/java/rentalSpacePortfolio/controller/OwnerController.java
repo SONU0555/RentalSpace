@@ -11,8 +11,8 @@ import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.user.ProfileResponse;
 import rentalSpacePortfolio.security.SecurityUnits;
-import rentalSpacePortfolio.service.OwnerService;
-import rentalSpacePortfolio.service.UserCommonService;
+import rentalSpacePortfolio.service.impl.OwnerService;
+import rentalSpacePortfolio.service.impl.UserCommonService;
 
 
 @RestController

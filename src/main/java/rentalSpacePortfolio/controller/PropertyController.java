@@ -8,10 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +23,7 @@ import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.exception.MaxUploadCountExceededException;
 import rentalSpacePortfolio.security.SecurityUnits;
-import rentalSpacePortfolio.service.PropertyService;
+import rentalSpacePortfolio.service.impl.PropertyService;
 import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
@@ -82,7 +78,7 @@ public class PropertyController {
             @RequestParam("images") List<MultipartFile> images,
             @RequestParam("imageDetails") String imageDetails,
             @RequestPart("propertyData") PropertyRequest propertyData
-            ) throws IOException, HttpMediaTypeNotSupportedException{     
+            ) throws IOException{     
         
         log.info("Received request to add new property");
         
@@ -102,7 +98,7 @@ public class PropertyController {
             @RequestParam("images") List<MultipartFile> images,
             @RequestParam("imageDetails") String imageDetails,
             @RequestPart("propertyData") PropertyRequest propertyData
-            ) throws IOException, HttpMediaTypeNotSupportedException{     
+            ) throws IOException{     
         
         log.info("Received request to update property with Id: {}", propertyId);
         

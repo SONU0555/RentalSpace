@@ -1,4 +1,4 @@
-package rentalSpacePortfolio.service;
+package rentalSpacePortfolio.service.impl;
 
 import java.util.List;
 import rentalSpacePortfolio.dto.request.tenant.ProfileUpdateRequest;

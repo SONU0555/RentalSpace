@@ -15,8 +15,8 @@ import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.security.SecurityUnits;
-import rentalSpacePortfolio.service.TenantService;
-import rentalSpacePortfolio.service.UserCommonService;
+import rentalSpacePortfolio.service.impl.TenantService;
+import rentalSpacePortfolio.service.impl.UserCommonService;
 
 @RestController
 @RequestMapping(ApiPaths.BASE + "/tenants")

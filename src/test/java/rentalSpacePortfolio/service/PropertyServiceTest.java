@@ -1,5 +1,7 @@
 package rentalSpacePortfolio.service;
 
+import rentalSpacePortfolio.service.impl.PropertyService;
+import rentalSpacePortfolio.service.interfaces.ImageStorageService;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -121,8 +123,8 @@ public class PropertyServiceTest {
         when(userRepo.findById(ownerId)).thenReturn(Optional.of(owner));
         when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(false);
         when(propertyRepo.save(Mockito.any(Property.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(imageStorageService.saveImage(Mockito.eq(file1), Mockito.anyString())).thenReturn("url1");
-        when(imageStorageService.saveImage(Mockito.eq(file2), Mockito.anyString())).thenReturn("url2");
+        when(imageStorageService.upload(Mockito.eq(file1), Mockito.anyString())).thenReturn("url1");
+        when(imageStorageService.upload(Mockito.eq(file2), Mockito.anyString())).thenReturn("url2");
         
         
         propertyService.saveProperty(List.of(file1, file2), List.of(req1, req2), propertyData, ownerId);

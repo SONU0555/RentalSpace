@@ -14,8 +14,8 @@ import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
-import rentalSpacePortfolio.service.FlatService;
-import rentalSpacePortfolio.service.PropertyService;
+import rentalSpacePortfolio.service.impl.FlatService;
+import rentalSpacePortfolio.service.impl.PropertyService;
 
 @Slf4j
 @RestController
@@ -51,14 +51,6 @@ public class PublicController {
        
         PropertyResponse property = propertyService.getPropertyById(UUID.fromString(propertyId));
         return ResponseEntity.ok(ApiResponse.success("Property fetched successfully by Id", property));
-    }
-    
-    // Endpoint to get all flats
-    @GetMapping("/{propertyId}/flats")
-    public ResponseEntity<ApiResponse<List<FlatResponse>>> getPropertyAllFlat(@PathVariable UUID propertyId){
-        log.info("Received request to fetch all flat of property: {}", propertyId);
-        List<FlatResponse> flats = flatService.getPropertyAllFlat(propertyId);
-        return ResponseEntity.ok(ApiResponse.success("All properties fetched succesfully", flats));
     }
 
 }

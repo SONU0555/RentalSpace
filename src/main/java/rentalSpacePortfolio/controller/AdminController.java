@@ -22,7 +22,7 @@ import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
 import rentalSpacePortfolio.dto.response.admin.ProfileResponse;
 import rentalSpacePortfolio.repository.UserRepository;
 import rentalSpacePortfolio.security.SecurityUnits;
-import rentalSpacePortfolio.service.AdminService;
+import rentalSpacePortfolio.service.impl.AdminService;
 
 
 @RestController
