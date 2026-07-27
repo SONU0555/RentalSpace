@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.request.flat.FlatDataRequest;
-import rentalSpacePortfolio.dto.request.flat.FlatImageDataRequest;
+import rentalSpacePortfolio.dto.request.image.ImageRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.exception.MaxUploadCountExceededException;
@@ -41,16 +41,16 @@ public class FlatController {
     }
     
     // shared validation method for add and update flat
-    private List<FlatImageDataRequest> validateAndParseRequest(
-             int step,
-             String tab,
+    private List<ImageRequest> validateAndParseRequest(
+//             int step,
+//             String tab,
              List<MultipartFile> images,
              String imageDetails){
         
-    if (step != 1 || !tab.equals("flat")) {
-        log.warn("Validation failed: requested path step or tab data is wrong");
-        throw new IllegalArgumentException("Incorrect Path");
-    }
+//    if (step != 1 || !tab.equals("flat")) {
+//        log.warn("Validation failed: requested path step or tab data is wrong");
+//        throw new IllegalArgumentException("Incorrect Path");
+//    }
 
     if (images.size() > 5) {
         log.warn("Image upload failed: max limit is 5");
@@ -58,9 +58,9 @@ public class FlatController {
     }
 
     ObjectMapper mapper = new ObjectMapper();
-    List<FlatImageDataRequest> imageRequests = mapper.readValue(
+    List<ImageRequest> imageRequests = mapper.readValue(
             imageDetails, 
-            mapper.getTypeFactory().constructCollectionType(List.class, FlatImageDataRequest.class)
+            mapper.getTypeFactory().constructCollectionType(List.class, ImageRequest.class)
     );
 
     if (imageRequests.size() > 5) {
@@ -77,30 +77,29 @@ public class FlatController {
     
     // Endpoint to add property flats
     @PreAuthorize("hasRole('OWNER')")
-    @PostMapping(value = "/owner/properties/{propertyId}/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/owner/properties/{propertyId}/flats/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addFlat(
             @PathVariable UUID propertyId,
-            @RequestParam("step") int step,
-            @RequestParam("tab") String tab,
+//            @RequestParam("step") int step,
+//            @RequestParam("tab") String tab,
             @RequestParam("images") List<MultipartFile> images,
             @RequestParam("imageDetails") String imageDetails,
             @RequestPart("flatData") FlatDataRequest flatData
             ) throws IOException{
         
         log.info("Received request to add new property flat");
-        List<FlatImageDataRequest> imageRequests = validateAndParseRequest(step, tab, images, imageDetails);
+        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
         
         flatService.saveFlat(images, imageRequests, flatData, propertyId);
         return new ResponseEntity<>((new ApiResponse<>(true, "Flat added successfully!", "Empty")), HttpStatus.CREATED);
-        
     }
     
     // Endpoint to update property flat
     @PreAuthorize("hasRole('OWNER')")
     @PutMapping(value = "/owner/flats/{flatId}/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateFlat (
-            @RequestParam("step") int step,
-            @RequestParam("tab") String tab,
+//            @RequestParam("step") int step,
+//            @RequestParam("tab") String tab,
             @PathVariable("flatId") UUID flatId,
             @RequestParam("images") List<MultipartFile> images,
             @RequestParam("imageDetails") String imageDetails,
@@ -109,7 +108,7 @@ public class FlatController {
         
         log.info("Received request to update flat with Id: {}", flatId);
         
-        List<FlatImageDataRequest> imageRequests = validateAndParseRequest(step, tab, images, imageDetails);
+        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
         
         flatService.updateFlat(images, imageRequests, flatData, flatId);
         return new ResponseEntity<>((new ApiResponse<>(true, "flat updated successfully!", "updated")), HttpStatus.OK); 

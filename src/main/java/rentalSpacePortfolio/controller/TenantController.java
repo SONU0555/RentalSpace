@@ -16,18 +16,18 @@ import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.TenantService;
-import rentalSpacePortfolio.service.impl.UserCommonService;
+import rentalSpacePortfolio.service.impl.CommonService;
 
 @RestController
 @RequestMapping(ApiPaths.BASE + "/tenants")
 public class TenantController {
     
     private final TenantService tenantService;
-    private final UserCommonService userCommonService;
+    private final CommonService userCommonService;
     
     @Autowired
     public TenantController(TenantService tenantService,
-            UserCommonService userCommonService){
+            CommonService userCommonService){
         this.tenantService = tenantService;
         this.userCommonService = userCommonService;
     }

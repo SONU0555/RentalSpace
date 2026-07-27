@@ -10,24 +10,25 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @NoArgsConstructor  
 @AllArgsConstructor 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "property_images")
-public class PropertyImage extends BaseEnity implements BelongingImage<Property>{
-
+@Table(name = "amenity_images")
+public class AmenityImage extends BaseEnity implements BelongingImage<Amenity>{
+    
     @Embedded
     private ImageDetails imageDetails = new ImageDetails();
-
+    
     @ManyToOne
-    @JoinColumn(name = "property_id")
-    private Property property;
+    @JoinColumn(name = "amenity_id")
+    private Amenity amenity;
 
     @Override
-    public void setParent(Property parentEntity) {
-        this.property = parentEntity;
+    public void setParent(Amenity parentEntity) {
+        this.amenity = parentEntity;
     }
-
+    
 }

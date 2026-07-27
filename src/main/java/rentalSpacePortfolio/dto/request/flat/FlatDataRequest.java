@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import rentalSpacePortfolio.enums.FlatStatus;
 
 
 @Data
@@ -41,6 +42,6 @@ public class FlatDataRequest {
     private Double rentAmount;
     
     @NotNull(message = "Flat status is required")
-    private String status;
+    private FlatStatus status;
 
 }

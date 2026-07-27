@@ -14,13 +14,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.dto.request.flat.FlatDataRequest;
-import rentalSpacePortfolio.dto.request.flat.FlatImageDataRequest;
+import rentalSpacePortfolio.dto.request.image.ImageRequest;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.FlatImage;
 import rentalSpacePortfolio.entity.Property;
 import rentalSpacePortfolio.enums.FlatStatus;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
+import rentalSpacePortfolio.mapper.FlatMapper;
 import rentalSpacePortfolio.mapper.FlatResponseMapper;
 import rentalSpacePortfolio.repository.FlatImageRepository;
 import rentalSpacePortfolio.repository.FlatRepository;
@@ -35,17 +36,20 @@ public class FlatService {
     private final FlatRepository flatRepo;
     private final FlatImageRepository flatImageRepo;
     private final ImageStorageService imageStorageService;
+    private final CommonService commonService;
     
     @Autowired
     public FlatService(
             PropertyRepository propertyRepo,
             FlatRepository flatRepo,
             ImageStorageService imageStorageService,
-            FlatImageRepository flatImageRepo){
+            FlatImageRepository flatImageRepo,
+            CommonService commonService){
         this.propertyRepo = propertyRepo;
         this.flatRepo = flatRepo;
         this.imageStorageService = imageStorageService;
         this.flatImageRepo = flatImageRepo;
+        this.commonService = commonService;
     }
     
     // Service to get all flat of specific property by Id
@@ -67,7 +71,7 @@ public class FlatService {
     // Service to add flat in property
     @Transactional
     public void saveFlat(List<MultipartFile> images, 
-            List<FlatImageDataRequest> imageDetails, 
+            List<ImageRequest> imageDetails, 
             FlatDataRequest flatData,
             UUID propertyId) throws IOException{
         
@@ -79,11 +83,13 @@ public class FlatService {
         );
         
         Flat flat = new Flat();
-        mapToFlatDto(flat, flatData, property);
+        FlatMapper.mapToFlatDto(flat, flatData, property);
         Flat savedFlat = flatRepo.save(flat);
         log.info("Flat data added successfully, now adding images");
         
-        savedFlat.setFlatImages(saveImageToStorage(images, imageDetails, flat));
+        savedFlat.setFlatImages(commonService.mapAndSaveImage(
+                images, imageDetails, flat, "flat", FlatImage::new, flatImageRepo
+        ));
         flatRepo.save(savedFlat);
         
         log.info("Property flat added successfully with Id: {}", savedFlat.getId());
@@ -94,7 +100,7 @@ public class FlatService {
     @Transactional
     public void updateFlat(
             List<MultipartFile> images, 
-            List<FlatImageDataRequest> imageDetails, 
+            List<ImageRequest> imageDetails, 
             FlatDataRequest flatData,
             UUID flatId
     ) throws IOException{
@@ -105,9 +111,9 @@ public class FlatService {
         List<FlatImage> flatImages = flatImageRepo.findAllImagesByFlatId(flatId);
         
         List<MultipartFile> newImages = new ArrayList<>();
-        List<FlatImageDataRequest> newImageDetails = new ArrayList<>();
+        List<ImageRequest> newImageDetails = new ArrayList<>();
         
-        for(FlatImageDataRequest details : imageDetails){
+        for(ImageRequest details : imageDetails){
             if(details.getId() == null){
                 FlatImage image = flatImageRepo.findImageByDisplayOrder(flat.getId(), details.getDisplayOrder());
                 if(image != null){
@@ -133,68 +139,16 @@ public class FlatService {
         }
         
         log.info("Mapping property to dto and saving to database");
-        mapToFlatDto(flat, flatData, null);
+        FlatMapper.mapToFlatDto(flat, flatData, null);
         Flat updatedFlat = flatRepo.save(flat);
         
         log.info("Updating images in DB and local disk, Setting image to saved flat: {}", updatedFlat.getId());
-        updatedFlat.setFlatImages(saveImageToStorage(newImages, newImageDetails, updatedFlat));
+        updatedFlat.setFlatImages(commonService.mapAndSaveImage(
+                newImages, newImageDetails, flat, "flat", FlatImage::new, flatImageRepo
+        ));
         flatRepo.save(updatedFlat);
         
         log.info("Flat image and data successfully updated with Id: {}", updatedFlat.getId());
-    }
-    
-    // shared method to map flat dto to entity
-    private Flat mapToFlatDto(Flat flat, FlatDataRequest flatData, Property property){
-        flat.setBuildingName(flatData.getBuildingName());
-        flat.setFlatNumber(flatData.getFlatNumber());
-        flat.setFloorNumber(flatData.getFloorNumber());
-        flat.setAreaSqFt(flatData.getAreaSqFt());
-        flat.setType(flatData.getType());
-        flat.setStatus(selectFlatStatus(flatData.getStatus()));
-        flat.setRentAmount(flatData.getRentAmount());
-        flat.setProperty(property == null ? flat.getProperty() : property);
-        flat.setDeleted(false);
-        
-        return flat;
-    }
-    
-    // method to set given flat status 
-    private FlatStatus selectFlatStatus(String flatStatus){
-     return switch (flatStatus.toUpperCase()){
-            case "VACANT" -> FlatStatus.VACANT;
-            case "OCCUPIED" -> FlatStatus.OCCUPIED;
-            case "UNDER_MAINTENANCE" -> FlatStatus.UNDER_MAINTENANCE;
-            default -> FlatStatus.VACANT;
-        };
-    }
-    
-    // shared method to save image to storage and propertyImage table
-    private List<FlatImage> saveImageToStorage(
-            List<MultipartFile> images,
-            List<FlatImageDataRequest> FlatImageData,
-            Flat flat) throws IOException{
-        
-        List<FlatImage> flatImages = new ArrayList<>();
-        
-        for(int i = 0; i < images.size(); i++){
-            MultipartFile file = images.get(i); // get actual image file
-            FlatImageDataRequest req = FlatImageData.get(i); // get image details
-            
-            // save image to disk, get back URL
-            String imageUrl = imageStorageService.upload(file, "flat");
-            
-            FlatImage image = new FlatImage();
-            image.getImageDetails().setImageUrl(imageUrl);
-            image.getImageDetails().setDisplayOrder(req.getDisplayOrder());
-            image.getImageDetails().setIsCoverImage(req.getIsCoverImage());
-            image.setFlat(flat);
-            
-            flatImages.add(image);
-        }
-        
-        List<FlatImage> savedImages = flatImageRepo.saveAll(flatImages);
-        
-        return savedImages;
     }
     
     // Service to set active and In-Active flat

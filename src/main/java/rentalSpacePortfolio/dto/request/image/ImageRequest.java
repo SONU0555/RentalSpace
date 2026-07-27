@@ -1,4 +1,4 @@
-package rentalSpacePortfolio.dto.request.flat;
+package rentalSpacePortfolio.dto.request.image;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -9,9 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class FlatImageDataRequest {
+@NoArgsConstructor
+public class ImageRequest {
     
     private UUID id;
 

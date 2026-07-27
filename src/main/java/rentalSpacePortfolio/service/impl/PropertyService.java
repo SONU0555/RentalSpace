@@ -14,8 +14,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import rentalSpacePortfolio.dto.request.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
-import rentalSpacePortfolio.dto.request.property.PropertyImageRequest;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.entity.*;
 import rentalSpacePortfolio.enums.PropertyStatus;
@@ -24,6 +24,7 @@ import rentalSpacePortfolio.enums.PropertyVisbility;
 import rentalSpacePortfolio.enums.Role;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
+import rentalSpacePortfolio.mapper.PropertyMapper;
 import rentalSpacePortfolio.mapper.PropertyResponseMapper;
 import rentalSpacePortfolio.repository.*;
 import rentalSpacePortfolio.service.interfaces.ImageStorageService;
@@ -38,18 +39,21 @@ public class PropertyService {
     private final UserRepository userRepo;
     private final PropertyImageRepository propertyImgRepo;
     private final ImageStorageService imageStorageService;
+    private final CommonService commonService;
     
     @Autowired
     public PropertyService(PropertyRepository propertyRepo,
             UserRepository userRepo,
             AdminRepository adminRepo,
             PropertyImageRepository propertyImgRepo,
-            ImageStorageService imageStorageService){
+            ImageStorageService imageStorageService,
+            CommonService commonService){
         this.propertyRepo = propertyRepo;
         this.userRepo = userRepo;
         this.adminRepo = adminRepo;
         this.propertyImgRepo = propertyImgRepo;
         this.imageStorageService = imageStorageService;
+        this.commonService = commonService;
     }
     
     // Service to fetch all properties
@@ -65,8 +69,8 @@ public class PropertyService {
     
     // Service to save new property
     @Transactional
-    public void saveProperty(List<MultipartFile> images, 
-            List<PropertyImageRequest> imageDetails, 
+    public void createProperty(List<MultipartFile> images, 
+            List<ImageRequest> imageDetails, 
             PropertyRequest propertyData, UUID ownerId) throws IOException{
         
         User owner = userRepo.findById(ownerId)
@@ -80,13 +84,15 @@ public class PropertyService {
         }
         
         Property property = new Property();
-        mapToPropertyDto(property, propertyData, owner);
+       PropertyMapper.mapToPropertyDto(property, propertyData, owner);
         
         Property savedProperty = propertyRepo.save(property);
         log.info("Property data successfully added with Id: {}", savedProperty.getId());
                 
         // save the list of images FK references in property
-        savedProperty.setPropertyImages(saveImageToStorage(images, imageDetails, savedProperty));
+        savedProperty.setPropertyImages(commonService.mapAndSaveImage(
+                images, imageDetails, property, "property", PropertyImage::new, propertyImgRepo
+        ));
         savedProperty.setVisibility(PropertyVisbility.DRAFT);
         propertyRepo.save(savedProperty);
                 
@@ -97,7 +103,7 @@ public class PropertyService {
     @Transactional
     public void updateProperty(
             List<MultipartFile> images, 
-            List<PropertyImageRequest> imageDetails, 
+            List<ImageRequest> imageDetails, 
             PropertyRequest propertyData,
             UUID propertyId,
             UUID ownerId) throws IOException{
@@ -115,9 +121,9 @@ public class PropertyService {
         List<PropertyImage> propertyImages = propertyImgRepo.findAllImagesByPropertyId(propertyId);
         
         List<MultipartFile> newImages = new ArrayList<>();
-        List<PropertyImageRequest> newImageDetails = new ArrayList<>();
+        List<ImageRequest> newImageDetails = new ArrayList<>();
         
-        for(PropertyImageRequest details : imageDetails){
+        for(ImageRequest details : imageDetails){
             if(details.getId() == null){
                 PropertyImage image = propertyImgRepo.findImageByDisplayOrder(property.getId(), details.getDisplayOrder());
                 if(image != null){
@@ -143,80 +149,16 @@ public class PropertyService {
         }
         
         log.info("Mapping property to dto and saving to database");
-        mapToPropertyDto(property, propertyData, null);
-        Property savedProperty = propertyRepo.save(property);
+        PropertyMapper.mapToPropertyDto(property, propertyData, null);
+        propertyRepo.save(property);
         
-        log.info("Updating images in DB and local disk, Setting image to saved property: {}", savedProperty.getId());
-        savedProperty.setPropertyImages(saveImageToStorage(newImages, newImageDetails, savedProperty));
-        propertyRepo.save(savedProperty);
+        log.info("Updating images in DB and local disk, Setting image to saved property: {}", property.getId());
+        property.setPropertyImages(commonService.mapAndSaveImage(
+                newImages, newImageDetails, property, "property", PropertyImage::new, propertyImgRepo
+        ));
+        propertyRepo.save(property);
         
-        log.info("Property image and data successfully updated with Id: {}", savedProperty.getId());
-    }
-    
-    // Method to convert String property tier into enum tier type
-    private PropertyTier selectPropertyTier(String propertyTier){
-     return switch (propertyTier.toUpperCase()){
-            case "ECONOMY" -> PropertyTier.ECONOMY;
-            case "DELUXE" -> PropertyTier.DELUXE;
-            case "LUXURY" -> PropertyTier.LUXURY;
-            default -> PropertyTier.ECONOMY;
-        };
-    }
-    
-    // Method to convert String property status into enum status type
-    private PropertyStatus selectPropertyStatus(String status){
-     return switch (status.toUpperCase()){
-            case "AVAILABLE" -> PropertyStatus.AVAILABLE;
-            case "UNAVAILABLE" -> PropertyStatus.UNAVAILABLE;
-            case "UNDER_MAINTENANCE" -> PropertyStatus.UNDER_MAINTENANCE;
-            default -> PropertyStatus.UNAVAILABLE;
-        };
-    }
-    
-    // shared method to map dto to entity for property
-    private void mapToPropertyDto(Property property, PropertyRequest propertyData, User owner){
-        property.setName(propertyData.getName());
-        property.setDescription(propertyData.getDescription());
-        property.setAddress(propertyData.getAddress());
-        property.setCity(propertyData.getCity());
-        property.setState(propertyData.getState());
-        property.setPinCode(propertyData.getPinCode());
-        if(owner != null){
-            property.setOwner(owner);
-        }
-        property.setStatus(selectPropertyStatus(propertyData.getStatus()));
-        property.setTier(selectPropertyTier(propertyData.getPropertyTier()));
-        property.setMinimumRent(propertyData.getMinimumRent());
-        property.setMaximumRent(propertyData.getMaximumRent());        
-    }
-   
-    // shared method to save image to storage and propertyImage table
-    private List<PropertyImage> saveImageToStorage(
-            List<MultipartFile> images,
-            List<PropertyImageRequest> imageDetails,
-            Property property) throws IOException{
-        
-        List<PropertyImage> propertyImages = new ArrayList<>();
-        
-        for(int i = 0; i < images.size(); i++){
-            MultipartFile file = images.get(i); // get actual image file
-            PropertyImageRequest req = imageDetails.get(i); // get image details
-            
-            // save image to disk, get back URL
-            String imageUrl = imageStorageService.upload(file, "property");
-            
-            PropertyImage image = new PropertyImage();
-            image.getImageDetails().setImageUrl(imageUrl);
-            image.getImageDetails().setDisplayOrder(req.getDisplayOrder());
-            image.getImageDetails().setIsCoverImage(req.getIsCoverImage());
-            image.setProperty(property);
-            
-            propertyImages.add(image);
-        }
-        
-        List<PropertyImage> savedImages = propertyImgRepo.saveAll(propertyImages);
-        
-        return savedImages;
+        log.info("Property image and data successfully updated with Id: {}", property.getId());
     }
     
     // Service to get property by Id

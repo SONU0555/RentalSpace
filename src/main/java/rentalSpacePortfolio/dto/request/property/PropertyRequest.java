@@ -9,6 +9,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import rentalSpacePortfolio.enums.PropertyStatus;
+import rentalSpacePortfolio.enums.PropertyTier;
 
 
 @Data
@@ -41,10 +43,10 @@ private String state;
 private String pinCode;
 
 @NotBlank(message = "Status is required")
-private String status;
+private PropertyStatus status;
 
 @NotBlank(message = "Tier is required")
-private String propertyTier;
+private PropertyTier propertyTier;
 
 @NotNull(message = "Minimum rent is required")
 @Positive(message = "Minimum rent must be greater than 0")

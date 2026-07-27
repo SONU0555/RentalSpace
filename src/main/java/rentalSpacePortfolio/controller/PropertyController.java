@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.constants.ApiPaths;
-import rentalSpacePortfolio.dto.request.property.PropertyImageRequest;
+import rentalSpacePortfolio.dto.request.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.exception.MaxUploadCountExceededException;
@@ -39,13 +39,7 @@ public class PropertyController {
     }
     
     // shared validation method for add and update property
-    private List<PropertyImageRequest> validateAndParseRequest(
-            int step, String tab, List<MultipartFile> images, String imageDetails){
-        
-    if (step != 0 || !tab.equals("property")) {
-        log.warn("Validation failed: requested path step or tab data is wrong");
-        throw new IllegalArgumentException("Incorrect Path");
-    }
+    private List<ImageRequest> validateAndParseRequest(List<MultipartFile> images, String imageDetails){
 
     if (images.size() > 5) {
         log.warn("Image upload failed: max limit is 5");
@@ -53,9 +47,9 @@ public class PropertyController {
     }
 
     ObjectMapper mapper = new ObjectMapper();
-    List<PropertyImageRequest> imageRequests = mapper.readValue(
+    List<ImageRequest> imageRequests = mapper.readValue(
             imageDetails, 
-            mapper.getTypeFactory().constructCollectionType(List.class, PropertyImageRequest.class)
+            mapper.getTypeFactory().constructCollectionType(List.class, ImageRequest.class)
     );
 
     if (imageRequests.size() > 5) {
@@ -72,9 +66,7 @@ public class PropertyController {
     
     // Endpoint to add new property
     @PostMapping(value = "/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addProperty (
-            @RequestParam("step") int step,
-            @RequestParam("tab") String tab,
+    public ResponseEntity<?> createProperty (
             @RequestParam("images") List<MultipartFile> images,
             @RequestParam("imageDetails") String imageDetails,
             @RequestPart("propertyData") PropertyRequest propertyData
@@ -83,17 +75,15 @@ public class PropertyController {
         log.info("Received request to add new property");
         
         String ownerId = SecurityUnits.getCurrentUserId();
-        List<PropertyImageRequest> imageRequests = validateAndParseRequest(step, tab, images, imageDetails);
+        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
         
-        propertyService.saveProperty(images, imageRequests, propertyData, UUID.fromString(ownerId));
+        propertyService.createProperty(images, imageRequests, propertyData, UUID.fromString(ownerId));
         return new ResponseEntity<>((new ApiResponse<>(true, "Property added successfully!", "Empty")), HttpStatus.CREATED); 
     }
     
     // Endpoint to update new property
     @PutMapping(value = "/{propertyId}/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateProperty (
-            @RequestParam("step") int step,
-            @RequestParam("tab") String tab,
             @PathVariable("propertyId") UUID propertyId,
             @RequestParam("images") List<MultipartFile> images,
             @RequestParam("imageDetails") String imageDetails,
@@ -103,7 +93,7 @@ public class PropertyController {
         log.info("Received request to update property with Id: {}", propertyId);
         
         String ownerId = SecurityUnits.getCurrentUserId();
-        List<PropertyImageRequest> imageRequests = validateAndParseRequest(step, tab, images, imageDetails);
+        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
         
         propertyService.updateProperty(images, imageRequests, propertyData, propertyId, UUID.fromString(ownerId));
         return new ResponseEntity<>((new ApiResponse<>(true, "Property updated successfully!", "updated")), HttpStatus.CREATED); 

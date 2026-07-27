@@ -57,6 +57,9 @@ public class Property extends BaseEnity{
    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
    private List<PropertyImage> propertyImages = new ArrayList<>();
    
+   @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+   private List<Amenity> amenities = new ArrayList<>();
+   
    @OneToOne
    @JoinColumn(name = "admin_id", unique = true)
    private Admin admin;

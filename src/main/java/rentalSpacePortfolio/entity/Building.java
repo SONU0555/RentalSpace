@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import rentalSpacePortfolio.enums.BuildingStatus;
+import rentalSpacePortfolio.enums.AmenityStatus;
 
 @Data
 @NoArgsConstructor  
@@ -24,7 +24,7 @@ public class Building extends BaseEnity{
     private Integer TotalFloors;
     
     @Enumerated(EnumType.STRING)
-    private BuildingStatus status;
+    private AmenityStatus status;
     
 //    @ManyToOne
 //    @JoinColumn(name = "property_id")

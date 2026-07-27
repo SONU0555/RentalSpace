@@ -20,11 +20,12 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.multipart.MultipartFile;
-import rentalSpacePortfolio.dto.request.property.PropertyImageRequest;
+import rentalSpacePortfolio.dto.request.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.entity.Property;
 import rentalSpacePortfolio.entity.PropertyImage;
 import rentalSpacePortfolio.entity.User;
+import rentalSpacePortfolio.enums.PropertyStatus;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.repository.PropertyImageRepository;
@@ -60,7 +61,7 @@ public class PropertyServiceTest {
         propertyData.setCity("Pune");
         propertyData.setState("MH");
         propertyData.setPinCode("411001");
-        propertyData.setStatus("AVAILABLE");
+        propertyData.setStatus(PropertyStatus.AVAILABLE);
         propertyData.setMinimumRent(20000.0);
         propertyData.setMaximumRent(50000.0);
     }
@@ -70,7 +71,7 @@ public class PropertyServiceTest {
         when(userRepo.findById(ownerId)).thenReturn(Optional.empty());
         
         Assertions.assertThrows(ResourceNotFoundException.class, () ->
-                propertyService.saveProperty(List.of(), List.of(), propertyData, ownerId));
+                propertyService.createProperty(List.of(), List.of(), propertyData, ownerId));
         
         Mockito.verifyNoInteractions(propertyRepo);
     }
@@ -81,7 +82,7 @@ public class PropertyServiceTest {
         when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(true);
         
         Assertions.assertThrows(DuplicatePropertyException.class, () -> 
-                propertyService.saveProperty(List.of(), List.of(), propertyData, ownerId));
+                propertyService.createProperty(List.of(), List.of(), propertyData, ownerId));
         
         Mockito.verify(propertyRepo, Mockito.never()).save(Mockito.any());
     }
@@ -92,7 +93,7 @@ public class PropertyServiceTest {
         Mockito.when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(false);
         Mockito.when(propertyRepo.save(Mockito.any(Property.class))).thenAnswer(inv -> inv.getArgument(0));
         
-        propertyService.saveProperty(List.of(), List.of(), propertyData, ownerId);
+        propertyService.createProperty(List.of(), List.of(), propertyData, ownerId);
         
         ArgumentCaptor<Property> captor = ArgumentCaptor.forClass(Property.class);
         Mockito.verify(propertyRepo, Mockito.atLeastOnce()).save(captor.capture());
@@ -117,8 +118,8 @@ public class PropertyServiceTest {
         MultipartFile file1 = mock(MultipartFile.class);
         MultipartFile file2 = mock(MultipartFile.class);
         
-        PropertyImageRequest req1 = new PropertyImageRequest(null, true, 1);
-        PropertyImageRequest req2 = new PropertyImageRequest(null, false, 2);
+        ImageRequest req1 = new ImageRequest(null, true, 1);
+        ImageRequest req2 = new ImageRequest(null, false, 2);
         
         when(userRepo.findById(ownerId)).thenReturn(Optional.of(owner));
         when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(false);
@@ -127,7 +128,7 @@ public class PropertyServiceTest {
         when(imageStorageService.upload(Mockito.eq(file2), Mockito.anyString())).thenReturn("url2");
         
         
-        propertyService.saveProperty(List.of(file1, file2), List.of(req1, req2), propertyData, ownerId);
+        propertyService.createProperty(List.of(file1, file2), List.of(req1, req2), propertyData, ownerId);
         
         ArgumentCaptor<List<PropertyImage>> captor = ArgumentCaptor.forClass(List.class);
         Mockito.verify(propertyImgRepo).saveAll(captor.capture());
@@ -145,7 +146,7 @@ public class PropertyServiceTest {
         when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(false);
         when(propertyRepo.save(Mockito.any(Property.class))).thenAnswer(inv -> inv.getArgument(0));
         
-        propertyService.saveProperty(List.of(), List.of(), propertyData, ownerId);
+        propertyService.createProperty(List.of(), List.of(), propertyData, ownerId);
 
        Mockito.verify(propertyImgRepo).saveAll(Collections.emptyList());
        Mockito.verifyNoInteractions(imageStorageService);
