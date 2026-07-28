@@ -48,12 +48,12 @@ public class Amenity extends BaseEnity {
     // Rules
     private Integer maxSlotsPerTenant;      // Ek tenant ek din mein kitne slots book kar sakta hai
     private Integer advanceBookingDays;     // Kitne din pehle book kar sakte hain
-
+                  
     @ManyToOne
     @JoinColumn(name = "property_id")
     private Property property;
 
     // Images
     @OneToMany(mappedBy = "amenity", cascade = CascadeType.ALL)
-    private List<AmenityImage> images = new ArrayList<>();
+    private List<AmenityImage> amenityImages = new ArrayList<>();
 }

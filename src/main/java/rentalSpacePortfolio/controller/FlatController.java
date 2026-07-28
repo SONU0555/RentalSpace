@@ -21,12 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.request.flat.FlatDataRequest;
-import rentalSpacePortfolio.dto.request.image.ImageRequest;
+import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
-import rentalSpacePortfolio.exception.MaxUploadCountExceededException;
 import rentalSpacePortfolio.service.impl.FlatService;
-import tools.jackson.databind.ObjectMapper;
+import rentalSpacePortfolio.validation.ImageValidator;
 
 @Slf4j
 @RestController
@@ -34,45 +33,13 @@ import tools.jackson.databind.ObjectMapper;
 public class FlatController {
     
     private final FlatService flatService;
+    private final ImageValidator imageValidator;
+    private static final int MAX_IMAGE_COUNT = 5;
     
     @Autowired
-    public FlatController(FlatService flatService){
+    public FlatController(FlatService flatService, ImageValidator imageValidator){
         this.flatService = flatService;
-    }
-    
-    // shared validation method for add and update flat
-    private List<ImageRequest> validateAndParseRequest(
-//             int step,
-//             String tab,
-             List<MultipartFile> images,
-             String imageDetails){
-        
-//    if (step != 1 || !tab.equals("flat")) {
-//        log.warn("Validation failed: requested path step or tab data is wrong");
-//        throw new IllegalArgumentException("Incorrect Path");
-//    }
-
-    if (images.size() > 5) {
-        log.warn("Image upload failed: max limit is 5");
-        throw new MaxUploadCountExceededException("Maximum file upload limit is 5");
-    }
-
-    ObjectMapper mapper = new ObjectMapper();
-    List<ImageRequest> imageRequests = mapper.readValue(
-            imageDetails, 
-            mapper.getTypeFactory().constructCollectionType(List.class, ImageRequest.class)
-    );
-
-    if (imageRequests.size() > 5) {
-        log.warn("Image validation failed: max JSON details limit is 5");
-        throw new MaxUploadCountExceededException("Maximum file upload limit is 5");
-    }
-
-    if (images.size() != imageRequests.size()) {
-        throw new IllegalArgumentException("Images count and image details count must match");
-    }
-
-    return imageRequests;
+        this.imageValidator = imageValidator;
     }
     
     // Endpoint to add property flats
@@ -88,7 +55,7 @@ public class FlatController {
             ) throws IOException{
         
         log.info("Received request to add new property flat");
-        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
+        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
         
         flatService.saveFlat(images, imageRequests, flatData, propertyId);
         return new ResponseEntity<>((new ApiResponse<>(true, "Flat added successfully!", "Empty")), HttpStatus.CREATED);
@@ -108,7 +75,7 @@ public class FlatController {
         
         log.info("Received request to update flat with Id: {}", flatId);
         
-        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
+        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
         
         flatService.updateFlat(images, imageRequests, flatData, flatId);
         return new ResponseEntity<>((new ApiResponse<>(true, "flat updated successfully!", "updated")), HttpStatus.OK); 

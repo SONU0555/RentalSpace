@@ -14,7 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import rentalSpacePortfolio.dto.request.image.ImageRequest;
+import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.entity.*;

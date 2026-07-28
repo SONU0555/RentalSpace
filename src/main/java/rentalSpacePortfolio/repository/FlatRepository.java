@@ -17,7 +17,7 @@ public interface FlatRepository extends JpaRepository<Flat, UUID>{
     List<Flat> findAllPropertyFlat(@Param("propertyId") UUID propertyId);
     
 
-    @Query("SELECT f FROM Flat f LEFT JOIN FETCH f.flatImages WHERE f.property.id = :flatId AND f.isDeleted = false")
+    @Query("SELECT f FROM Flat f LEFT JOIN FETCH f.flatImages WHERE f.property.id = :flatId AND f.status = ACTIVE")
     Page<Flat> findAllWithImages(@Param("flatId") UUID flatId, Pageable pageable);
     
 }

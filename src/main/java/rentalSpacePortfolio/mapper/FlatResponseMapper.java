@@ -2,7 +2,7 @@ package rentalSpacePortfolio.mapper;
 
 import java.util.stream.Collectors;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
-import rentalSpacePortfolio.dto.response.flat.ImageResponse;
+import rentalSpacePortfolio.dto.image.ImageResponse;
 import rentalSpacePortfolio.entity.Flat;
 
 

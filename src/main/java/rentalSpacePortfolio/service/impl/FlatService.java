@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.dto.request.flat.FlatDataRequest;
-import rentalSpacePortfolio.dto.request.image.ImageRequest;
+import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.FlatImage;
@@ -160,7 +160,7 @@ public class FlatService {
                      return new ResourceNotFoundException("flat not found with Id: " + flatId);
                 });
         
-        flat.setDeleted(isDeleted);
+        flat.setStatus(FlatStatus.INACTIVE);
         flatRepo.save(flat);
         log.info("flat: {} succefully deleted softly", flatId);
     }

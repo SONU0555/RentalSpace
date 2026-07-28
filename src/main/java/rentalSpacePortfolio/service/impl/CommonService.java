@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import rentalSpacePortfolio.dto.request.image.ImageRequest;
+import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.entity.AmenityImage;

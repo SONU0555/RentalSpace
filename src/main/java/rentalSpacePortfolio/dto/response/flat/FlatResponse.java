@@ -1,7 +1,7 @@
 package rentalSpacePortfolio.dto.response.flat;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+
+import rentalSpacePortfolio.dto.image.ImageResponse;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -23,8 +23,6 @@ public class FlatResponse {
         private Double areaSqFt;
         private Double rentAmount;
         private List<ImageResponse> flatImages;
-        
-        @Enumerated(EnumType.STRING)
         private FlatStatus status;
 
 }

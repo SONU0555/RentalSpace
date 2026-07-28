@@ -2,4 +2,4 @@
 package rentalSpacePortfolio.enums;
 
 
-public enum FlatStatus {VACANT,OCCUPIED,UNDER_MAINTENANCE}
+public enum FlatStatus {ACTIVE, INACTIVE, VACANT,OCCUPIED,UNDER_MAINTENANCE}

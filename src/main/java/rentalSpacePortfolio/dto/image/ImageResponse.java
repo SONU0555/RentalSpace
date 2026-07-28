@@ -1,4 +1,4 @@
-package rentalSpacePortfolio.dto.response.flat;
+package rentalSpacePortfolio.dto.image;
 
 import jakarta.persistence.Embedded;
 import java.util.UUID;

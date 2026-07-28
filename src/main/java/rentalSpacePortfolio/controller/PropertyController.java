@@ -18,12 +18,13 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.constants.ApiPaths;
-import rentalSpacePortfolio.dto.request.image.ImageRequest;
+import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.exception.MaxUploadCountExceededException;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.PropertyService;
+import rentalSpacePortfolio.validation.ImageValidator;
 import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
@@ -32,36 +33,13 @@ import tools.jackson.databind.ObjectMapper;
 public class PropertyController {
         
     private final PropertyService propertyService;
+    private final ImageValidator imageValidator;
+    private static final int MAX_IMAGE_COUNT = 5;
     
     @Autowired
-    public PropertyController(PropertyService propertyService){
+    public PropertyController(PropertyService propertyService, ImageValidator imageValidator){
         this.propertyService = propertyService;
-    }
-    
-    // shared validation method for add and update property
-    private List<ImageRequest> validateAndParseRequest(List<MultipartFile> images, String imageDetails){
-
-    if (images.size() > 5) {
-        log.warn("Image upload failed: max limit is 5");
-        throw new MaxUploadCountExceededException("Maximum file upload limit is 5");
-    }
-
-    ObjectMapper mapper = new ObjectMapper();
-    List<ImageRequest> imageRequests = mapper.readValue(
-            imageDetails, 
-            mapper.getTypeFactory().constructCollectionType(List.class, ImageRequest.class)
-    );
-
-    if (imageRequests.size() > 5) {
-        log.warn("Image validation failed: max JSON details limit is 5");
-        throw new MaxUploadCountExceededException("Maximum file upload limit is 5");
-    }
-
-    if (images.size() != imageRequests.size()) {
-        throw new IllegalArgumentException("Images count and image details count must match");
-    }
-
-    return imageRequests;
+        this.imageValidator = imageValidator;
     }
     
     // Endpoint to add new property
@@ -75,7 +53,7 @@ public class PropertyController {
         log.info("Received request to add new property");
         
         String ownerId = SecurityUnits.getCurrentUserId();
-        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
+        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
         
         propertyService.createProperty(images, imageRequests, propertyData, UUID.fromString(ownerId));
         return new ResponseEntity<>((new ApiResponse<>(true, "Property added successfully!", "Empty")), HttpStatus.CREATED); 
@@ -93,7 +71,7 @@ public class PropertyController {
         log.info("Received request to update property with Id: {}", propertyId);
         
         String ownerId = SecurityUnits.getCurrentUserId();
-        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
+        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
         
         propertyService.updateProperty(images, imageRequests, propertyData, propertyId, UUID.fromString(ownerId));
         return new ResponseEntity<>((new ApiResponse<>(true, "Property updated successfully!", "updated")), HttpStatus.CREATED); 

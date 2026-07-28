@@ -37,7 +37,6 @@ public class Flat extends BaseEnity{
         
         private int step = 1;
         private String tab = "flat";
-        private boolean isDeleted;
         
         @OneToMany(mappedBy = "flat", cascade = CascadeType.ALL)
         private List<FlatImage> flatImages = new ArrayList<>();

@@ -8,8 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -17,11 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.request.amenity.AmenityRequest;
-import rentalSpacePortfolio.dto.request.image.ImageRequest;
+import rentalSpacePortfolio.dto.image.ImageRequest;
+import rentalSpacePortfolio.dto.response.Amenity.AmenityResponse;
 import rentalSpacePortfolio.dto.response.ApiResponse;
-import rentalSpacePortfolio.exception.MaxUploadCountExceededException;
 import rentalSpacePortfolio.service.impl.AmenityService;
-import tools.jackson.databind.ObjectMapper;
+import rentalSpacePortfolio.validation.ImageValidator;
+
 
 @Slf4j
 @RestController
@@ -29,45 +33,27 @@ import tools.jackson.databind.ObjectMapper;
 public class AmenityController {
     
     public final AmenityService amenityService;
+    private final ImageValidator imageValidator;
+    private static final int MAX_IMAGE_COUNT = 5;
     
-    public AmenityController(AmenityService amenityService){
+    public AmenityController(AmenityService amenityService, ImageValidator imageValidator){
         this.amenityService = amenityService;
+        this.imageValidator = imageValidator;
     }
     
-    //shared validation method for create and update flat
-    private List<ImageRequest> validateAndParseRequest(
-             List<MultipartFile> images,
-             String imageDetails){
-        
-//    if (step != 2 || !tab.equals("amenity")) {
-//        log.warn("Validation failed: requested path step or tab data is wrong");
-//        throw new IllegalArgumentException("Incorrect Path");
-//    }
-
-    if (images.size() > 5) {
-        log.warn("Image upload failed: max limit is 5");
-        throw new MaxUploadCountExceededException("Maximum file upload limit is 5");
-    }
-
-    ObjectMapper mapper = new ObjectMapper();
-    List<ImageRequest> imageRequests = mapper.readValue(
-            imageDetails, 
-            mapper.getTypeFactory().constructCollectionType(List.class, ImageRequest.class)
-    );
-
-    if (imageRequests.size() > 5) {
-        log.warn("Image validation failed: max JSON details size limit is 5");
-        throw new MaxUploadCountExceededException("Maximum file upload limit is 5");
-    }
-
-    if (images.size() != imageRequests.size()) {
-        throw new IllegalArgumentException("Images count and image details count must match");
-    }
-
-    return imageRequests;
+    // Endpoint to get all amenities
+    @PreAuthorize("hasRole('TENANT')")
+    @GetMapping("/properties/{propertyId}/amenities")
+    public ResponseEntity<ApiResponse<List<AmenityResponse>>> getPropertyAllAmenity(
+            @PathVariable("propertyId") UUID propertyId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "2") int size){
+        log.info("Received request to fetch all flat of property: {}", propertyId);
+        List<AmenityResponse> amenities = amenityService.getPropertyAllAmenity(propertyId, page, size);
+        return ResponseEntity.ok(ApiResponse.success("All properties fetched succesfully", amenities));
     }
     
-    // Endpoint to create new property amenity
+    // Endpoint to create new amenity for property
     @PreAuthorize("hasRole('OWNER')")
     @PostMapping(value = "/owner/properties/{propertyId}/amenity/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<String>> createAmenity(
@@ -78,10 +64,39 @@ public class AmenityController {
             ) throws IOException{
         
         log.info("Received request to create new property amenity");
-        List<ImageRequest> imageRequests = validateAndParseRequest(images, imageDetails);
+        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
         
         amenityService.createAmenity(images, imageRequests, amenityData, propertyId);
         return new ResponseEntity<>((new ApiResponse<>(true, "Amenity created successfully!", "created")), HttpStatus.CREATED);
+    }
+    
+    // Endpoint to update amenity
+    @PreAuthorize("hasRole('OWNER')")
+    @PutMapping(value = "/owner/amenities/{amenityId}/edit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<String>> updateFlat (
+            @PathVariable("amenityId") UUID amenityId,
+            @RequestParam("images") List<MultipartFile> images,
+            @RequestParam("imageDetails") String imageDetails,
+            @RequestPart("amenityData") AmenityRequest amenityData
+            ) throws IOException{
+        
+        log.info("Received request to update amenity with Id: {}", amenityId);
+        
+        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
+        
+        amenityService.updateAmenity(images, imageRequests, amenityData, amenityId);
+        return new ResponseEntity<>((new ApiResponse<>(true, "amenity updated successfully!", "updated")), HttpStatus.OK); 
+    }
+    
+    // Endpoint to soft delete property
+    @PreAuthorize("hasRole('OWNER')")
+    @PatchMapping("/owner/amenities/{amenityId}")
+    public ResponseEntity<Void> softDeleteAmenity(
+            @PathVariable("amenityId") UUID amenityId,
+            @RequestParam("isActive") boolean isActive
+    ) {
+        amenityService.softDelete(amenityId, isActive);
+        return ResponseEntity.noContent().build();
     }
 
 }

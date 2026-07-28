@@ -1,4 +1,4 @@
-package rentalSpacePortfolio.dto.request.image;
+package rentalSpacePortfolio.dto.image;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
