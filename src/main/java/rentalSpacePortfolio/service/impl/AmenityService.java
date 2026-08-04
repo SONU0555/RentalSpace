@@ -1,4 +1,4 @@
-package rentalSpacePortfolio.service.impl;
+    package rentalSpacePortfolio.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,12 +18,10 @@ import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.response.Amenity.AmenityResponse;
 import rentalSpacePortfolio.entity.Amenity;
 import rentalSpacePortfolio.entity.AmenityImage;
-import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.Property;
 import rentalSpacePortfolio.enums.AmenityStatus;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.mapper.AmenityMapper;
-import rentalSpacePortfolio.mapper.FlatResponseMapper;
 import rentalSpacePortfolio.repository.AmenityImageRepository;
 import rentalSpacePortfolio.repository.AmenityRepository;
 import rentalSpacePortfolio.repository.PropertyRepository;

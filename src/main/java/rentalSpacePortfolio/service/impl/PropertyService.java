@@ -59,7 +59,7 @@ public class PropertyService {
     // Service to fetch all properties
     public List<PropertyResponse> getAllProperties(int page, int size){
         
-        log.info("Requestd to get all properties");
+        log.info("Requested to get all properties");
         Pageable pageable = PageRequest.of(page, size);
         Page<Property> propertyPage = propertyRepo.findAllWithImages(pageable);
         
