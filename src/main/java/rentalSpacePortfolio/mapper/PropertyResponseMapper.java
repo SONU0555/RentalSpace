@@ -17,9 +17,7 @@ public class PropertyResponseMapper {
     public static final Logger logger = LoggerFactory.getLogger(PropertyResponseMapper.class);
     
     public static PropertyResponse mapToPropertyResponse(Property request){
-        
-        logger.info("Requeted to Map Property Enity to PropertyResponseDto");
-        
+                
         PropertyResponse response = new PropertyResponse();
         response.setId(request.getId().toString());
         response.setName(request.getName());
@@ -27,13 +25,11 @@ public class PropertyResponseMapper {
         response.setCity(request.getCity());
         response.setState(request.getState());
         response.setStatus(request.getStatus().toString());
-        response.setPropertyTier(request.getTier().toString());
+        response.setPropertyTier(request.getTier());
         response.setImages(mapToPropertyImageResponse(request.getPropertyImages()));
         response.setMiniumRent(request.getMinimumRent());
         response.setMaximumRent(request.getMaximumRent());
-        
-        logger.info("Property Enity mapped succesfully into PropertyResponseDto");
-        
+                
         return response;
     }
     
