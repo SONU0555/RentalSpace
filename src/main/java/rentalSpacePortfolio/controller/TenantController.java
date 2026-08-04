@@ -4,6 +4,7 @@ import rentalSpacePortfolio.dto.request.tenant.ProfileUpdateRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.TenantService;
 import rentalSpacePortfolio.service.impl.CommonService;
 
+@Slf4j
 @RestController
 @RequestMapping(ApiPaths.BASE + "/tenants")
 public class TenantController {
@@ -49,17 +51,19 @@ public class TenantController {
             return ResponseEntity.ok(ApiResponse.success("Profile fetched successfully", profile));
     }
 
-    @GetMapping // endpoint to get all admins
-    @PreAuthorize("hasRole('ADMIN','OWNER')")
+    // endpoint to get all tenant
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
+    @GetMapping("/")
     public ResponseEntity<List<TenantSummaryResponse>> getAllTenants(){
         
+        log.info("Received request to fetch all tenants");
         String userId = SecurityUnits.getCurrentUserId();
         
         return new ResponseEntity<>(tenantService.getAllTenants(UUID.fromString(userId)), HttpStatus.OK);
     }
     
+    @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     @GetMapping("/{tenantId}")
-    @PreAuthorize("hasRole('ADMIN','OWNER')")
     public ResponseEntity<ApiResponse<TenantSummaryResponse>> getTenantById(@PathVariable UUID tenantId){
         TenantSummaryResponse tenant = userCommonService.getTenantById(tenantId);
         return ResponseEntity.ok(ApiResponse.success("Admin fetched by Id successfully", tenant));

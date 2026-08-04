@@ -21,11 +21,9 @@ import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
-import rentalSpacePortfolio.exception.MaxUploadCountExceededException;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.PropertyService;
 import rentalSpacePortfolio.validation.ImageValidator;
-import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @RestController

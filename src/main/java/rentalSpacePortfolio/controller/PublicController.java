@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.response.ApiResponse;
-import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.service.impl.FlatService;
 import rentalSpacePortfolio.service.impl.PropertyService;
@@ -35,7 +34,7 @@ public class PublicController {
     @GetMapping("/properties")
     public ResponseEntity<ApiResponse<List<PropertyResponse>>> getAllProperty(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size){
+            @RequestParam(defaultValue = "10") int size){
         
         log.info("/properties endpoint hit to fetch all properties");
         
