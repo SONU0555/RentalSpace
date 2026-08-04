@@ -113,6 +113,27 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
     
+//     Handle not available flat for booking exception
+    @ExceptionHandler(FlatNotAvailableException.class)
+    public ResponseEntity<ErrorResponseDto> HandleFlatNotAvaialableException(FlatNotAvailableException ex){
+        ErrorResponseDto error = new ErrorResponseDto();
+        error.setStatus(HttpStatus.CONFLICT.value());
+        error.setMessage(ex.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+        
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+    
+    @ExceptionHandler(BookingConflictException.class)
+    public ResponseEntity<ErrorResponseDto> handleBookingConflictException(BookingConflictException ex) {
+        ErrorResponseDto error = new ErrorResponseDto();
+        error.setStatus(HttpStatus.CONFLICT.value());
+        error.setMessage(ex.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+        
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+    
     // Handle property not found exception
 //    @ExceptionHandler(BookingNotFoundException.class)
 //    public ResponseEntity<ErrorResponseDto> handleBookingNotFoundException(BookingNotFoundException ex){
