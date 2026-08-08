@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 import rentalSpacePortfolio.entity.Tenant;
 
 @Repository
-public interface TenantRepository extends JpaRepository<Tenant, Long>{
+public interface TenantRepository extends JpaRepository<Tenant, UUID>{
     
     @Query("SELECT t FROM Tenant t WHERE t.id = :userId")
     Optional<Tenant> findByUserId(@Param("userId") UUID userId);
