@@ -1,7 +1,7 @@
 package rentalSpacePortfolio.service.impl;
 
 import java.util.List;
-import rentalSpacePortfolio.dto.request.tenant.ProfileUpdateRequest;
+import rentalSpacePortfolio.dto.request.tenant.ProfileRequest;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import rentalSpacePortfolio.dto.request.tenant.ChangePasswordRequest;
+import rentalSpacePortfolio.dto.request.tenant.AadhaarRequest;
 import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
@@ -92,23 +92,34 @@ public class TenantService {
 //        } 
 //    }
     
-//     Update user profile
+//     Update user profile details
     @Transactional
-    public void updateTenantProfile(ProfileUpdateRequest request, UUID tenantId){
+    public void updateTenantProfile(ProfileRequest request, UUID tenantId){
         // get user if exist with this Id
-        
-        logger.info("Processing of updating user profile");
-        
+        logger.info("Requested to update user profile details");
         User user = userRepo.findById(tenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("Wrong user Id: " + tenantId));  
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + tenantId));  
         
         Tenant tenant = user.getTenant();
+        tenant.setEmergencyContect(request.getEmergencyContect());
         
-           request.getPhone().ifPresent(user::setPhone);
-           request.getEmergencyContect().ifPresent(tenant::setEmergencyContect);
+        user.setPhone(request.getPhone());
                  
-            userRepo.save(user); 
-            tenantRepo.save(tenant);
+        userRepo.save(user); 
+        tenantRepo.save(tenant);
     }
     
+    // Verify user by a AADHAAR CARD
+    @Transactional
+    public void aadhaarVarification(AadhaarRequest request, UUID tenantId){
+        
+        logger.info("Requested to varify user via a AADHAAR CARD");
+        User user = userRepo.findById(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + tenantId));  
+        
+        Tenant tenant = user.getTenant();
+        tenant.setAadhaarNumber(request.getAadhaarNumber());
+        
+        tenantRepo.save(tenant);
+    }
 }

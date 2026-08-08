@@ -15,6 +15,7 @@ import rentalSpacePortfolio.entity.FlatBooking;
 import rentalSpacePortfolio.entity.Property;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.enums.FlatBookingStatus;
+import rentalSpacePortfolio.exception.BadRequestException;
 import rentalSpacePortfolio.exception.BookingConflictException;
 import rentalSpacePortfolio.exception.FlatNotAvailableException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
@@ -52,6 +53,16 @@ public class FlatBookingService {
         
         Tenant tenant = tenantRepo.findById(req.getTenantId())
             .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
+        
+        if(tenant.getUser().getPhone() == null || tenant.getEmergencyContect() == null){
+            log.warn("User: {} action not allowed due to incomplete profile", tenant.getId());
+            throw new BadRequestException("Flat Booking Failed: can't process booking with incomplete profile");
+        }
+        
+        if(!tenant.getIsVerified()){
+            log.warn("User: {} action not allowed, AADHAAR-CARD verification required", tenant.getId());
+            throw new BadRequestException("Flat Booking Failed: can't process booking, AADHAAR-CARD verification required");
+        }
         
         Flat flat;
             try {
