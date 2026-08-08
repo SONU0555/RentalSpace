@@ -3,7 +3,6 @@ package rentalSpacePortfolio.mapper;
 import rentalSpacePortfolio.dto.request.flat.FlatDataRequest;
 import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.Property;
-import rentalSpacePortfolio.enums.FlatStatus;
 
 
 
@@ -18,8 +17,9 @@ public class FlatMapper {
         flat.setType(flatData.getType());
         flat.setStatus(flatData.getStatus());
         flat.setRentAmount(flatData.getRentAmount());
+        flat.setSecurityDeposit(flatData.getSecurityDeposit());
         flat.setProperty(property == null ? flat.getProperty() : property);
-        flat.setStatus(FlatStatus.ACTIVE);
+        flat.setStatus(flatData.getStatus());
     }
 
 }

@@ -28,8 +28,6 @@ public class UserResponseMapper {
         response.setEmail(tenant.getUser().getEmail());
         response.setPhone(tenant.getUser().getPhone());
         response.setEmergencyContect(tenant.getUser().getTenant().getEmergencyContect());
-        response.setRentStartDate(tenant.getUser().getTenant().getRentStartDate());
-        response.setRentEndDate(tenant.getUser().getTenant().getRentEndDate());
         response.setCreatedDate(tenant.getCreatedAt());
         response.setUpdatedDate(tenant.getUpdatedAt());
         
