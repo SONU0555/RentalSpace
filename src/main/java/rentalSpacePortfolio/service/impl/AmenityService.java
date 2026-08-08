@@ -82,15 +82,15 @@ public class AmenityService {
         
         Amenity amenity = new Amenity();
         AmenityMapper.mapToAmenityDto(amenity, amenityData, property);
-        amenityRepo.save(amenity);
+        Amenity savedAmenity = amenityRepo.save(amenity);
         log.info("Amenity data added successfully, now adding images");
         
         amenity.setAmenityImages(commonService.mapAndSaveImage(
-                images, imageDetails, amenity, "amenity", AmenityImage::new, amenityImageRepo
+                images, imageDetails, savedAmenity, "amenity", AmenityImage::new, amenityImageRepo
         ));
-        amenityRepo.save(amenity);
+        amenityRepo.save(savedAmenity);
         
-        log.info("Property flat added successfully with Id: {}", amenity.getId());
+        log.info("Property flat added successfully with Id: {}", savedAmenity.getId());
     }
     
     // service to update property flat

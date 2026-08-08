@@ -88,7 +88,7 @@ public class FlatService {
         log.info("Flat data added successfully, now adding images");
         
         savedFlat.setFlatImages(commonService.mapAndSaveImage(
-                images, imageDetails, flat, "flat", FlatImage::new, flatImageRepo
+                images, imageDetails, savedFlat, "flat", FlatImage::new, flatImageRepo
         ));
         flatRepo.save(savedFlat);
         

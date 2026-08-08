@@ -18,8 +18,6 @@ import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.entity.*;
-import rentalSpacePortfolio.enums.PropertyStatus;
-import rentalSpacePortfolio.enums.PropertyTier;
 import rentalSpacePortfolio.enums.PropertyVisbility;
 import rentalSpacePortfolio.enums.Role;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
@@ -91,12 +89,12 @@ public class PropertyService {
                 
         // save the list of images FK references in property
         savedProperty.setPropertyImages(commonService.mapAndSaveImage(
-                images, imageDetails, property, "property", PropertyImage::new, propertyImgRepo
+                images, imageDetails, savedProperty, "property", PropertyImage::new, propertyImgRepo
         ));
         savedProperty.setVisibility(PropertyVisbility.DRAFT);
         propertyRepo.save(savedProperty);
                 
-        log.info("Property added successfully with Id: {}", property.getId());
+        log.info("Property added successfully with Id: {}", savedProperty.getId());
     }
     
     // Service to update property details
