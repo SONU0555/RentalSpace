@@ -41,6 +41,10 @@ public class FlatDataRequest {
     @DecimalMin(value = "0.0", inclusive = false, message = "Rent amount must be greater than zero")
     private Double rentAmount;
     
+    @NotNull(message = "Security deposit amount can not be null")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Rent amount must can not be negative")
+    private Double securityDeposit;
+    
     @NotNull(message = "Flat status is required")
     private FlatStatus status;
 

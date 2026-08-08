@@ -3,8 +3,6 @@ package rentalSpacePortfolio.dto.request.tenant;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfileUpdateRequest{
+public class ProfileRequest{
     
     @NotBlank(message = "Name is required")
     private String full_name;
@@ -23,14 +21,12 @@ public class ProfileUpdateRequest{
              message = "Email must be valid format")
     private String email;
     
+    @NotBlank(message = "Email is required")
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invlid phone number")
-    private Optional<String> phone  = Optional.empty();
+    private String phone;
     
+    @NotBlank(message = "Email is required")
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invlid phone number")
-    private Optional<String> emergencyContect  = Optional.empty();
-    
-//    @NotBlank(message = "Aadhaar number is required")
-//    @Pattern(regexp = "^[2-9]{1}[0-9]{11}$", message = "Invalid aadhaar number")
-//    private String aadhaarNumber;
+    private String emergencyContect;
 
 }

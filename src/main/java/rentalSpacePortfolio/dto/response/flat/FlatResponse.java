@@ -22,6 +22,7 @@ public class FlatResponse {
         private String type;
         private Double areaSqFt;
         private Double rentAmount;
+        private Double securityDeposit;
         private List<ImageResponse> flatImages;
         private FlatStatus status;
 
