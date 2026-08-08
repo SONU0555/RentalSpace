@@ -1,6 +1,6 @@
 package rentalSpacePortfolio.controller;
 
-import rentalSpacePortfolio.dto.request.tenant.ProfileUpdateRequest;
+import rentalSpacePortfolio.dto.request.tenant.ProfileRequest;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rentalSpacePortfolio.constants.ApiPaths;
+import rentalSpacePortfolio.dto.request.tenant.AadhaarRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.tenant.DashboardResponse;
 import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
@@ -70,14 +71,25 @@ public class TenantController {
     }
     
     
-    // Update users profile details
-    @PatchMapping("/profile")
-    public ResponseEntity<String> updateProfile(@Valid @RequestBody ProfileUpdateRequest request){
+    // Update users profile personal details
+    @PutMapping("/profile")
+    public ResponseEntity<String> updateProfile(@Valid @RequestBody ProfileRequest request){
         
             String userId = SecurityUnits.getCurrentUserId();
         
              tenantService.updateTenantProfile(request, UUID.fromString(userId));
              return new ResponseEntity<>("Profile successfully updated", HttpStatus.ACCEPTED);
     }
+    
+    // To varify aadhaar card 
+    @PostMapping("/profile/varification")
+    public ResponseEntity<String> aadhaarVarification(@Valid @RequestBody AadhaarRequest request){
+        
+            String userId = SecurityUnits.getCurrentUserId();
+        
+            tenantService.aadhaarVarification(request, UUID.fromString(userId));
+            return new ResponseEntity<>("Varification successfully completed", HttpStatus.ACCEPTED);
+    }
+    
     
 }
