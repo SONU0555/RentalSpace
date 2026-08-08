@@ -28,7 +28,7 @@ public class FlatImage extends BaseEnity implements BelongingImage<Flat>{
 
     @Override
     public void setParent(Flat parentEntity) {
-        this.flat = flat;
+        this.flat = parentEntity;
     }
 
 }

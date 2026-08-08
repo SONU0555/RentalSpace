@@ -31,12 +31,13 @@ public class Flat extends BaseEnity{
         private String type;
         private Double areaSqFt;
         private Double rentAmount;
+        private Double securityDeposit;
         
         @Enumerated(EnumType.STRING)
         private FlatStatus status;
         
-        private int step = 1;
-        private String tab = "flat";
+//        private int step = 1;
+//        private String tab = "flat";
         
         @OneToMany(mappedBy = "flat", cascade = CascadeType.ALL)
         private List<FlatImage> flatImages = new ArrayList<>();
