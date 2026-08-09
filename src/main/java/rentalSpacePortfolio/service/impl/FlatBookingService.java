@@ -1,8 +1,11 @@
 package rentalSpacePortfolio.service.impl;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.PessimisticLockingFailureException;
@@ -93,7 +96,7 @@ public class FlatBookingService {
             throw new FlatNotAvailableException("Flat already booked or held for these dates");
         }
 
-        Double total = flat.getRentAmount() + 30000.0; // monthly rent + security deposit
+        Double total = flat.getRentAmount() + flat.getSecurityDeposit(); // monthly rent + security deposit
         
         FlatBooking booking = new FlatBooking();
         booking.setTenant(tenant);
@@ -103,7 +106,7 @@ public class FlatBookingService {
         booking.setLeaseEndDate(leaseEnd);
         booking.setLeaseDurationMonths(req.getLeaseDurationMonths());
         booking.setMonthlyRent(flat.getRentAmount());
-        booking.setSecurityDeposit(30000.0);
+        booking.setSecurityDeposit(flat.getSecurityDeposit());
         booking.setTotalAmount(total);
         booking.setStatus(FlatBookingStatus.PENDING);
         booking.setIsPaid(false);
@@ -121,6 +124,53 @@ public class FlatBookingService {
                 .orElseThrow(() -> new ResourceNotFoundException("Booking now found with ID: " + bookingId));
         
         return FlatResponseMapper.mapToFlatBookingDto(booking);
+    }
+    
+    // Service to get booking by Tenant ID
+    public List<FlatBookingResponse> getBookingsByTenant(UUID tenantId){
+        log.info("Requested to get all bookings done by tenant ID: {}", tenantId);
+        tenantRepo.findById(tenantId)
+                .orElseThrow(() -> {
+                       log.warn("Tenant not found with ID: {}", tenantId);
+                       return new ResourceNotFoundException("Tenant not found");
+                    }
+                );
+        
+        // fetch flat bookings and map to response dto
+        List<FlatBooking> tenantBookingFlats = flatBookingRepo.findByTenantId(tenantId);
+        return tenantBookingFlats.stream().map(b 
+                -> FlatResponseMapper.mapToBookingHistoryResponseDto(b)).collect(Collectors.toList());
+    }
+    
+    // Service to cancel booking
+    @Transactional
+    public void cancelBooking(UUID bookingId, String reason, String cancelledBy) {
+        log.info("Received request to cancel booking ID: {} by {}", bookingId, cancelledBy);
+        FlatBooking booking = flatBookingRepo.findById(bookingId)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        if (booking.getStatus() == FlatBookingStatus.COMPLETED) {
+            throw new IllegalStateException("Cannot cancel a completed booking");
+        }
+
+        booking.setStatus(FlatBookingStatus.CANCELLED);
+        booking.setCancellationReason(reason);
+        booking.setCancelledAt(LocalDateTime.now());
+        booking.setCancelledBy(cancelledBy);
+
+        flatBookingRepo.save(booking);
+    }
+    
+    // Mark created booking as confirmed after successfull payment
+    @Transactional
+    public void markBookingConfirmed(UUID bookingId, String paymentId) {
+        log.info("Received payment success respond");
+        FlatBooking booking = flatBookingRepo.findById(bookingId)
+            .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+        booking.setStatus(FlatBookingStatus.CONFIRMED);
+        booking.setIsPaid(true);
+        booking.setPaymentId(paymentId);
+        flatBookingRepo.save(booking);
     }
 
 }

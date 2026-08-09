@@ -1,7 +1,9 @@
 package rentalSpacePortfolio.controller;
 
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,14 +13,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import rentalSpacePortfolio.constants.ApiPaths;
+import rentalSpacePortfolio.dto.request.flat.BookingCancelRequest;
 import rentalSpacePortfolio.dto.request.flat.FlatBookingRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.flat.FlatBookingResponse;
+import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.FlatBookingService;
 
 
 @RestController
-@RequestMapping(ApiPaths.BASE + "flat-bookings")
+@RequestMapping(ApiPaths.BASE + "/flat-bookings")
 public class FlatBookingController {
     
     private final FlatBookingService bookingService;
@@ -39,16 +43,21 @@ public class FlatBookingController {
        return ResponseEntity.ok(ApiResponse.success("Booking fetched successfully", bookingService.getBookingById(bookingId)));
    }
 
-//    @GetMapping("/tenant/{tenantId}")
-//    public ResponseEntity<List<FlatBookingResponse>> getByTenant(@PathVariable Long tenantId) {
-//        return ResponseEntity.ok(bookingService.getBookingsByTenant(tenantId));
-//    }
-//
-//    @PostMapping("/{id}/cancel")
-//    public ResponseEntity<FlatBookingResponse> cancel(
-//        @PathVariable Long id, @RequestBody CancelRequest req) {
-//        return ResponseEntity.ok(bookingService.cancelBooking(id, req.getReason(), req.getCancelledBy()));
-//    }
+    @GetMapping("/tenant/{tenantId}")
+    public ResponseEntity<ApiResponse<List<FlatBookingResponse>>> getByTenant(@PathVariable UUID tenantId) {
+        List<FlatBookingResponse> response = bookingService.getBookingsByTenant(tenantId);
+        return new ResponseEntity<>(new ApiResponse<>(true, "Booking fetched successfull by tenant ID", response), HttpStatus.OK);
+    }
+
+    @PostMapping("/{bookingId}/cancel")
+    public ResponseEntity<String> cancel(
+        @PathVariable UUID bookingId, @RequestBody BookingCancelRequest req) {
+        
+        String cancelledBy = SecurityUnits.getCurrentUserRole();
+        bookingService.cancelBooking(bookingId, req.getCancellationReason(), cancelledBy);
+        
+        return new ResponseEntity<>("Booking cancelled successfully", HttpStatus.OK);
+    }
 
 //    @PostMapping("/{id}/move-in")
 //    public ResponseEntity<FlatBookingResponse> moveIn(

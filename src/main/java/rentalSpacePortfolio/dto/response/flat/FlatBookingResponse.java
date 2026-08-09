@@ -1,6 +1,7 @@
 package rentalSpacePortfolio.dto.response.flat;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,5 +21,7 @@ public class FlatBookingResponse {
     private Double totalAmount;
     private FlatBookingStatus status;
     private Boolean isPaid;
+    private LocalDate bookingDate;
+    private LocalTime bookingTime;
 
 }
