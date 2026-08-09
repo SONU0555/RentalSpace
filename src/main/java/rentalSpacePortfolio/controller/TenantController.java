@@ -82,12 +82,12 @@ public class TenantController {
     }
     
     // To varify aadhaar card 
-    @PostMapping("/profile/varification")
-    public ResponseEntity<String> aadhaarVarification(@Valid @RequestBody AadhaarRequest request){
+    @PostMapping("/profile/verification")
+    public ResponseEntity<String> aadhaarVerification(@Valid @RequestBody AadhaarRequest request){
         
             String userId = SecurityUnits.getCurrentUserId();
         
-            tenantService.aadhaarVarification(request, UUID.fromString(userId));
+            tenantService.aadhaarVerification(request, UUID.fromString(userId));
             return new ResponseEntity<>("Varification successfully completed", HttpStatus.ACCEPTED);
     }
     

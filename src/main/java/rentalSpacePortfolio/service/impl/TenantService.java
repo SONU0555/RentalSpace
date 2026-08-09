@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.dto.request.tenant.AadhaarRequest;
@@ -111,7 +110,7 @@ public class TenantService {
     
     // Verify user by a AADHAAR CARD
     @Transactional
-    public void aadhaarVarification(AadhaarRequest request, UUID tenantId){
+    public void aadhaarVerification(AadhaarRequest request, UUID tenantId){
         
         logger.info("Requested to varify user via a AADHAAR CARD");
         User user = userRepo.findById(tenantId)
@@ -119,6 +118,7 @@ public class TenantService {
         
         Tenant tenant = user.getTenant();
         tenant.setAadhaarNumber(request.getAadhaarNumber());
+        tenant.setIsVerified(Boolean.TRUE);
         
         tenantRepo.save(tenant);
     }
