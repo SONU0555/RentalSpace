@@ -13,5 +13,13 @@ public class SecurityUnits {
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         return userDetails.getUserId();
     }
+    
+    public static String getCurrentUserRole(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if(auth != null && !auth.getAuthorities().isEmpty()){
+            return auth.getAuthorities().iterator().next().getAuthority();
+        }
+        return null;
+    }
 
 }
