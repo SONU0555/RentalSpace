@@ -43,7 +43,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(ApiPaths.BASE + "/auth/**",
-                                ApiPaths.BASE +  "/public/**").permitAll()
+                                ApiPaths.BASE +  "/public/**", ApiPaths.BASE + "/payments/webhook/**").permitAll()
                         .requestMatchers("/api/owner/**", ApiPaths.BASE + "/owner/properties/**").hasRole("OWNER")
                         .anyRequest().authenticated()
                 )

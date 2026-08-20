@@ -26,7 +26,7 @@ public class Tenant extends BaseEnity{
     private User user;
     
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
-    private List<FlatBooking> bookedFlats = new ArrayList<>();
+    private List<Booking> bookedFlats = new ArrayList<>();
     
     private String emergencyContect;
     private String aadhaarNumber;
