@@ -18,38 +18,38 @@ import rentalSpacePortfolio.dto.request.flat.FlatBookingRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.flat.FlatBookingResponse;
 import rentalSpacePortfolio.security.SecurityUnits;
-import rentalSpacePortfolio.service.impl.FlatBookingService;
+import rentalSpacePortfolio.service.impl.BookingService;
 
 
 @RestController
-@RequestMapping(ApiPaths.BASE + "/flat-bookings")
-public class FlatBookingController {
+@RequestMapping(ApiPaths.BASE + "/bookings")
+public class BookingController {
     
-    private final FlatBookingService bookingService;
+    private final BookingService bookingService;
     
     @Autowired
-    public FlatBookingController(FlatBookingService bookingService){
+    public BookingController(BookingService bookingService){
         this.bookingService = bookingService;
     }
      
-   @PostMapping
+   @PostMapping("/flats")
    @PreAuthorize("hasRole('TENANT')")
-   public ResponseEntity<ApiResponse<FlatBookingResponse>> create(@RequestBody FlatBookingRequest req) {
-       return ResponseEntity.ok(ApiResponse.success("Booking created successfully", bookingService.createBooking(req)));
+   public ResponseEntity<ApiResponse<FlatBookingResponse>> createFlatBooking(@RequestBody FlatBookingRequest req) {
+       return ResponseEntity.ok(ApiResponse.success("Booking created successfully", bookingService.createFlatBooking(req)));
    }
 
-   @GetMapping("/{bookingId}")
+   @GetMapping("/flats/{bookingId}")
    public ResponseEntity<ApiResponse<FlatBookingResponse>> getBookingById(@PathVariable UUID bookingId) {
        return ResponseEntity.ok(ApiResponse.success("Booking fetched successfully", bookingService.getBookingById(bookingId)));
    }
 
-    @GetMapping("/tenant/{tenantId}")
+    @GetMapping("/flats/tenant/{tenantId}")
     public ResponseEntity<ApiResponse<List<FlatBookingResponse>>> getByTenant(@PathVariable UUID tenantId) {
         List<FlatBookingResponse> response = bookingService.getBookingsByTenant(tenantId);
         return new ResponseEntity<>(new ApiResponse<>(true, "Booking fetched successfull by tenant ID", response), HttpStatus.OK);
     }
 
-    @PostMapping("/{bookingId}/cancel")
+    @PostMapping("/flats/{bookingId}/cancel")
     public ResponseEntity<String> cancel(
         @PathVariable UUID bookingId, @RequestBody BookingCancelRequest req) {
         

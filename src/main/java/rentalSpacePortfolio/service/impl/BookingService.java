@@ -1,10 +1,10 @@
 package rentalSpacePortfolio.service.impl;
 
+import jakarta.persistence.criteria.LocalDateTimeField;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,55 +13,68 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.dto.request.flat.FlatBookingRequest;
 import rentalSpacePortfolio.dto.response.flat.FlatBookingResponse;
+import rentalSpacePortfolio.entity.Booking;
 import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.FlatBooking;
+import rentalSpacePortfolio.entity.Payment;
 import rentalSpacePortfolio.entity.Property;
 import rentalSpacePortfolio.entity.Tenant;
-import rentalSpacePortfolio.enums.FlatBookingStatus;
+import rentalSpacePortfolio.enums.BookingStatus;
+import rentalSpacePortfolio.enums.BookingType;
 import rentalSpacePortfolio.exception.BadRequestException;
 import rentalSpacePortfolio.exception.BookingConflictException;
 import rentalSpacePortfolio.exception.FlatNotAvailableException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.mapper.FlatResponseMapper;
-import rentalSpacePortfolio.repository.FlatBookingRepository;
 import rentalSpacePortfolio.repository.FlatRepository;
 import rentalSpacePortfolio.repository.PropertyRepository;
 import rentalSpacePortfolio.repository.TenantRepository;
+import rentalSpacePortfolio.repository.BookingRepository;
+import rentalSpacePortfolio.repository.FlatBookingRepository;
+import rentalSpacePortfolio.repository.PaymentRepository;
 
 @Slf4j
 @Service
-public class FlatBookingService {
+public class BookingService {
     
+    private final BookingRepository bookingRepo;
     private final FlatBookingRepository flatBookingRepo;
+    private final PaymentRepository paymentRepo;
     private final TenantRepository tenantRepo;
     private final FlatRepository flatRepo;
     private final PropertyRepository propertyRepo;
     
     @Autowired
-    public FlatBookingService(
+    public BookingService(
+            BookingRepository bookingRepo,
             FlatBookingRepository flatBookingRepo,
+            PaymentRepository paymentRepo,
             TenantRepository tenantRepo,
             FlatRepository flatRepo,
             PropertyRepository propertyRepo){
+        this.bookingRepo = bookingRepo;
         this.flatBookingRepo = flatBookingRepo;
+        this.paymentRepo = paymentRepo;
         this.tenantRepo = tenantRepo;
         this.flatRepo = flatRepo;
         this.propertyRepo = propertyRepo;
     }
     
     @Transactional
-    public FlatBookingResponse createBooking(FlatBookingRequest req){
+    public FlatBookingResponse createFlatBooking(FlatBookingRequest req){
         
         log.info("Received request to create flat booking");
         
         Tenant tenant = tenantRepo.findById(req.getTenantId())
             .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
         
+        // Verifying is the user has complete profile or not
         if(tenant.getUser().getPhone() == null || tenant.getEmergencyContect() == null){
             log.warn("User: {} action not allowed due to incomplete profile", tenant.getId());
             throw new BadRequestException("Flat Booking Failed: can't process booking with incomplete profile");
         }
         
+        // Checking is the user verified or not with aadhaar
         if(!tenant.getIsVerified()){
             log.warn("User: {} action not allowed, AADHAAR-CARD verification required", tenant.getId());
             throw new BadRequestException("Flat Booking Failed: can't process booking, AADHAAR-CARD verification required");
@@ -69,7 +82,7 @@ public class FlatBookingService {
         
         Flat flat;
             try {
-                // This line will wait maximum 3 seconds for one user to finish
+                // another user will wait maximum 3 seconds for first user to finish
                 flat = flatRepo.findByIdForUpdate(req.getFlatId())
                     .orElseThrow(() -> new ResourceNotFoundException("Flat not found"));
             
@@ -85,45 +98,54 @@ public class FlatBookingService {
         
         LocalDate leaseEnd = req.getLeaseStartDate().plusMonths(req.getLeaseDurationMonths());
 
-        // Availability checking
+        // Flat availability checking
         log.info("Checking availability, is flat already booked or not");
-        List<FlatBooking> overlaps = flatBookingRepo.findOverlappingBookings(
-            flat.getId(), req.getLeaseStartDate(), leaseEnd,
-            List.of(FlatBookingStatus.PENDING, FlatBookingStatus.CONFIRMED));
+        List<FlatBooking> overlaps = flatBookingRepo.findOverlappingBookings(flat.getId(), req.getLeaseStartDate(), leaseEnd,
+            List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
 
         if (!overlaps.isEmpty()) {
             log.warn("Flat with ID: {} already booked/held for these dates", flat.getId());
-            throw new FlatNotAvailableException("Flat already booked or held for these dates");
+            throw new FlatNotAvailableException("Flat already booked or held for these dates. Please try again in 5 minutes.");
         }
 
         Double total = flat.getRentAmount() + flat.getSecurityDeposit(); // monthly rent + security deposit
         
-        FlatBooking booking = new FlatBooking();
+        Booking booking = new Booking();
         booking.setTenant(tenant);
-        booking.setFlat(flat);
-        booking.setProperty(property);
-        booking.setLeaseStartDate(req.getLeaseStartDate());
-        booking.setLeaseEndDate(leaseEnd);
-        booking.setLeaseDurationMonths(req.getLeaseDurationMonths());
-        booking.setMonthlyRent(flat.getRentAmount());
-        booking.setSecurityDeposit(flat.getSecurityDeposit());
         booking.setTotalAmount(total);
-        booking.setStatus(FlatBookingStatus.PENDING);
-        booking.setIsPaid(false);
+        booking.setStatus(BookingStatus.PENDING);
+        booking.setIsPaid(Boolean.FALSE);
+        booking.setBookingType(BookingType.FLAT);
+        booking.setHoldExpireAt(LocalDateTime.now().plusMinutes(5));
+        booking = bookingRepo.save(booking);
+        
+        FlatBooking flatBooking = new FlatBooking();
+//        flatBooking.setTenant(tenant);
+        flatBooking.setFlat(flat);
+        flatBooking.setProperty(property);
+        flatBooking.setLeaseStartDate(req.getLeaseStartDate());
+        flatBooking.setLeaseEndDate(leaseEnd);
+        flatBooking.setLeaseDurationMonths(req.getLeaseDurationMonths());
+        flatBooking.setMonthlyRent(flat.getRentAmount());
+        flatBooking.setSecurityDeposit(flat.getSecurityDeposit());
+        flatBooking.setBooking(booking);
+//        flatBooking.setTotalAmount(total);
+//        flatBooking.setStatus(BookingStatus.PENDING);
+//        flatBooking.setIsPaid(false);
 
-        FlatBooking saved = flatBookingRepo.save(booking);
+        flatBooking = flatBookingRepo.save(flatBooking);
         
         log.info("Booking created successfully and saved to DB");
-        return FlatResponseMapper.mapToFlatBookingDto(saved);
+        return FlatResponseMapper.mapToFlatBookingDto(booking, flatBooking);
     }
     
     // Service to get booking by ID
     public FlatBookingResponse getBookingById(UUID bookingId){
         log.info("Received request to find booking by ID");
-        FlatBooking booking = flatBookingRepo.findById(bookingId)
+        Booking booking = bookingRepo.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking now found with ID: " + bookingId));
         
-        return FlatResponseMapper.mapToFlatBookingDto(booking);
+        return FlatResponseMapper.mapToBookingHistoryResponseDto(booking);
     }
     
     // Service to get booking by Tenant ID
@@ -137,7 +159,7 @@ public class FlatBookingService {
                 );
         
         // fetch flat bookings and map to response dto
-        List<FlatBooking> tenantBookingFlats = flatBookingRepo.findByTenantId(tenantId);
+        List<Booking> tenantBookingFlats = bookingRepo.findByTenantId(tenantId);
         return tenantBookingFlats.stream().map(b 
                 -> FlatResponseMapper.mapToBookingHistoryResponseDto(b)).collect(Collectors.toList());
     }
@@ -146,31 +168,35 @@ public class FlatBookingService {
     @Transactional
     public void cancelBooking(UUID bookingId, String reason, String cancelledBy) {
         log.info("Received request to cancel booking ID: {} by {}", bookingId, cancelledBy);
-        FlatBooking booking = flatBookingRepo.findById(bookingId)
+        Booking booking = bookingRepo.findById(bookingId)
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
 
-        if (booking.getStatus() == FlatBookingStatus.COMPLETED) {
+        if (booking.getStatus() == BookingStatus.COMPLETED) {
             throw new IllegalStateException("Cannot cancel a completed booking");
         }
 
-        booking.setStatus(FlatBookingStatus.CANCELLED);
+        booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancellationReason(reason);
         booking.setCancelledAt(LocalDateTime.now());
         booking.setCancelledBy(cancelledBy);
 
-        flatBookingRepo.save(booking);
+        bookingRepo.save(booking);
     }
     
     // Mark created booking as confirmed after successfull payment
     @Transactional
-    public void markBookingConfirmed(UUID bookingId, String paymentId) {
+    public void markBookingConfirmed(UUID bookingId, UUID paymentId) {
         log.info("Received payment success respond");
-        FlatBooking booking = flatBookingRepo.findById(bookingId)
+        Booking booking = bookingRepo.findById(bookingId)
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
-        booking.setStatus(FlatBookingStatus.CONFIRMED);
+        
+        Payment payment = paymentRepo.findById(paymentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+        
+        booking.setStatus(BookingStatus.CONFIRMED);
         booking.setIsPaid(true);
-        booking.setPaymentId(paymentId);
-        flatBookingRepo.save(booking);
+        booking.getPayments().add(payment);
+        bookingRepo.save(booking);
     }
 
 }

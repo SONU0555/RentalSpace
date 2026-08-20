@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.dto.image.ImageResponse;
 import rentalSpacePortfolio.dto.response.flat.FlatBookingResponse;
+import rentalSpacePortfolio.entity.Booking;
 import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.FlatBooking;
 
@@ -29,28 +30,29 @@ public class FlatResponseMapper {
         return response;
     }
     
-    public static FlatBookingResponse mapToFlatBookingDto(FlatBooking request){
+    public static FlatBookingResponse mapToFlatBookingDto(Booking parentReq, FlatBooking childReq){
         FlatBookingResponse response = new FlatBookingResponse();
-        response.setId(request.getId());
-        response.setTenantName(request.getTenant().getUser().getFull_name());
-        response.setFlatNumber(request.getFlat().getFlatNumber());
-        response.setLeaseStartDate(request.getLeaseStartDate());
-        response.setLeaseEndDate(request.getLeaseEndDate());
-        response.setTotalAmount(request.getMonthlyRent() + request.getSecurityDeposit());
-        response.setStatus(request.getStatus());
+        response.setId(parentReq.getId());
+        response.setTenantName(parentReq.getTenant().getUser().getFull_name());
+        response.setFlatNumber(childReq.getFlat().getFlatNumber());
+        response.setLeaseStartDate(childReq.getLeaseStartDate());
+        response.setLeaseEndDate(childReq.getLeaseEndDate());
+        response.setTotalAmount(childReq.getMonthlyRent() + childReq.getSecurityDeposit());
+        response.setStatus(parentReq.getStatus());
         
         return response;
     }
     
-    public static FlatBookingResponse mapToBookingHistoryResponseDto(FlatBooking request){
+    public static FlatBookingResponse mapToBookingHistoryResponseDto(Booking request){
         FlatBookingResponse response = new FlatBookingResponse();
         response.setId(request.getId());
         response.setTenantName(request.getTenant().getUser().getFull_name());
-        response.setFlatNumber(request.getFlat().getFlatNumber());
-        response.setLeaseStartDate(request.getLeaseStartDate());
-        response.setLeaseEndDate(request.getLeaseEndDate());
-        response.setTotalAmount(request.getMonthlyRent() + request.getSecurityDeposit());
+        response.setFlatNumber(request.getFlatBooking().getFlat().getFlatNumber());
+        response.setLeaseStartDate(request.getFlatBooking().getLeaseStartDate());
+        response.setLeaseEndDate(request.getFlatBooking().getLeaseEndDate());
+        response.setTotalAmount(request.getFlatBooking().getMonthlyRent() + request.getFlatBooking().getSecurityDeposit());
         response.setStatus(request.getStatus());
+        response.setIsPaid(request.getIsPaid());
         response.setBookingDate(request.getCreatedAt().toLocalDate());
         response.setBookingTime(request.getCreatedAt().toLocalTime());
         

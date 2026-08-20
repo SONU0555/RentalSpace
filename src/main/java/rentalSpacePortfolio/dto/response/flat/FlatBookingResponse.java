@@ -6,7 +6,7 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import rentalSpacePortfolio.enums.FlatBookingStatus;
+import rentalSpacePortfolio.enums.BookingStatus;
 
 @Data
 @AllArgsConstructor
@@ -19,7 +19,7 @@ public class FlatBookingResponse {
     private LocalDate leaseStartDate;
     private LocalDate leaseEndDate;
     private Double totalAmount;
-    private FlatBookingStatus status;
+    private BookingStatus status;
     private Boolean isPaid;
     private LocalDate bookingDate;
     private LocalTime bookingTime;
