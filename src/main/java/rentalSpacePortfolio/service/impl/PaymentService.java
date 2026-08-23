@@ -11,9 +11,11 @@ import rentalSpacePortfolio.dto.request.payment.VerifyPaymentRequest;
 import rentalSpacePortfolio.dto.response.flat.FlatBookingResponse;
 import rentalSpacePortfolio.dto.response.payment.OrderResponse;
 import rentalSpacePortfolio.entity.Booking;
+import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.Payment;
 import rentalSpacePortfolio.enums.BookingStatus;
 import rentalSpacePortfolio.enums.BookingType;
+import rentalSpacePortfolio.enums.FlatStatus;
 import rentalSpacePortfolio.enums.PaymentCategory;
 import rentalSpacePortfolio.enums.PaymentStatus;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
@@ -21,25 +23,26 @@ import rentalSpacePortfolio.mapper.BookingResponseMapper;
 import rentalSpacePortfolio.repository.PaymentRepository;
 import rentalSpacePortfolio.service.interfaces.PaymentGateway;
 import rentalSpacePortfolio.repository.BookingRepository;
+import rentalSpacePortfolio.repository.FlatRepository;
 
 @Slf4j
 @Service
 public class PaymentService {
     
     private final PaymentRepository paymentRepo;
-    private final BookingRepository flatBookingRepo;
+    private final FlatRepository flatRepo;
     private final BookingRepository bookingRepo;
     private final PaymentGateway paymentGateway;
     private final FakePaymentGateway fakePaymentGateway;
    
     @Autowired
     public PaymentService(PaymentRepository paymentRepository,
-            BookingRepository flatBookingRepo,
+            FlatRepository flatRepo,
             BookingRepository bookingRepo,
             PaymentGateway paymentGateway,
             FakePaymentGateway fakePaymentGateway){
         this.paymentRepo = paymentRepository;
-        this.flatBookingRepo = flatBookingRepo;
+        this.flatRepo = flatRepo;
         this.bookingRepo = bookingRepo;
         this.paymentGateway = paymentGateway;
         this.fakePaymentGateway = fakePaymentGateway;
@@ -112,8 +115,19 @@ public class PaymentService {
         if(req.getSimulatedStatus().equals("SUCCESS")){
             booking.setStatus(BookingStatus.CONFIRMED);
             booking.setIsPaid(Boolean.TRUE);
+            booking.getPayments().add(payment);
         }else{
             booking.setStatus(BookingStatus.FAILED);
+            booking.setIsPaid(Boolean.FALSE);
+            booking.getPayments().add(payment);
+        }
+        
+        if(payment.getPaymentCategory() == PaymentCategory.FLAT_BOOKING){
+            Flat bookedFlat = flatRepo.findById(booking.getFlatBooking().getFlat().getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Flat not found"));
+            
+            bookedFlat.setStatus(FlatStatus.OCCUPIED);
+            flatRepo.save(bookedFlat);
         }
         
         Booking updatedBooking = bookingRepo.save(booking);
