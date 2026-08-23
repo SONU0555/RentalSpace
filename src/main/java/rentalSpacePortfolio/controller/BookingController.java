@@ -38,18 +38,18 @@ public class BookingController {
        return ResponseEntity.ok(ApiResponse.success("Booking created successfully", bookingService.createFlatBooking(req)));
    }
 
-   @GetMapping("/flats/{bookingId}")
-   public ResponseEntity<ApiResponse<FlatBookingResponse>> getBookingById(@PathVariable UUID bookingId) {
+   @GetMapping("/{bookingId}")
+   public ResponseEntity<ApiResponse<?>> getBookingById(@PathVariable UUID bookingId) {
        return ResponseEntity.ok(ApiResponse.success("Booking fetched successfully", bookingService.getBookingById(bookingId)));
    }
 
-    @GetMapping("/flats/tenant/{tenantId}")
-    public ResponseEntity<ApiResponse<List<FlatBookingResponse>>> getByTenant(@PathVariable UUID tenantId) {
+    @GetMapping("/tenant/{tenantId}")
+    public ResponseEntity<ApiResponse<List<?>>> getByTenant(@PathVariable UUID tenantId) {
         List<FlatBookingResponse> response = bookingService.getBookingsByTenant(tenantId);
         return new ResponseEntity<>(new ApiResponse<>(true, "Booking fetched successfull by tenant ID", response), HttpStatus.OK);
     }
 
-    @PostMapping("/flats/{bookingId}/cancel")
+    @PostMapping("/{bookingId}/cancel")
     public ResponseEntity<String> cancel(
         @PathVariable UUID bookingId, @RequestBody BookingCancelRequest req) {
         
