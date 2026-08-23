@@ -116,18 +116,12 @@ public class PaymentService {
             booking.setStatus(BookingStatus.CONFIRMED);
             booking.setIsPaid(Boolean.TRUE);
             booking.getPayments().add(payment);
+            
+            updateFlatStatus(booking, payment);
         }else{
             booking.setStatus(BookingStatus.FAILED);
             booking.setIsPaid(Boolean.FALSE);
             booking.getPayments().add(payment);
-        }
-        
-        if(payment.getPaymentCategory() == PaymentCategory.FLAT_BOOKING){
-            Flat bookedFlat = flatRepo.findById(booking.getFlatBooking().getFlat().getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Flat not found"));
-            
-            bookedFlat.setStatus(FlatStatus.OCCUPIED);
-            flatRepo.save(bookedFlat);
         }
         
         Booking updatedBooking = bookingRepo.save(booking);
@@ -135,5 +129,15 @@ public class PaymentService {
         return BookingResponseMapper.mapToBookingHistoryResponseDto(updatedBooking);
     }
 
+    @Transactional
+    private void updateFlatStatus(Booking booking, Payment payment){
+            if(payment.getPaymentCategory() == PaymentCategory.FLAT_BOOKING){
+                Flat bookedFlat = flatRepo.findById(booking.getFlatBooking().getFlat().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Flat not found"));
+            
+                bookedFlat.setStatus(FlatStatus.OCCUPIED);
+                flatRepo.save(bookedFlat);
+            }
+    }
 
 }
