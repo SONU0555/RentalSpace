@@ -39,6 +39,8 @@ public class FlatResponseMapper {
         response.setLeaseEndDate(childReq.getLeaseEndDate());
         response.setTotalAmount(childReq.getMonthlyRent() + childReq.getSecurityDeposit());
         response.setStatus(parentReq.getStatus());
+        response.setBookingDate(parentReq.getCreatedAt().toLocalDate());
+        response.setBookingTime(parentReq.getCreatedAt().toLocalTime());
         
         return response;
     }
