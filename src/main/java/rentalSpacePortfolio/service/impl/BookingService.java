@@ -21,6 +21,7 @@ import rentalSpacePortfolio.entity.Property;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.enums.BookingStatus;
 import rentalSpacePortfolio.enums.BookingType;
+import rentalSpacePortfolio.enums.FlatStatus;
 import rentalSpacePortfolio.exception.BadRequestException;
 import rentalSpacePortfolio.exception.BookingConflictException;
 import rentalSpacePortfolio.exception.FlatNotAvailableException;
@@ -120,7 +121,6 @@ public class BookingService {
         booking = bookingRepo.save(booking);
         
         FlatBooking flatBooking = new FlatBooking();
-//        flatBooking.setTenant(tenant);
         flatBooking.setFlat(flat);
         flatBooking.setProperty(property);
         flatBooking.setLeaseStartDate(req.getLeaseStartDate());
@@ -129,9 +129,6 @@ public class BookingService {
         flatBooking.setMonthlyRent(flat.getRentAmount());
         flatBooking.setSecurityDeposit(flat.getSecurityDeposit());
         flatBooking.setBooking(booking);
-//        flatBooking.setTotalAmount(total);
-//        flatBooking.setStatus(BookingStatus.PENDING);
-//        flatBooking.setIsPaid(false);
 
         flatBooking = flatBookingRepo.save(flatBooking);
         
@@ -174,13 +171,18 @@ public class BookingService {
         if (booking.getStatus() == BookingStatus.COMPLETED) {
             throw new IllegalStateException("Cannot cancel a completed booking");
         }
+        
+        Flat bookedFlat = flatRepo.findById(booking.getFlatBooking().getFlat().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Flat not found"));
 
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancellationReason(reason);
         booking.setCancelledAt(LocalDateTime.now());
         booking.setCancelledBy(cancelledBy);
+        bookedFlat.setStatus(FlatStatus.VACANT);
 
         bookingRepo.save(booking);
+        flatRepo.save(bookedFlat);
     }
     
     // Mark created booking as confirmed after successfull payment
