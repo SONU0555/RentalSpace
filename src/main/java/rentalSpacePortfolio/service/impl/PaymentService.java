@@ -13,6 +13,7 @@ import rentalSpacePortfolio.dto.response.payment.OrderResponse;
 import rentalSpacePortfolio.entity.Booking;
 import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.Payment;
+import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.enums.BookingStatus;
 import rentalSpacePortfolio.enums.BookingType;
 import rentalSpacePortfolio.enums.FlatStatus;
@@ -24,6 +25,7 @@ import rentalSpacePortfolio.repository.PaymentRepository;
 import rentalSpacePortfolio.service.interfaces.PaymentGateway;
 import rentalSpacePortfolio.repository.BookingRepository;
 import rentalSpacePortfolio.repository.FlatRepository;
+import rentalSpacePortfolio.repository.TenantRepository;
 
 @Slf4j
 @Service
@@ -34,18 +36,21 @@ public class PaymentService {
     private final BookingRepository bookingRepo;
     private final PaymentGateway paymentGateway;
     private final FakePaymentGateway fakePaymentGateway;
+    private final TenantRepository tenantRepo;
    
     @Autowired
     public PaymentService(PaymentRepository paymentRepository,
             FlatRepository flatRepo,
             BookingRepository bookingRepo,
             PaymentGateway paymentGateway,
-            FakePaymentGateway fakePaymentGateway){
+            FakePaymentGateway fakePaymentGateway,
+            TenantRepository tenantRepo){
         this.paymentRepo = paymentRepository;
         this.flatRepo = flatRepo;
         this.bookingRepo = bookingRepo;
         this.paymentGateway = paymentGateway;
         this.fakePaymentGateway = fakePaymentGateway;
+        this.tenantRepo = tenantRepo;
     }
     
     @Transactional
@@ -117,7 +122,7 @@ public class PaymentService {
             booking.setIsPaid(Boolean.TRUE);
             booking.getPayments().add(payment);
             
-            updateFlatStatus(booking, payment);
+            updateFlatAndTenant(booking, payment);
         }else{
             booking.setStatus(BookingStatus.FAILED);
             booking.setIsPaid(Boolean.FALSE);
@@ -130,13 +135,20 @@ public class PaymentService {
     }
 
     @Transactional
-    private void updateFlatStatus(Booking booking, Payment payment){
+    private void updateFlatAndTenant(Booking booking, Payment payment){
             if(payment.getPaymentCategory() == PaymentCategory.FLAT_BOOKING){
                 Flat bookedFlat = flatRepo.findById(booking.getFlatBooking().getFlat().getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Flat not found"));
+                
+                Tenant tenant = booking.getTenant();
             
                 bookedFlat.setStatus(FlatStatus.OCCUPIED);
+                bookedFlat.setCurrentTenant(booking.getTenant());
+                
+                tenant.setFlat(bookedFlat);
+                
                 flatRepo.save(bookedFlat);
+                tenantRepo.save(tenant);
             }
     }
 
