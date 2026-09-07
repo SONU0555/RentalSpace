@@ -25,8 +25,12 @@ public class Tenant extends BaseEnity{
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
+    @OneToOne
+    @JoinColumn(name = "flat_id", nullable = false)
+    private Flat flat;
+    
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.ALL)
-    private List<Booking> bookedFlats = new ArrayList<>();
+    private List<Booking> bookedAmenitiesAndFlats = new ArrayList<>();
     
     private String emergencyContect;
     private String aadhaarNumber;
