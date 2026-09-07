@@ -33,8 +33,8 @@ import rentalSpacePortfolio.service.interfaces.ImageStorageService;
 public class PropertyService {
         
     private final PropertyRepository propertyRepo;
-    private final AdminRepository adminRepo;
     private final UserRepository userRepo;
+    private final AdminRepository adminRepo;
     private final PropertyImageRepository propertyImgRepo;
     private final ImageStorageService imageStorageService;
     private final CommonService commonService;
@@ -108,7 +108,7 @@ public class PropertyService {
         
         userRepo.findById(ownerId)
                 .orElseThrow(() -> {
-                    return new ResourceNotFoundException("User not found with Id: " + ownerId);
+                    return new ResourceNotFoundException("User not found");
                 });
         
         Property property = propertyRepo.findById(propertyId)
@@ -192,7 +192,7 @@ public class PropertyService {
         Property property = propertyRepo.findById(propertyId)
                 .orElseThrow(() -> {
                     log.warn("Property assignment failed: Property not found with id: {}", propertyId);
-                     return new ResourceNotFoundException("Property not found with Id: " + propertyId);
+                     return new ResourceNotFoundException("Property not found");
                 });
 
         if (!property.getOwner().getId().equals(ownerId)) {
@@ -204,11 +204,11 @@ public class PropertyService {
         Admin admin = adminRepo.findByUserId(adminId)
                 .orElseThrow(() -> {
                     log.warn("Property assignment failed: Target admin not found with id: {}", adminId);
-                    return new ResourceNotFoundException("User not found with id: " + adminId);
+                    return new ResourceNotFoundException("User not found");
                 });
         
-        if (!admin.getAdmin().getRole().equals(Role.ADMIN)) {
-            log.warn("Property assignment failed: User [{}] does not hold an ADMIN role. Found role: {}", adminId, admin.getAdmin().getRole());
+        if (!admin.getAdminUser().getRole().equals(Role.ADMIN)) {
+            log.warn("Property assignment failed: User [{}] does not hold an ADMIN role. Found role: {}", adminId, admin.getAdminUser().getRole());
             throw new IllegalArgumentException("The assigned user must have an ADMIN role.");
         }
 
