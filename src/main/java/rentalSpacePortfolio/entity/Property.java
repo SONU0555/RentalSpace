@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -63,9 +64,9 @@ public class Property extends BaseEnity{
    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
    private List<FlatBooking> flatBookings = new ArrayList<>();
    
-   @OneToOne
-   @JoinColumn(name = "admin_id", unique = true)
-   private Admin admin;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id", unique = true) 
+    private Admin admin; 
    
    @ManyToOne
    @JoinColumn(name = "owner_id")

@@ -98,7 +98,7 @@ public class AuthService {
         
         // To store the reference key of user table in admin or tenant table
         if(admin != null){
-            admin.setAdmin(user);
+            admin.setAdminUser(user);
             adminRepo.save(admin);
         }
         if(tenant != null){

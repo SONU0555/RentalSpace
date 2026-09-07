@@ -1,6 +1,8 @@
 package rentalSpacePortfolio.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -19,9 +21,9 @@ public class Admin extends BaseEnity{
     
     @OneToOne
     @JoinColumn(name = "admin_id", nullable = false)
-    private User admin;
+    private User adminUser;
     
-    @OneToOne(mappedBy = "admin")
+    @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Property property;
     
     private String location;            

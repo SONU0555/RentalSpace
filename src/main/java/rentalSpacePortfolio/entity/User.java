@@ -31,7 +31,7 @@ public class User extends BaseEnity{
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Tenant tenant;
     
-    @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "adminUser", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Admin admin;
     
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
