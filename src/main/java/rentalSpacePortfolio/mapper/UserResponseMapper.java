@@ -23,11 +23,11 @@ public class UserResponseMapper {
     
         public static TenantSummaryResponse mapToTenatResponseDto(Tenant tenant){
         TenantSummaryResponse response = new TenantSummaryResponse();
-        response.setId(tenant.getId().toString());
+        response.setId(tenant.getUser().getId().toString());
         response.setFull_name(tenant.getUser().getFull_name());
         response.setEmail(tenant.getUser().getEmail());
         response.setPhone(tenant.getUser().getPhone());
-        response.setEmergencyContect(tenant.getUser().getTenant().getEmergencyContect());
+        response.setEmergencyContect(tenant.getEmergencyContect());
         response.setCreatedDate(tenant.getCreatedAt());
         response.setUpdatedDate(tenant.getUpdatedAt());
         
@@ -39,12 +39,12 @@ public class UserResponseMapper {
     public static AdminSummaryResponse mapUserToAdminSummaryDto(Admin admin){
         AdminSummaryResponse response = new AdminSummaryResponse();
         response.setId(admin.getId().toString());
-        response.setFull_name(admin.getAdmin().getFull_name());
-        response.setEmail(admin.getAdmin().getEmail());
-        response.setPhone(admin.getAdmin().getPhone());
+        response.setFull_name(admin.getAdminUser().getFull_name());
+        response.setEmail(admin.getAdminUser().getEmail());
+        response.setPhone(admin.getAdminUser().getPhone());
 //        response.setProperty_assigned(admin.getProperty().getId());
-        response.setCreatedDate(admin.getAdmin().getCreatedAt());
-        response.setUpdatedDate(admin.getAdmin().getUpdatedAt());
+        response.setCreatedDate(admin.getAdminUser().getCreatedAt());
+        response.setUpdatedDate(admin.getAdminUser().getUpdatedAt());
         
         return response;
     }
@@ -53,9 +53,9 @@ public class UserResponseMapper {
     public static AdminSummaryResponse mapUserToAdminSummaryDtoForTenant(Admin admin){
         AdminSummaryResponse response = new AdminSummaryResponse();
         response.setEmployeeCode(admin.getEmployeeCode());
-        response.setFull_name(admin.getAdmin().getFull_name());
-        response.setEmail(admin.getAdmin().getEmail());
-        response.setPhone(admin.getAdmin().getPhone());
+        response.setFull_name(admin.getAdminUser().getFull_name());
+        response.setEmail(admin.getAdminUser().getEmail());
+        response.setPhone(admin.getAdminUser().getPhone());
         
         return response;
     }
