@@ -49,7 +49,7 @@ public class Flat extends BaseEnity{
         @JoinColumn(name = "property_id")
         private Property property;
         
-        @OneToOne
+        @OneToOne(mappedBy = "flat")
         private Tenant currentTenant;
 
 }

@@ -33,10 +33,10 @@ public class Booking extends BaseEnity{
     @JoinColumn(name = "tenant_id", nullable = false)
     private Tenant tenant;
     
-    @OneToOne(mappedBy = "booking", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private AmenityBooking amenityBooking;
 
-    @OneToOne(mappedBy = "booking", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private FlatBooking flatBooking;
     
     @Enumerated(EnumType.STRING)
@@ -51,7 +51,7 @@ public class Booking extends BaseEnity{
     // Payment
     private Boolean isPaid; 
     
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "booking", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments = new ArrayList<>();            
 
     // Cancellation

@@ -1,6 +1,5 @@
 package rentalSpacePortfolio.service.impl;
 
-import jakarta.persistence.criteria.LocalDateTimeField;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +35,7 @@ import rentalSpacePortfolio.repository.PaymentRepository;
 
 @Slf4j
 @Service
-public class BookingService {
+public class FlatBookingService {
     
     private final BookingRepository bookingRepo;
     private final FlatBookingRepository flatBookingRepo;
@@ -46,7 +45,7 @@ public class BookingService {
     private final PropertyRepository propertyRepo;
     
     @Autowired
-    public BookingService(
+    public FlatBookingService(
             BookingRepository bookingRepo,
             FlatBookingRepository flatBookingRepo,
             PaymentRepository paymentRepo,
@@ -148,13 +147,14 @@ public class BookingService {
     // Service to get booking by Tenant ID
     public List<FlatBookingResponse> getBookingsByTenant(UUID tenantId){
         log.info("Requested to get all bookings done by tenant ID: {}", tenantId);
-        tenantRepo.findById(tenantId)
+        tenantRepo.findByUserId(tenantId)
                 .orElseThrow(() -> {
                        log.warn("Tenant not found with ID: {}", tenantId);
                        return new ResourceNotFoundException("Tenant not found");
                     }
                 );
         
+        log.info("Tenant is valid");
         // fetch flat bookings and map to response dto
         List<Booking> tenantBookingFlats = bookingRepo.findByTenantId(tenantId);
         return tenantBookingFlats.stream().map(b 
@@ -199,6 +199,67 @@ public class BookingService {
         booking.setIsPaid(true);
         booking.getPayments().add(payment);
         bookingRepo.save(booking);
+    }
+    
+    @Transactional
+    public void markCheckIn(UUID bookingID, LocalDate date){
+        log.info("Received request to mark booking: {} check in", bookingID);
+        Booking booking = bookingRepo.findById(bookingID)
+                .orElseThrow(() -> {
+                    log.warn("Mark booking checkIn Failed: booking not found with Id: {}", bookingID);
+                    return new ResourceNotFoundException("Booking not found");
+                });
+        
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            log.warn("Mark booking checkIn Failed: Booking {} is in {} status", bookingID, booking.getStatus());
+            throw new IllegalStateException("Cannot check-in. The booking must be CONFIRMED.");
+        }
+
+        FlatBooking bookedFlat = booking.getFlatBooking();
+        bookedFlat.setCheckInDate(date);
+        
+        flatBookingRepo.save(bookedFlat);
+        
+        log.info("Successfully marked booking: {} as checked in at {}", bookingID, date);
+    }
+    
+    @Transactional
+    public void markCheckOut(UUID bookingID, LocalDate date){
+        log.info("Received request to mark booking: {} check out", bookingID);
+        Booking booking = bookingRepo.findById(bookingID)
+                .orElseThrow(() -> {
+                    log.warn("Mark booking checkOut Failed: booking not found with Id: {}", bookingID);
+                    return new ResourceNotFoundException("Booking not found");
+                });
+        
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            log.warn("Mark booking checkOut Failed: Booking {} is in {} status", bookingID, booking.getStatus());
+            throw new IllegalStateException("Cannot check-Out. The booking must be CONFIRMED.");
+        }
+
+        FlatBooking bookedFlat = booking.getFlatBooking();
+        bookedFlat.setCheckOutDate(date);
+        
+        flatBookingRepo.save(bookedFlat);
+        
+        log.info("Successfully marked booking: {} as checked out at {}", bookingID, date);
+    }
+    
+    @Transactional
+    public void deleteBooking(UUID bookingId){
+        Booking booking = bookingRepo.findById(bookingId)
+                .orElseThrow(() -> {
+                    log.warn("Booking not found with Id: {}", bookingId);
+                    return new ResourceNotFoundException("Booking not found");
+                });
+        
+        Flat bookedFlat = booking.getFlatBooking().getFlat();
+        if(bookedFlat.getStatus() == FlatStatus.OCCUPIED){
+            bookedFlat.setStatus(FlatStatus.VACANT);
+            flatRepo.save(bookedFlat);
+        }
+        
+        bookingRepo.delete(booking);
     }
 
 }
