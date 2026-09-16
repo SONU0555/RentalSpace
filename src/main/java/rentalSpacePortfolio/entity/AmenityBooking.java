@@ -5,8 +5,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,9 +31,7 @@ public class AmenityBooking extends BaseEnity{
     private Booking booking;
 
     // Slot Details
-    private LocalDate bookingDate;          // Kaunse din
-    private LocalTime startTime;            // Slot start time
-    private LocalTime endTime;              // Slot end time
-    private Integer durationMinutes;        // Kitne minutes ka slot
+    private LocalDateTime startAt;
+    private LocalDateTime endAt;
 
 }

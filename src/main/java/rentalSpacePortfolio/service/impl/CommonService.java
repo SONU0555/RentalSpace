@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
-import rentalSpacePortfolio.entity.AmenityImage;
 import rentalSpacePortfolio.entity.BelongingImage;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.mapper.UserResponseMapper;
@@ -49,7 +48,7 @@ public class CommonService {
 //     Service to get tenant by Id
     public TenantSummaryResponse getTenantById(UUID tenantId){
         Tenant tenant = tenantRepo.findByUserId(tenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("User tenant not found with Id: " + tenantId));
+                .orElseThrow(() -> new ResourceNotFoundException("User tenant not found"));
         
         return UserResponseMapper.mapToTenatResponseDto(tenant);
     }

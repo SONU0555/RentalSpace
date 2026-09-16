@@ -31,9 +31,10 @@ public class AmenityResponse {
     private LocalTime openTime;            
     private LocalTime closeTime;            
     private Integer slotDurationMinutes;   
+    private Integer slotDurationDays;
 
     // Charges
-    private Boolean isPaid;               
+    private Boolean isFreeOrPaid;               
     private Double chargePerSlot;         
 
     // Rules

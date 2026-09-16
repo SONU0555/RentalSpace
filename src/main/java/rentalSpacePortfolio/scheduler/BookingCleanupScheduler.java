@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.repository.BookingRepository;
-import rentalSpacePortfolio.repository.PaymentRepository;
 
 
 @Component
@@ -15,14 +14,11 @@ import rentalSpacePortfolio.repository.PaymentRepository;
 public class BookingCleanupScheduler {
     
     private final BookingRepository bookingRepo;
-    private final PaymentRepository paymentRepo;
     
     @Autowired
     public BookingCleanupScheduler(
-            BookingRepository bookingRepo,
-            PaymentRepository paymentRepo){
+            BookingRepository bookingRepo){
         this.bookingRepo = bookingRepo;
-        this.paymentRepo = paymentRepo;
     }
     
     

@@ -134,6 +134,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
     
+    @ExceptionHandler(InvalidBookingException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidBookingException(InvalidBookingException ex){
+        ErrorResponseDto error = new ErrorResponseDto();
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setMessage(ex.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+        
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+    
     // Handle property not found exception
 //    @ExceptionHandler(BookingNotFoundException.class)
 //    public ResponseEntity<ErrorResponseDto> handleBookingNotFoundException(BookingNotFoundException ex){

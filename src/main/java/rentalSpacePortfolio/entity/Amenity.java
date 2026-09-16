@@ -4,6 +4,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -40,14 +41,18 @@ public class Amenity extends BaseEnity {
     private LocalTime openTime;             // "06:00 AM"
     private LocalTime closeTime;            // "10:00 PM"
     private Integer slotDurationMinutes;    // Ek booking kitne minutes ki hogi (60, 90, 120)
+    private Integer slotDurationDays;       // Ek booking kitne days ki hogi (1,2,3,4)
 
     // Charges
-    private Boolean isPaid;                 // Free hai ya paid
+    private Boolean isFreeOrPaid;           // Free hai ya paid
     private Double chargePerSlot;           // Agar paid ho toh kitna
 
     // Rules
     private Integer maxSlotsPerTenant;      // Ek tenant ek din mein kitne slots book kar sakta hai
     private Integer advanceBookingDays;     // Kitne din pehle book kar sakte hain
+    
+    @OneToMany(mappedBy = "amenity", fetch = FetchType.LAZY)
+    private List<AmenityBooking> amenityBookingList = new ArrayList<>();
                   
     @ManyToOne
     @JoinColumn(name = "property_id")

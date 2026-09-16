@@ -5,12 +5,12 @@ public enum AmenityType {
     SWIMMING_POOL,
     GYM,
     CLUBHOUSE,
-    PARKING,
-    TERRACE,
+    PARKING, 
+    TERRACE, // remove
     CONFERENCE_ROOM,
     MARRIAGE_HALL,
-    KIDS_PLAY_AREA,
-    GARDEN,
+    KIDS_PLAY_AREA, // remove
+    GARDEN, // remove
     LIBRARY,
     SPORTS_COURT
 }
