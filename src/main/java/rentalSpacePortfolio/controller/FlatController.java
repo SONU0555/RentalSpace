@@ -1,5 +1,6 @@
 package rentalSpacePortfolio.controller;
 
+import jakarta.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -44,14 +45,14 @@ public class FlatController {
     
     // Endpoint to add property flats
     @PreAuthorize("hasRole('OWNER')")
-    @PostMapping(value = "/owner/properties/{propertyId}/flats/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/property/{propertyId}/flats/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addFlat(
             @PathVariable UUID propertyId,
 //            @RequestParam("step") int step,
 //            @RequestParam("tab") String tab,
-            @RequestParam("images") List<MultipartFile> images,
-            @RequestParam("imageDetails") String imageDetails,
-            @RequestPart("flatData") FlatDataRequest flatData
+            @RequestPart("images") List<MultipartFile> images,
+            @Valid @RequestPart("imageDetails") String imageDetails,
+            @Valid @RequestPart("flatData") FlatDataRequest flatData
             ) throws IOException{
         
         log.info("Received request to add new property flat");
@@ -94,14 +95,14 @@ public class FlatController {
     
     // Endpoint to get all flats
     @PreAuthorize("hasRole('TENANT')")
-    @GetMapping("/properties/{propertyId}/flats")
+    @GetMapping("/property/{propertyId}/flats")
     public ResponseEntity<ApiResponse<List<FlatResponse>>> getPropertyAllFlat(
             @PathVariable("propertyId") UUID propertyId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size){
+            @RequestParam(defaultValue = "10") int size){
         log.info("Received request to fetch all flat of property: {}", propertyId);
         List<FlatResponse> flats = flatService.getPropertyAllFlat(propertyId, page, size);
-        return ResponseEntity.ok(ApiResponse.success("All properties fetched succesfully", flats));
+        return ResponseEntity.ok(ApiResponse.success("All flats fetched succesfully", flats));
     }
 
 }

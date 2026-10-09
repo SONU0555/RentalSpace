@@ -1,6 +1,5 @@
 package rentalSpacePortfolio.mapper;
 
-import java.util.List;
 import java.util.stream.Collectors;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.dto.image.ImageResponse;
@@ -8,7 +7,6 @@ import rentalSpacePortfolio.dto.response.flat.FlatBookingResponse;
 import rentalSpacePortfolio.entity.Booking;
 import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.FlatBooking;
-
 
 
 public class FlatResponseMapper {
