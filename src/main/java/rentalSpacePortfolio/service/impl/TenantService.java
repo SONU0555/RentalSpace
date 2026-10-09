@@ -63,8 +63,9 @@ public class TenantService {
         
         if(user.getRole().toString().equals("ADMIN")){
             tenants = tenantRepo.findAllTenantByPropertyId(12l);
+        }else{
+            tenants = tenantRepo.findAll();
         }
-        tenants = tenantRepo.findAll();
         
         return tenants.stream().map(tenant -> UserResponseMapper.mapToTenatResponseDto(tenant))
                 .collect(Collectors.toList());
@@ -93,11 +94,11 @@ public class TenantService {
     
 //     Update user profile details
     @Transactional
-    public void updateTenantProfile(ProfileRequest request, UUID tenantId){
+    public void updateTenantProfile(ProfileRequest request, UUID tenantUserId){
         // get user if exist with this Id
         logger.info("Requested to update user profile details");
-        User user = userRepo.findById(tenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + tenantId));  
+        User user = userRepo.findById(tenantUserId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + tenantUserId));  
         
         Tenant tenant = user.getTenant();
         tenant.setEmergencyContect(request.getEmergencyContect());

@@ -65,8 +65,8 @@ public class TenantController {
     
     @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     @GetMapping("/{tenantId}")
-    public ResponseEntity<ApiResponse<TenantSummaryResponse>> getTenantById(@PathVariable UUID tenantId){
-        TenantSummaryResponse tenant = userCommonService.getTenantById(tenantId);
+    public ResponseEntity<ApiResponse<TenantSummaryResponse>> getTenantById(@PathVariable String tenantId){
+        TenantSummaryResponse tenant = userCommonService.getTenantById(UUID.fromString(tenantId));
         return ResponseEntity.ok(ApiResponse.success("Admin fetched by Id successfully", tenant));
     }
     
