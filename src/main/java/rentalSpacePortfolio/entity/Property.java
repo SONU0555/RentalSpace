@@ -62,13 +62,13 @@ public class Property extends BaseEnity{
    private List<Amenity> amenities = new ArrayList<>();
    
    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-   private List<FlatBooking> flatBookings = new ArrayList<>();
+   private List<Flat> flats = new ArrayList<>();
    
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id", unique = true) 
     private Admin admin; 
    
-   @ManyToOne
+   @ManyToOne(fetch = FetchType.LAZY)
    @JoinColumn(name = "owner_id")
    private User owner;
    

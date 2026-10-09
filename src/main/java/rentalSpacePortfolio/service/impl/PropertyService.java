@@ -81,7 +81,7 @@ public class PropertyService {
             throw new DuplicatePropertyException("Property with the same address already exist in system.");
         }
         
-        Property property = new Property();
+       Property property = new Property();
        PropertyMapper.mapToPropertyDto(property, propertyData, owner);
         
         Property savedProperty = propertyRepo.save(property);
@@ -201,14 +201,14 @@ public class PropertyService {
             throw new AccessDeniedException("You are not authorized. Only the owner can assign an admin.");
         }
 
-        Admin admin = adminRepo.findByUserId(adminId)
+        Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> {
                     log.warn("Property assignment failed: Target admin not found with id: {}", adminId);
                     return new ResourceNotFoundException("User not found");
                 });
         
-        if (!admin.getAdminUser().getRole().equals(Role.ADMIN)) {
-            log.warn("Property assignment failed: User [{}] does not hold an ADMIN role. Found role: {}", adminId, admin.getAdminUser().getRole());
+        if (!admin.getUser().getRole().equals(Role.ADMIN)) {
+            log.warn("Property assignment failed: User [{}] does not hold an ADMIN role. Found role: {}", adminId, admin.getUser().getRole());
             throw new IllegalArgumentException("The assigned user must have an ADMIN role.");
         }
 
@@ -218,9 +218,7 @@ public class PropertyService {
                 adminId);
 
         property.setAdmin(admin);
-        admin.setProperty(property);
         propertyRepo.save(property);
-        adminRepo.save(admin);
 
         log.info("Successfully assigned adminId: {} to propertyId: {} by ownerId: {}", adminId, propertyId, ownerId);
     }

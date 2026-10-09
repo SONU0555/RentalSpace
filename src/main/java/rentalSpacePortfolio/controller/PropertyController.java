@@ -27,7 +27,7 @@ import rentalSpacePortfolio.validation.ImageValidator;
 
 @Slf4j
 @RestController
-@RequestMapping(ApiPaths.BASE + "/owner/properties")
+@RequestMapping(ApiPaths.BASE + "/properties")
 public class PropertyController {
         
     private final PropertyService propertyService;
