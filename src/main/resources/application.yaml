@@ -15,6 +15,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        type:
+          preferred_uuid_binary_strategy: jdbc
+        
         
 #flyway configuration
   
@@ -27,3 +30,4 @@ spring:
         
 app:
   upload-dir: upload/
+  
