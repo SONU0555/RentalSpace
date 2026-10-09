@@ -14,7 +14,8 @@ public class CustomUserDetails implements UserDetails{
     private final Collection<? extends GrantedAuthority> authorities; // Stores roles
 
     // Constructor used by CustomUserDetailsService to pack the user data
-    public CustomUserDetails(String userId, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public CustomUserDetails(String userId, String email,
+            String password, Collection<? extends GrantedAuthority> authorities) {
         this.userId = userId;
         this.email = email;
         this.password = password;

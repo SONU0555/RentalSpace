@@ -56,55 +56,47 @@ public class AuthService {
     public void createNewUser(RegisterRequest request, String role){
         
         logger.info("Received request to create new user with role: {}", role);
-        
-        boolean isOwnerExist = false;
-        
+                
         // Prevent to create duplicate owner
         if(role.equalsIgnoreCase("OWNER")){
             User owner = userRepo.findOwnerByRole(Role.OWNER);
             if(owner != null){
-                isOwnerExist = true;
+                throw new RuntimeException("Duplicate owner creation exception");
             }
         }
         
-        if(isOwnerExist){
-            throw new RuntimeException("Duplicate owner creation exception");
-        }
-        
-        Admin admin = null;
-        Tenant tenant = null;
-                
-        if(role.equalsIgnoreCase("ADMIN")){
-            admin = new Admin();
-        }else if(role.equalsIgnoreCase("TENANT")){
-            tenant = new Tenant();
-        }
-        
         User user = new User();
+        Tenant tenant = null;
                 
         //Mapping Dto to Entity
         user.setFull_name(request.getFullName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder().encode(request.getPassword()));
-        user.setRole(switch (role.toUpperCase()) {
-                      case "ADMIN"  -> Role.ADMIN;
-                      case "OWNER"  -> Role.OWNER;
-                      default       -> Role.TENANT;
-        });
-        
-        userRepo.save(user);
-        
-        logger.info("user generated Id: {}", user.getId());
-        
-        // To store the reference key of user table in admin or tenant table
-        if(admin != null){
-            admin.setAdminUser(user);
-            adminRepo.save(admin);
+        switch (role.toUpperCase()) {
+            case "ADMIN" -> {
+                user.setRole(Role.ADMIN);
+                Admin admin = new Admin();
+            
+                // 🔥 CRUCIAL: Link both sides in Java before saving
+                user.setAdmin(admin);
+                admin.setUser(user); 
+            }
+            case "TENANT" -> {
+                user.setRole(Role.TENANT);
+                tenant = new Tenant();
+            
+                // 🔥 CRUCIAL: Link both sides in Java before saving
+                user.setTenant(tenant);
+                tenant.setUser(user); 
+            }
+            default -> throw new IllegalArgumentException("Unknown role: " + role);
         }
-        if(tenant != null){
-            tenant.setUser(user);
-            tenantRepo.save(tenant);
-        }
+    
+        user = userRepo.save(user);
+        
+        logger.info("tenant id: {}", tenant.getId());
+    
+        logger.info("Successfully generated User with ID: {} and its related profile.", user.getId());
     }
     
     // Login back existing user
