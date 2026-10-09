@@ -19,9 +19,9 @@ import lombok.NoArgsConstructor;
 @Table(name = "admins")
 public class Admin extends BaseEnity{
     
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id", nullable = false)
-    private User adminUser;
+    private User user;
     
     @OneToOne(mappedBy = "admin", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Property property;

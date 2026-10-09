@@ -2,6 +2,7 @@ package rentalSpacePortfolio.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -21,11 +22,11 @@ import lombok.NoArgsConstructor;
 @Table(name = "tenants")
 public class Tenant extends BaseEnity{
     
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "flat_id", nullable = false)
     private Flat flat;
     

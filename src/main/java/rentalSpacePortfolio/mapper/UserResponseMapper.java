@@ -23,7 +23,7 @@ public class UserResponseMapper {
     
         public static TenantSummaryResponse mapToTenatResponseDto(Tenant tenant){
         TenantSummaryResponse response = new TenantSummaryResponse();
-        response.setId(tenant.getUser().getId().toString());
+        response.setId(tenant.getId().toString());
         response.setFull_name(tenant.getUser().getFull_name());
         response.setEmail(tenant.getUser().getEmail());
         response.setPhone(tenant.getUser().getPhone());
@@ -39,12 +39,12 @@ public class UserResponseMapper {
     public static AdminSummaryResponse mapUserToAdminSummaryDto(Admin admin){
         AdminSummaryResponse response = new AdminSummaryResponse();
         response.setId(admin.getId().toString());
-        response.setFull_name(admin.getAdminUser().getFull_name());
-        response.setEmail(admin.getAdminUser().getEmail());
-        response.setPhone(admin.getAdminUser().getPhone());
+        response.setFull_name(admin.getUser().getFull_name());
+        response.setEmail(admin.getUser().getEmail());
+        response.setPhone(admin.getUser().getPhone());
 //        response.setProperty_assigned(admin.getProperty().getId());
-        response.setCreatedDate(admin.getAdminUser().getCreatedAt());
-        response.setUpdatedDate(admin.getAdminUser().getUpdatedAt());
+        response.setCreatedDate(admin.getUser().getCreatedAt());
+        response.setUpdatedDate(admin.getUser().getUpdatedAt());
         
         return response;
     }
@@ -53,9 +53,9 @@ public class UserResponseMapper {
     public static AdminSummaryResponse mapUserToAdminSummaryDtoForTenant(Admin admin){
         AdminSummaryResponse response = new AdminSummaryResponse();
         response.setEmployeeCode(admin.getEmployeeCode());
-        response.setFull_name(admin.getAdminUser().getFull_name());
-        response.setEmail(admin.getAdminUser().getEmail());
-        response.setPhone(admin.getAdminUser().getPhone());
+        response.setFull_name(admin.getUser().getFull_name());
+        response.setEmail(admin.getUser().getEmail());
+        response.setPhone(admin.getUser().getPhone());
         
         return response;
     }

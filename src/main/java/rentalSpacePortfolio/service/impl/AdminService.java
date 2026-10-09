@@ -56,7 +56,7 @@ public class AdminService {
         boolean isTenant = authentication.getAuthorities().stream().anyMatch(auth
                 -> auth.getAuthority().equals("ROLE_TENANT"));
         
-        Admin admin = adminRepo.findByUserId(adminId)
+        Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin not found with ID: " + adminId));
         
         if(isTenant){

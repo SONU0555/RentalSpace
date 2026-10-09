@@ -2,6 +2,7 @@ package rentalSpacePortfolio.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -47,7 +48,7 @@ public class CommonService {
     
 //     Service to get tenant by Id
     public TenantSummaryResponse getTenantById(UUID tenantId){
-        Tenant tenant = tenantRepo.findByUserId(tenantId)
+        Tenant tenant = tenantRepo.findById(tenantId)
                 .orElseThrow(() -> new ResourceNotFoundException("User tenant not found"));
         
         return UserResponseMapper.mapToTenatResponseDto(tenant);
