@@ -63,7 +63,7 @@ public class PaymentService {
         String existBookingId = String.valueOf(payment.getBooking().getId());
         return new OrderResponse(payment.getOrderId(), existBookingId, payment.getAmount(), "INR");
         }
-        
+                
         Booking booking = bookingRepo.findById(bookingId)
             .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
         

@@ -33,10 +33,10 @@ public class Booking extends BaseEnity{
     @JoinColumn(name = "tenant_id", nullable = false)
     private Tenant tenant;
     
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private AmenityBooking amenityBooking;
 
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private FlatBooking flatBooking;
     
     @Enumerated(EnumType.STRING)

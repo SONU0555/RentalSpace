@@ -1,8 +1,10 @@
 package rentalSpacePortfolio.controller;
 
+import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,25 +22,34 @@ import rentalSpacePortfolio.dto.request.flat.BookingCancelRequest;
 import rentalSpacePortfolio.dto.request.flat.FlatBookingRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.flat.FlatBookingResponse;
+import rentalSpacePortfolio.repository.UserRepository;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.FlatBookingService;
 
-
+@Slf4j
 @RestController
 @RequestMapping(ApiPaths.BASE + "/bookings")
-public class BookingController {
+public class FlatBookingController {
     
     private final FlatBookingService bookingService;
+    private final UserRepository userRepo;
     
     @Autowired
-    public BookingController(FlatBookingService bookingService){
+    public FlatBookingController(FlatBookingService bookingService, UserRepository userRepo){
         this.bookingService = bookingService;
+        this.userRepo = userRepo;
     }
      
-   @PostMapping("/flats")
+   @PostMapping("/flat/{flatId}")
    @PreAuthorize("hasRole('TENANT')")
-   public ResponseEntity<ApiResponse<FlatBookingResponse>> createFlatBooking(@RequestBody FlatBookingRequest req) {
-       return ResponseEntity.ok(ApiResponse.success("Booking created successfully", bookingService.createFlatBooking(req)));
+   public ResponseEntity<ApiResponse<FlatBookingResponse>> createFlatBooking(
+           @PathVariable("flatId") UUID flatId,
+           @Valid @RequestBody FlatBookingRequest req) {
+
+       String userId = SecurityUnits.getCurrentUserId();
+       
+       return ResponseEntity.ok(ApiResponse.success("Booking created successfully",
+               bookingService.createFlatBooking(UUID.fromString(userId), flatId, req)));
    }
 
    @GetMapping("/{bookingId}")

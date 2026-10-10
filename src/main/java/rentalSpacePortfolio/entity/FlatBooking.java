@@ -29,11 +29,6 @@ public class FlatBooking extends BaseEnity{
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
-    // Kis property ka part hai
-    @ManyToOne
-    @JoinColumn(name = "property_id", nullable = false)
-    private Property property;
-
     // Lease Details
     private LocalDate leaseStartDate;       // Kab se rehna hai
     private LocalDate leaseEndDate;         // Kab tak rehna hai

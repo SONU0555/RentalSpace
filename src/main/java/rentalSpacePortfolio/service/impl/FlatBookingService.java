@@ -16,8 +16,8 @@ import rentalSpacePortfolio.entity.Booking;
 import rentalSpacePortfolio.entity.Flat;
 import rentalSpacePortfolio.entity.FlatBooking;
 import rentalSpacePortfolio.entity.Payment;
-import rentalSpacePortfolio.entity.Property;
 import rentalSpacePortfolio.entity.Tenant;
+import rentalSpacePortfolio.entity.User;
 import rentalSpacePortfolio.enums.BookingStatus;
 import rentalSpacePortfolio.enums.BookingType;
 import rentalSpacePortfolio.enums.FlatStatus;
@@ -27,11 +27,11 @@ import rentalSpacePortfolio.exception.FlatNotAvailableException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.mapper.FlatResponseMapper;
 import rentalSpacePortfolio.repository.FlatRepository;
-import rentalSpacePortfolio.repository.PropertyRepository;
 import rentalSpacePortfolio.repository.TenantRepository;
 import rentalSpacePortfolio.repository.BookingRepository;
 import rentalSpacePortfolio.repository.FlatBookingRepository;
 import rentalSpacePortfolio.repository.PaymentRepository;
+import rentalSpacePortfolio.repository.UserRepository;
 
 @Slf4j
 @Service
@@ -42,7 +42,7 @@ public class FlatBookingService {
     private final PaymentRepository paymentRepo;
     private final TenantRepository tenantRepo;
     private final FlatRepository flatRepo;
-    private final PropertyRepository propertyRepo;
+    private final UserRepository userRepo;
     
     @Autowired
     public FlatBookingService(
@@ -51,25 +51,28 @@ public class FlatBookingService {
             PaymentRepository paymentRepo,
             TenantRepository tenantRepo,
             FlatRepository flatRepo,
-            PropertyRepository propertyRepo){
+            UserRepository userRepo
+    ){
         this.bookingRepo = bookingRepo;
         this.flatBookingRepo = flatBookingRepo;
         this.paymentRepo = paymentRepo;
         this.tenantRepo = tenantRepo;
         this.flatRepo = flatRepo;
-        this.propertyRepo = propertyRepo;
+        this.userRepo = userRepo;
     }
     
     @Transactional
-    public FlatBookingResponse createFlatBooking(FlatBookingRequest req){
+    public FlatBookingResponse createFlatBooking(UUID userId, UUID flatId, FlatBookingRequest req){
         
         log.info("Received request to create flat booking");
         
-        Tenant tenant = tenantRepo.findById(req.getTenantId())
-            .orElseThrow(() -> new ResourceNotFoundException("Tenant not found"));
+        User user = userRepo.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+        Tenant tenant = user.getTenant();
         
         // Verifying is the user has complete profile or not
-        if(tenant.getUser().getPhone() == null || tenant.getEmergencyContect() == null){
+        if(user.getPhone() == null || tenant.getEmergencyContect() == null){
             log.warn("User: {} action not allowed due to incomplete profile", tenant.getId());
             throw new BadRequestException("Flat Booking Failed: can't process booking with incomplete profile");
         }
@@ -83,24 +86,20 @@ public class FlatBookingService {
         Flat flat;
             try {
                 // another user will wait maximum 3 seconds for first user to finish
-                flat = flatRepo.findByIdForUpdate(req.getFlatId())
+                flat = flatRepo.findByIdForUpdate(flatId)
                     .orElseThrow(() -> new ResourceNotFoundException("Flat not found"));
             
             } catch (PessimisticLockingFailureException ex) {
                 // Another User falls here if first User takes too long
-                log.warn("Lock acquisition timed out for flat ID: {}. Another booking is in progress.", req.getFlatId());
+                log.warn("Lock acquisition timed out for flat ID: {}. Another booking is in progress.", flatId);
                 throw new BookingConflictException("The system is currently processing a booking for this flat. Please try again in a few seconds.");
         }
         
-
-        Property property = propertyRepo.findById(req.getPropertyId())
-            .orElseThrow(() -> new ResourceNotFoundException("Property not found"));
-        
-        LocalDate leaseEnd = req.getLeaseStartDate().plusMonths(req.getLeaseDurationMonths());
+        LocalDate leaseEndDate = req.getLeaseStartDate().plusMonths(req.getLeaseDurationMonths());
 
         // Flat availability checking
         log.info("Checking availability, is flat already booked or not");
-        List<FlatBooking> overlaps = flatBookingRepo.findOverlappingBookings(flat.getId(), req.getLeaseStartDate(), leaseEnd,
+        List<FlatBooking> overlaps = flatBookingRepo.findOverlappingBookings(flat.getId(), req.getLeaseStartDate(), leaseEndDate,
             List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
 
         if (!overlaps.isEmpty()) {
@@ -117,19 +116,20 @@ public class FlatBookingService {
         booking.setIsPaid(Boolean.FALSE);
         booking.setBookingType(BookingType.FLAT);
         booking.setHoldExpireAt(LocalDateTime.now().plusMinutes(5));
-        booking = bookingRepo.save(booking);
-        
+
         FlatBooking flatBooking = new FlatBooking();
         flatBooking.setFlat(flat);
-        flatBooking.setProperty(property);
         flatBooking.setLeaseStartDate(req.getLeaseStartDate());
-        flatBooking.setLeaseEndDate(leaseEnd);
+        flatBooking.setLeaseEndDate(leaseEndDate);
         flatBooking.setLeaseDurationMonths(req.getLeaseDurationMonths());
         flatBooking.setMonthlyRent(flat.getRentAmount());
         flatBooking.setSecurityDeposit(flat.getSecurityDeposit());
+
+        // link both sides
+        booking.setFlatBooking(flatBooking);
         flatBooking.setBooking(booking);
 
-        flatBooking = flatBookingRepo.save(flatBooking);
+        booking = bookingRepo.save(booking);   // cascade = ALL also saves flatBooking
         
         log.info("Booking created successfully and saved to DB");
         return FlatResponseMapper.mapToFlatBookingDto(booking, flatBooking);
@@ -147,7 +147,7 @@ public class FlatBookingService {
     // Service to get booking by Tenant ID
     public List<FlatBookingResponse> getBookingsByTenant(UUID tenantId){
         log.info("Requested to get all bookings done by tenant ID: {}", tenantId);
-        tenantRepo.findByUserId(tenantId)
+        tenantRepo.findById(tenantId)
                 .orElseThrow(() -> {
                        log.warn("Tenant not found with ID: {}", tenantId);
                        return new ResourceNotFoundException("Tenant not found");
@@ -156,7 +156,11 @@ public class FlatBookingService {
         
         log.info("Tenant is valid");
         // fetch flat bookings and map to response dto
-        List<Booking> tenantBookingFlats = bookingRepo.findByTenantId(tenantId);
+        List<Booking> tenantBookingFlats = bookingRepo.findFlatByTenantId(tenantId);
+        if(tenantBookingFlats.isEmpty()){
+            return null;
+        }
+        
         return tenantBookingFlats.stream().map(b 
                 -> FlatResponseMapper.mapToBookingHistoryResponseDto(b)).collect(Collectors.toList());
     }
