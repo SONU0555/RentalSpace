@@ -13,18 +13,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AmenityBookingRequest {
     
-    @NotNull(message = "tenantId is required")
-    private String tenantId;
-    
-    @NotNull(message = "amenityId is required")
-    private String amenityId;
+//    @NotNull(message = "No. of slots required")
+//    private Integer noOfSlots;
     
     @NotNull(message = "start date is required")
     @Future(message = "startAt must be in futrue")
     private LocalDateTime startAt;
     
-    @NotNull(message = "end date is required")
-    @Future(message = "endAt must be in future")
+    @NotNull(message = "start date is required")
+    @Future(message = "startAt must be in futrue")
     private LocalDateTime endAt;
 
 }

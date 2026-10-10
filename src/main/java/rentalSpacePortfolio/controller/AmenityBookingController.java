@@ -1,5 +1,8 @@
 package rentalSpacePortfolio.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,12 +13,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rentalSpacePortfolio.constants.ApiPaths;
+import rentalSpacePortfolio.dto.request.amenity.AmenityBookingRequest;
 import rentalSpacePortfolio.dto.response.Amenity.SlotAvailabilityResponse;
 import rentalSpacePortfolio.dto.response.ApiResponse;
+import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.AmenityBookingService;
 
 
@@ -42,10 +49,25 @@ public class AmenityBookingController {
     @GetMapping("/{amenityId}/slots")
     public ResponseEntity<ApiResponse<List<SlotAvailabilityResponse>>> getAllAvailableSlots(
             @PathVariable("amenityId") UUID amenityId,
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate bookingDate){
+            @RequestParam("date") 
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            @NotNull(message = "Date is required")
+            @FutureOrPresent(message = "Booking date must be today or in the future") 
+            LocalDate bookingDate
+    ){
         
         List<SlotAvailabilityResponse> listOfAvailableSlots = amenityBookingService.getAvailableSlots(amenityId, bookingDate);
         return new ResponseEntity<>((new ApiResponse<>(true, "List of available slots Time", listOfAvailableSlots)), HttpStatus.OK);
+    }
+    
+    @PostMapping("/{amenityId}")
+    public ResponseEntity<String> createAmenityBooking(@PathVariable UUID amenityId,
+           @Valid @RequestBody AmenityBookingRequest req){
+        
+        String currentUserId = SecurityUnits.getCurrentUserId();
+        
+        amenityBookingService.createAmenityBooking(amenityId, UUID.fromString(currentUserId), req);
+        return new ResponseEntity<>("Amenity booking successfully created", HttpStatus.OK);
     }
 
 }

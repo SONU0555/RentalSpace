@@ -48,13 +48,13 @@ public class Amenity extends BaseEnity {
     private Double chargePerSlot;           // Agar paid ho toh kitna
 
     // Rules
-    private Integer maxSlotsPerTenant;      // Ek tenant ek din mein kitne slots book kar sakta hai
+   //private Integer maxSlotsPerTenant;      // Ek tenant ek din mein kitne slots book kar sakta hai
     private Integer advanceBookingDays;     // Kitne din pehle book kar sakte hain
     
     @OneToMany(mappedBy = "amenity", fetch = FetchType.LAZY)
     private List<AmenityBooking> amenityBookingList = new ArrayList<>();
                   
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "property_id")
     private Property property;
 

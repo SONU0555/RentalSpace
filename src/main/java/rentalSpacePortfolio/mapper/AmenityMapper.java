@@ -23,7 +23,7 @@ public class AmenityMapper {
         amenity.setProperty(property == null ? amenity.getProperty() : property);
         amenity.setIsFreeOrPaid(amenityData.getIsPaid());
         amenity.setChargePerSlot(amenityData.getChargePerSlot());
-        amenity.setMaxSlotsPerTenant(amenityData.getMaxSlotsPerTenant());
+//        amenity.setMaxSlotsPerTenant(amenityData.getMaxSlotsPerTenant());
         amenity.setAdvanceBookingDays(amenityData.getAdvanceBookingDays());
         
     }
@@ -42,7 +42,7 @@ public class AmenityMapper {
        response.setSlotDurationDays(request.getSlotDurationDays());
        response.setIsFreeOrPaid(request.getIsFreeOrPaid());
        response.setChargePerSlot(request.getChargePerSlot());
-       response.setMaxSlotsPerTenant(request.getMaxSlotsPerTenant());
+//       response.setMaxSlotsPerTenant(request.getMaxSlotsPerTenant());
        response.setAdvanceBookingDays(request.getAdvanceBookingDays());
        response.setAmenityImages(request.getAmenityImages().stream().map(img ->
                 new ImageResponse(img.getId(), img.getImageDetails())).collect(Collectors.toList()));
