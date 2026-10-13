@@ -7,11 +7,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.dto.request.amenity.AmenityBookingRequest;
+import rentalSpacePortfolio.dto.response.Amenity.AmenityBookingCreateResponse;
+import rentalSpacePortfolio.dto.response.Amenity.AmenityBookingResponse;
 import rentalSpacePortfolio.dto.response.Amenity.SlotAvailabilityResponse;
 import rentalSpacePortfolio.entity.Amenity;
 import rentalSpacePortfolio.entity.AmenityBooking;
@@ -19,13 +22,16 @@ import rentalSpacePortfolio.entity.Booking;
 import rentalSpacePortfolio.entity.Tenant;
 import rentalSpacePortfolio.enums.BookingStatus;
 import rentalSpacePortfolio.enums.BookingType;
+import rentalSpacePortfolio.exception.DuplicateBookingException;
 import rentalSpacePortfolio.exception.SlotFullException;
 import rentalSpacePortfolio.exception.InvalidBookingException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
+import rentalSpacePortfolio.mapper.BookingResponseMapper;
 import rentalSpacePortfolio.repository.AmenityBookingRepository;
 import rentalSpacePortfolio.repository.AmenityRepository;
 import rentalSpacePortfolio.repository.BookingRepository;
 import rentalSpacePortfolio.repository.TenantRepository;
+import rentalSpacePortfolio.repository.UserRepository;
 
 
 @Service
@@ -34,6 +40,7 @@ public class AmenityBookingService {
     
     private final AmenityBookingRepository amenityBookingRepo;
     private final AmenityRepository amenityRepo;
+    private final UserRepository userRepo;
     private final TenantRepository tenantRepo;
     private final BookingRepository bookingRepo;
     
@@ -42,15 +49,17 @@ public class AmenityBookingService {
             AmenityBookingRepository amenityBookingRepo,
             AmenityRepository amenityRepo,
             TenantRepository tenantRepo,
+            UserRepository userRepo,
             BookingRepository bookingRepo){
         this.amenityBookingRepo = amenityBookingRepo;
         this.amenityRepo = amenityRepo;
+        this.userRepo = userRepo;
         this.tenantRepo = tenantRepo;
         this.bookingRepo = bookingRepo;
     }
     
     @Transactional
-    public void createAmenityBooking(UUID amenityId, UUID userId, AmenityBookingRequest req){
+    public AmenityBookingCreateResponse createAmenityBooking(UUID amenityId, UUID userId, AmenityBookingRequest req){
         log.info("Received request to create amenity booking");
         
         Amenity amenity = amenityRepo.findById(amenityId)
@@ -64,6 +73,16 @@ public class AmenityBookingService {
                     log.warn("Tenant not found with Id: {}", userId);
                     return new ResourceNotFoundException("User not found");
                 });
+                
+        if(!bookingRepo.findAmenityByTenantId(tenant.getId(), req.getStartAt()).isEmpty()){
+            log.warn("User: {} is trying to book same amenity twice for same date {} time: {} TO {}",
+                    tenant.getId(),
+                    req.getStartAt().toLocalDate(),
+                    req.getStartAt().toLocalTime(),
+                    req.getEndAt().toLocalTime());
+            
+            throw new DuplicateBookingException("You can't book same amenity twice for same date and time.");
+        }
         
         long totalDays = ChronoUnit.DAYS.between(req.getStartAt(), req.getEndAt());
         
@@ -81,7 +100,7 @@ public class AmenityBookingService {
 //            LocalTime slotStartAt = req.getStartAt().toLocalTime();
 //            LocalTime slotEndAt = req.getEndAt().toLocalTime();
             
-           int activeCount = amenityBookingRepo.countOverlapping(amenityId, req.getStartAt(), req.getEndAt(),
+           int activeCount = amenityBookingRepo.nextSlotBookedAmentiy(amenityId, req.getStartAt(), req.getEndAt(),
                                   List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
            
            if(activeCount >= amenity.getMaxCapacity()){
@@ -106,12 +125,14 @@ public class AmenityBookingService {
             amenityBooking.setBooking(booking);
             booking.setAmenityBooking(amenityBooking);
             
-            bookingRepo.save(booking);
+            booking = bookingRepo.save(booking);
             log.info("Amenity booking created successfully and saved to DB");
+            
+            return BookingResponseMapper.mapToAmenityBookingCreateDto(booking);
         }
+        
+        return null;
     }
-    
-    
     
     private void isTenantEligible(Tenant tenant){
         log.info("Checking is tenant eligible for booking amenity");
@@ -135,7 +156,7 @@ public class AmenityBookingService {
               throw new IllegalArgumentException("End time must be after start time");
           }
           
-         int activeCount = amenityBookingRepo.countOverlapping(amenityId, startAt, endAt,
+         int activeCount = amenityBookingRepo.nextSlotBookedAmentiy(amenityId, startAt, endAt,
                                 List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
          
          if(!(activeCount < amenity.getMaxCapacity())){
@@ -143,6 +164,23 @@ public class AmenityBookingService {
              return false;
          }
          return true;
+    }
+    
+    public List<AmenityBookingResponse> getAllAmenityBookingsByTenant(UUID tenantId, BookingStatus filter){
+        log.info("Received request to get all amenity bookings with filter");
+        
+        tenantRepo.findById(tenantId)
+                .orElseThrow(() -> {
+                    log.warn("User tenant not found with Id: {}", tenantId);
+                    return new ResourceNotFoundException("User not found");
+                });
+                
+        if(filter.toString().equals("ALL")){
+           return bookingRepo.findByTenantId(tenantId).stream()
+                   .map(b -> BookingResponseMapper.mapToAmenityBookingDto(b)).collect(Collectors.toList());
+        }
+        return bookingRepo.filterAndFindAmenityBooking(tenantId, filter).stream()
+                .map(b -> BookingResponseMapper.mapToAmenityBookingDto(b)).collect(Collectors.toList());
     }
     
     public List<SlotAvailabilityResponse> getAvailableSlots(UUID amenityId, LocalDate bookingDate){
@@ -171,13 +209,13 @@ public class AmenityBookingService {
           
           if(bookingDate.isEqual(currentDate)){
               log.info("User selected present date {} for all available slots", currentDate);
-              LocalTime nextSlotTime = LocalTime.now().plusHours(1).truncatedTo(ChronoUnit.HOURS);
-              LocalDateTime startAt = LocalDateTime.of(currentDate, nextSlotTime);
-              LocalDateTime endAt = LocalDateTime.of(currentDate, nextSlotTime.plusHours(1));
-              
+              LocalTime nextSlotTime = LocalTime.now().plusHours(1).truncatedTo(ChronoUnit.HOURS);              
               
               while(nextSlotTime.isBefore(closingTime)){
-                  int activeCount = amenityBookingRepo.countOverlapping(amenityId, startAt, endAt,
+                  LocalDateTime startAt = LocalDateTime.of(currentDate, nextSlotTime);
+                  LocalDateTime endAt = LocalDateTime.of(currentDate, nextSlotTime.plusHours(1));
+                  
+                  int activeCount = amenityBookingRepo.nextSlotBookedAmentiy(amenityId, startAt, endAt,
                                          List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
                   
                   if(activeCount == amenity.getMaxCapacity()){
@@ -195,7 +233,7 @@ public class AmenityBookingService {
               LocalDateTime startAt = LocalDateTime.of(bookingDate, openingTime);
               
               while(startAt.isBefore(LocalDateTime.of(bookingDate, closingTime))){
-                  int activeCount = amenityBookingRepo.countOverlapping(amenityId, startAt, startAt.plusHours(1),
+                  int activeCount = amenityBookingRepo.nextSlotBookedAmentiy(amenityId, startAt, startAt.plusHours(1),
                                          List.of(BookingStatus.PENDING, BookingStatus.CONFIRMED));
                   
                   if(activeCount == amenity.getMaxCapacity()){

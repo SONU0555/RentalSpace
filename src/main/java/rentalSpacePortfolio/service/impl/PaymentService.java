@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.dto.request.payment.VerifyPaymentRequest;
-import rentalSpacePortfolio.dto.response.flat.FlatBookingResponse;
 import rentalSpacePortfolio.dto.response.payment.OrderResponse;
 import rentalSpacePortfolio.entity.Booking;
 import rentalSpacePortfolio.entity.Flat;
@@ -20,7 +19,6 @@ import rentalSpacePortfolio.enums.FlatStatus;
 import rentalSpacePortfolio.enums.PaymentCategory;
 import rentalSpacePortfolio.enums.PaymentStatus;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
-import rentalSpacePortfolio.mapper.BookingResponseMapper;
 import rentalSpacePortfolio.repository.PaymentRepository;
 import rentalSpacePortfolio.service.interfaces.PaymentGateway;
 import rentalSpacePortfolio.repository.BookingRepository;
@@ -99,7 +97,7 @@ public class PaymentService {
     
     
     @Transactional
-    public FlatBookingResponse verifyAndFinalize(VerifyPaymentRequest req){
+    public void verifyAndFinalize(VerifyPaymentRequest req){
         log.info("Verify and finalize booking payment");
         Payment payment = paymentRepo.findByOrderId(req.getOrderId())
                 .orElseThrow(() ->{
@@ -129,9 +127,9 @@ public class PaymentService {
             booking.getPayments().add(payment);
         }
         
-        Booking updatedBooking = bookingRepo.save(booking);
+        bookingRepo.save(booking);
         
-        return BookingResponseMapper.mapToBookingHistoryResponseDto(updatedBooking);
+//        return BookingResponseMapper.mapToBookingHistoryResponseDto(updatedBooking);
     }
 
     @Transactional

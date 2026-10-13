@@ -15,10 +15,26 @@ public interface AmenityBookingRepository extends JpaRepository<AmenityBooking, 
     @Query("SELECT COUNT(b) FROM AmenityBooking b WHERE b.amenity.id = :amenityId " +
        "AND b.booking.status IN :statuses " +
        "AND b.startAt < :endAt AND b.endAt > :startAt")
-    int countOverlapping(@Param("amenityId") UUID amenityId,
+    int nextSlotBookedAmentiy(@Param("amenityId") UUID amenityId,
            @Param("startAt") LocalDateTime startAt,
            @Param("endAt") LocalDateTime endAt,
            @Param("statuses") List<BookingStatus> statuses
     );
+    
+//    @Query("SELECT COUNT(b) FROM AmenityBooking b WHERE b.amenity.id = :amenityId " +
+//       "AND b.booking.status IN :statuses")
+//    int countOverlapping(@Param("amenityId") UUID amenityId,
+//           @Param("statuses") List<BookingStatus> statuses
+//    );
+    
+    @Query("SELECT b FROM AmenityBooking b WHERE b.startAt >= :dayStart AND b.startAt <= :dayEnd"
+            + " AND b.booking.status = CONFIRMED AND b.dayBookingAlertSent = false")
+    List<AmenityBooking> findBookingsForDay(@Param("dayStart") LocalDateTime dayStart,
+            @Param("dayEnd") LocalDateTime dayEnd);
+    
+    @Query("SELECT b FROM AmenityBooking b WHERE b.startAt >= :start AND b.startAt <= :end"
+            + " AND b.booking.status = CONFIRMED AND b.dayBookingAlertSent = false")
+    List<AmenityBooking> findBookingsForHourBeforeAlert(@Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end);
     
 }

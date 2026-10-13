@@ -1,6 +1,7 @@
 package rentalSpacePortfolio.entity;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
@@ -26,9 +27,12 @@ public class AmenityBooking extends BaseEnity{
     @JoinColumn(name = "amenity_id", nullable = false)
     private Amenity amenity;
     
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
+    
+    private boolean dayBookingAlertSent = false;
+    private boolean hourBeforeAlertSent = false;
 
     // Slot Details
     private LocalDateTime startAt;

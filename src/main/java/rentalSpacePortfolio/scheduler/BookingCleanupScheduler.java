@@ -34,5 +34,16 @@ public class BookingCleanupScheduler {
         }
     }
     
+    @Scheduled(cron = "0 */15 6-23 * * *")
+    @Transactional
+    public void UpdateCompletedBookings(){
+        LocalDateTime now = LocalDateTime.now();
+        
+        int updatedCountInBooking = bookingRepo.updateCompletedBookings(now);
+        
+        if(updatedCountInBooking > 0){
+            log.info("Cleaned up {} expired booking reservations.", updatedCountInBooking);
+        }
+    }
 
 }

@@ -32,11 +32,10 @@ public class PaymentController {
                 .createOrder(UUID.fromString(req.getBookingId()), req.getPaymentMethod(), req.getIdempotencyKey()));
     }
 
-//  simulatedStatus is optional - only for your own testing (e.g. force "FAILED")
+    //  simulatedStatus is optional - only for your own testing (e.g. force "FAILED")
     @PostMapping("/webhook/payment-callback")
-    public ResponseEntity<FlatBookingResponse> verifyPayment(@RequestBody VerifyPaymentRequest req) {
-        System.out.println("callback request: " + req.getSimulatedStatus());
-        return ResponseEntity.ok(paymentService.verifyAndFinalize(req));
+    public ResponseEntity<Void> verifyPayment(@RequestBody VerifyPaymentRequest req) {
+        paymentService.verifyAndFinalize(req);
+        return ResponseEntity.ok().build(); 
     }
-
 }

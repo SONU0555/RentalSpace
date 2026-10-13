@@ -154,6 +154,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
     
+    @ExceptionHandler(DuplicateBookingException.class)
+    public ResponseEntity<ErrorResponseDto> handleDuplicateBookingException(DuplicateBookingException ex){
+        ErrorResponseDto error = new ErrorResponseDto();
+        error.setStatus(HttpStatus.CONFLICT.value());
+        error.setMessage(ex.getMessage());
+        error.setTimeStamp(System.currentTimeMillis());
+        
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+    
     // Handle property not found exception
 //    @ExceptionHandler(BookingNotFoundException.class)
 //    public ResponseEntity<ErrorResponseDto> handleBookingNotFoundException(BookingNotFoundException ex){

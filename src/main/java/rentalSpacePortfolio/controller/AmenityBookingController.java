@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import rentalSpacePortfolio.constants.ApiPaths;
 import rentalSpacePortfolio.dto.request.amenity.AmenityBookingRequest;
+import rentalSpacePortfolio.dto.response.Amenity.AmenityBookingCreateResponse;
+import rentalSpacePortfolio.dto.response.Amenity.AmenityBookingResponse;
 import rentalSpacePortfolio.dto.response.Amenity.SlotAvailabilityResponse;
 import rentalSpacePortfolio.dto.response.ApiResponse;
+import rentalSpacePortfolio.enums.BookingStatus;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.AmenityBookingService;
 
@@ -35,6 +38,26 @@ public class AmenityBookingController {
     @Autowired
     public AmenityBookingController(AmenityBookingService amenityBookingService){
         this.amenityBookingService = amenityBookingService;
+    }
+    
+    @PostMapping("/{amenityId}")
+    public ResponseEntity<ApiResponse<AmenityBookingCreateResponse>> createAmenityBooking(@PathVariable UUID amenityId,
+           @Valid @RequestBody AmenityBookingRequest req){
+        
+        String currentUserId = SecurityUnits.getCurrentUserId();
+        
+        AmenityBookingCreateResponse response = amenityBookingService.createAmenityBooking(amenityId, UUID.fromString(currentUserId), req);
+        return ResponseEntity.ok(ApiResponse.success("Amenity Booking created successfully",
+               response));
+    }
+    
+    @GetMapping("/{tenantId}")
+    public ResponseEntity<ApiResponse<List<AmenityBookingResponse>>> getAllBookingsByTenant(
+            @PathVariable UUID tenantId,
+            @RequestParam(defaultValue = "ALL") BookingStatus filter){
+        
+        List<AmenityBookingResponse> bookings = amenityBookingService.getAllAmenityBookingsByTenant(tenantId, filter);
+        return ResponseEntity.ok(ApiResponse.success("All amenity booking fetched successfully!", bookings));
     }
     
     @GetMapping("/{amenityId}/isAvailable")
@@ -59,15 +82,4 @@ public class AmenityBookingController {
         List<SlotAvailabilityResponse> listOfAvailableSlots = amenityBookingService.getAvailableSlots(amenityId, bookingDate);
         return new ResponseEntity<>((new ApiResponse<>(true, "List of available slots Time", listOfAvailableSlots)), HttpStatus.OK);
     }
-    
-    @PostMapping("/{amenityId}")
-    public ResponseEntity<String> createAmenityBooking(@PathVariable UUID amenityId,
-           @Valid @RequestBody AmenityBookingRequest req){
-        
-        String currentUserId = SecurityUnits.getCurrentUserId();
-        
-        amenityBookingService.createAmenityBooking(amenityId, UUID.fromString(currentUserId), req);
-        return new ResponseEntity<>("Amenity booking successfully created", HttpStatus.OK);
-    }
-
 }
