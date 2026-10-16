@@ -53,16 +53,15 @@ public class AdminService {
     public AdminSummaryResponse getAdminById(UUID adminId){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
-        boolean isTenant = authentication.getAuthorities().stream().anyMatch(auth
-                -> auth.getAuthority().equals("ROLE_TENANT"));
-        
         Admin admin = adminRepo.findById(adminId)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin not found with ID: " + adminId));
+        
+        boolean isTenant = authentication.getAuthorities().stream().anyMatch(auth
+                -> auth.getAuthority().equals("ROLE_TENANT"));
         
         if(isTenant){
             return UserResponseMapper.mapUserToAdminSummaryDtoForTenant(admin);
         }
-        
         return UserResponseMapper.mapUserToAdminSummaryDto(admin);
     }
     
