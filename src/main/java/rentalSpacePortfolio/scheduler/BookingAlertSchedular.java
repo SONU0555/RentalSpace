@@ -3,14 +3,17 @@ package rentalSpacePortfolio.scheduler;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.entity.AmenityBooking;
 import rentalSpacePortfolio.repository.AmenityBookingRepository;
 import rentalSpacePortfolio.service.impl.EmailService;
 
-
+@Component
+@Slf4j
 public class BookingAlertSchedular {
     
     private final AmenityBookingRepository amenityBookingRepo;
@@ -28,6 +31,8 @@ public class BookingAlertSchedular {
     @Transactional
     public void sendMorningBookingAlert() {
         LocalDateTime now  = LocalDateTime.now();
+        
+        log.info("Daily starting alert has been sended");
         
         LocalDateTime dayStart = now.with(LocalTime.MIN);
         LocalDateTime dayEnd = now.with(LocalTime.MAX);
@@ -54,6 +59,8 @@ public class BookingAlertSchedular {
     @Transactional
     public void sendHourlyReminders(){
         LocalDateTime now = LocalDateTime.now();
+        
+        log.info("Alert sent before booking start");
         
         LocalDateTime hourStart = now;
         LocalDateTime hourEnd = now.plusHours(1);
