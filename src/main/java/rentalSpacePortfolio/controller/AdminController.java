@@ -4,11 +4,10 @@ package rentalSpacePortfolio.controller;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,8 +56,12 @@ public class AdminController {
     
     @GetMapping // endpoint to get all admins
     @PreAuthorize("hasRole('OWNER')")
-    public ResponseEntity<List<AdminSummaryResponse>> getAllAdmins(){
-        return new ResponseEntity<>(adminService.getAllAdmins(), HttpStatus.OK);
+    public ResponseEntity<ApiResponse<List<AdminSummaryResponse>>> getAllAdmins(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ){
+        return ResponseEntity.ok(ApiResponse.success("All admin fetched succesfully",
+                adminService.getAllAdmins(page, size)));
     }
     
     @GetMapping("/{adminId}")

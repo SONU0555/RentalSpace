@@ -4,7 +4,11 @@ package rentalSpacePortfolio.service.impl;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -19,11 +23,11 @@ import rentalSpacePortfolio.repository.AdminRepository;
 import rentalSpacePortfolio.repository.UserRepository;
 
 
-
+@Slf4j
 @Service
 public class AdminService {
     
-    public UserRepository userRepo;
+    private final UserRepository userRepo;
     private final AdminRepository adminRepo;
     
     @Autowired
@@ -42,10 +46,11 @@ public class AdminService {
     }
     
     // Service to get all admins
-    public List<AdminSummaryResponse> getAllAdmins(){
-        List<Admin> admins = adminRepo.findAll();
-        
-        return admins.stream().map(admin -> UserResponseMapper.mapUserToAdminSummaryDto(admin))
+    public List<AdminSummaryResponse> getAllAdmins(int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Admin> adminPage = adminRepo.findAll(pageable);
+                
+        return adminPage.stream().map(admin -> UserResponseMapper.mapUserToAdminSummaryDto(admin))
                 .collect(Collectors.toList());
     } 
     

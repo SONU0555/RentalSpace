@@ -12,6 +12,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -95,6 +99,49 @@ public class AdminServiceTest {
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
             adminService.getAdminById(adminId);
         });
+    }
+    
+    @Test
+    void getAllAdmins_ShouldReturnMappedList_WhenDataExists(){
+        int page = 0;
+        int size = 10;
+        
+        Pageable pageable = PageRequest.of(page, size);
+        
+        User user1 = new User(); user1.setFull_name("Alok");
+        User user2 = new User(); user1.setFull_name("Rajeev");
+        
+        Admin admin1 = new Admin();
+        admin1.setId(UUID.randomUUID());
+        admin1.setUser(user1);
+        Admin admin2 = new Admin();
+        admin2.setId(UUID.randomUUID());
+        admin2.setUser(user2);
+        
+        List<Admin> adminList = List.of(admin1, admin2);
+        Page<Admin> mockPage = new PageImpl<>(adminList, pageable, adminList.size());
+        
+        Mockito.when(adminRepo.findAll(pageable)).thenReturn(mockPage);
+        
+        List<AdminSummaryResponse> result = adminService.getAllAdmins(page, size);
+        
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(2, result.size());
+    }
+    
+    @Test
+    void getAllAdmins_ShouldReturnEmptyList_WhenDataNotExits(){
+        int page = 0;
+        int size = 10;
+        
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Admin> emptyPage = Page.empty(pageable);
+        
+        Mockito.when(adminRepo.findAll(pageable)).thenReturn(emptyPage);
+        
+        List<AdminSummaryResponse> result = adminService.getAllAdmins(page, size);
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isEmpty());
     }
 
 }
