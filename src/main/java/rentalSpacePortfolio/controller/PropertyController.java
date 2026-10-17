@@ -90,9 +90,8 @@ public class PropertyController {
     public ResponseEntity<ApiResponse<String>> assingAdminToProperty(@PathVariable("propertyId") UUID propertyId,
             @RequestParam("admin") UUID adminId){
         
-        String ownerId = SecurityUnits.getCurrentUserId();
-        log.info("Received request to assign adminId: {} to propertyId: {} by ownerId: {}", adminId, propertyId, ownerId);
-        propertyService.assignPropertyToAdmin(propertyId, adminId, UUID.fromString(ownerId));
+        log.info("Received request to assign admin: {} to property: {}", adminId, propertyId);
+        propertyService.assignPropertyToAdmin(propertyId, adminId);
         
         return ResponseEntity.ok(new ApiResponse<>(true, "Admin assigned successfully!", "Empty"));
     }

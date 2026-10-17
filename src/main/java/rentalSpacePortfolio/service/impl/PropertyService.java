@@ -18,6 +18,7 @@ import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.entity.*;
+import rentalSpacePortfolio.enums.AdminStatus;
 import rentalSpacePortfolio.enums.PropertyVisbility;
 import rentalSpacePortfolio.enums.Role;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
@@ -187,18 +188,19 @@ public class PropertyService {
     
     // Service to assign specific property to an admin
     @Transactional
-    public void assignPropertyToAdmin(UUID propertyId, UUID adminId, UUID ownerId){
+    public void assignPropertyToAdmin(UUID propertyId, UUID adminId){
 
         Property property = propertyRepo.findById(propertyId)
                 .orElseThrow(() -> {
                     log.warn("Property assignment failed: Property not found with id: {}", propertyId);
                      return new ResourceNotFoundException("Property not found");
                 });
-
-        if (!property.getOwner().getId().equals(ownerId)) {
-            log.warn("Security Alert: User [{}] attempted unauthorized admin assignment on property [{}] owned by [{}]", 
-                    ownerId, propertyId, property.getOwner().getId());
-            throw new AccessDeniedException("You are not authorized. Only the owner can assign an admin.");
+        
+        Admin assignedAdmin = adminRepo.findPropertyAdmin(propertyId);
+        
+        if(assignedAdmin != null){
+            log.warn("Cannot assign admin to this property it has already assigned admin");
+            throw new IllegalArgumentException("Property already has admin assigned");
         }
 
         Admin admin = adminRepo.findById(adminId)
@@ -207,19 +209,20 @@ public class PropertyService {
                     return new ResourceNotFoundException("User not found");
                 });
         
-        if (!admin.getUser().getRole().equals(Role.ADMIN)) {
-            log.warn("Property assignment failed: User [{}] does not hold an ADMIN role. Found role: {}", adminId, admin.getUser().getRole());
-            throw new IllegalArgumentException("The assigned user must have an ADMIN role.");
+        if(admin.getStatus() == AdminStatus.ASSIGNED){
+            log.warn("This admin: {} is already assigned with this or other propery.", admin.getId());
+            throw new IllegalArgumentException("Admin already assigned with other property");
         }
 
-        log.debug("Current admin for property [{}] is [{}]. Updating to new admin [{}].", 
-                propertyId, 
-                property.getAdmin() != null ? property.getAdmin().getId() : "NONE", 
-                adminId);
+//        log.debug("Current admin for property [{}] is [{}]. Updating to new admin [{}].", 
+//                propertyId, 
+//                property.get != null ? property.getAdmin().getId() : "NONE", 
+//                adminId);
 
-        property.setAdmin(admin);
-        propertyRepo.save(property);
+        admin.setProperty(property);
+        admin.setStatus(AdminStatus.ASSIGNED);
+        adminRepo.save(admin);
 
-        log.info("Successfully assigned adminId: {} to propertyId: {} by ownerId: {}", adminId, propertyId, ownerId);
+        log.info("Successfully assigned adminId: {} to propertyId: {}", adminId, propertyId);
     }
 }
