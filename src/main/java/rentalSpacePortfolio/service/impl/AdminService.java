@@ -12,11 +12,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
 import rentalSpacePortfolio.dto.response.admin.ProfileResponse;
 import rentalSpacePortfolio.entity.Admin;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.entity.User;
+import rentalSpacePortfolio.enums.AdminStatus;
 import rentalSpacePortfolio.mapper.AdminResponseMapper;
 import rentalSpacePortfolio.mapper.UserResponseMapper;
 import rentalSpacePortfolio.repository.AdminRepository;
@@ -71,11 +73,17 @@ public class AdminService {
     }
     
     
-    // Delete user
-    public void deleteUser(UUID id){
-        User user = userRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + id));
-        userRepo.delete(user);
+    // Unassign the admin user from the specific property
+    @Transactional
+    public void unassignAdmin(UUID adminId){
+        log.info("Received request to unassign user from the property");
+        Admin admin = adminRepo.findById(adminId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + adminId));
+        
+        if(admin.getStatus() == AdminStatus.UNASSIGNED) return;
+        
+        admin.setStatus(AdminStatus.UNASSIGNED);
+        adminRepo.save(admin);
     }
 
 }

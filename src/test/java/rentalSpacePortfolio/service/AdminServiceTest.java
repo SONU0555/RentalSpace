@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import rentalSpacePortfolio.dto.response.admin.AdminSummaryResponse;
 import rentalSpacePortfolio.entity.Admin;
 import rentalSpacePortfolio.entity.User;
+import rentalSpacePortfolio.enums.AdminStatus;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.repository.AdminRepository;
 import rentalSpacePortfolio.repository.UserRepository;
@@ -73,6 +74,7 @@ public class AdminServiceTest {
         });
     }
     
+    // Test cases for get admin by ID service
     @Test
     void getAdminById_ForTenantUser(){
         Mockito.when(adminRepo.findById(adminId)).thenReturn(Optional.of(mockAdmin));
@@ -101,6 +103,7 @@ public class AdminServiceTest {
         });
     }
     
+    // Test cases for get all admin service
     @Test
     void getAllAdmins_ShouldReturnMappedList_WhenDataExists(){
         int page = 0;
@@ -142,6 +145,38 @@ public class AdminServiceTest {
         List<AdminSummaryResponse> result = adminService.getAllAdmins(page, size);
         Assertions.assertNotNull(result);
         Assertions.assertTrue(result.isEmpty());
+    }
+    
+    @Test
+    void unassignAdmin_ShouldUpdateStatusAndSave_WhenAdminIsAssigned(){
+        mockAdmin.setStatus(AdminStatus.ASSIGNED);
+        Mockito.when(adminRepo.findById(adminId)).thenReturn(Optional.of(mockAdmin));
+        
+        adminService.unassignAdmin(adminId);
+        
+        Assertions.assertEquals(AdminStatus.UNASSIGNED, mockAdmin.getStatus());
+        Mockito.verify(adminRepo, Mockito.times(1)).save(mockAdmin);
+    }
+    
+    @Test
+    void unassignAdmin_ShouldReturnEarly_WhenAdminIsAlreadyUnassigned(){
+        mockAdmin.setStatus(AdminStatus.UNASSIGNED);
+        Mockito.when(adminRepo.findById(adminId)).thenReturn(Optional.of(mockAdmin));
+        
+        adminService.unassignAdmin(adminId);
+        
+        Mockito.verify(adminRepo, Mockito.never()).save(Mockito.any(Admin.class));
+    }
+    
+    @Test
+    void unassignAdmin_ShouldThrowException_WhenAdminNotExists(){        
+        Mockito.when(adminRepo.findById(adminId)).thenReturn(Optional.empty());
+        
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> {
+            adminService.unassignAdmin(adminId);
+        });
+        
+        Mockito.verify(adminRepo, Mockito.never()).save(Mockito.any(Admin.class));
     }
 
 }
