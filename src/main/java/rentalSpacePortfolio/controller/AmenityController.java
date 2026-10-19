@@ -24,7 +24,7 @@ import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.response.Amenity.AmenityResponse;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.service.impl.AmenityService;
-import rentalSpacePortfolio.validation.ImageValidator;
+import rentalSpacePortfolio.validation.ImageValidatorService;
 
 
 @Slf4j
@@ -33,10 +33,10 @@ import rentalSpacePortfolio.validation.ImageValidator;
 public class AmenityController {
     
     public final AmenityService amenityService;
-    private final ImageValidator imageValidator;
+    private final ImageValidatorService imageValidator;
     private static final int MAX_IMAGE_COUNT = 5;
     
-    public AmenityController(AmenityService amenityService, ImageValidator imageValidator){
+    public AmenityController(AmenityService amenityService, ImageValidatorService imageValidator){
         this.amenityService = amenityService;
         this.imageValidator = imageValidator;
     }
@@ -59,12 +59,12 @@ public class AmenityController {
     public ResponseEntity<ApiResponse<String>> createAmenity(
             @PathVariable UUID propertyId,
             @RequestParam("images") List<MultipartFile> images,
-            @RequestParam("imageDetails") String imageDetails,
+            @RequestPart("imageDetails") List<ImageRequest> imageDetails,
             @RequestPart("amenityData") AmenityRequest amenityData
             ) throws IOException{
         
         log.info("Received request to create new property amenity");
-        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
+        List<ImageRequest> imageRequests = imageValidator.validateImageAndDetails(images, imageDetails, MAX_IMAGE_COUNT);
         
         amenityService.createAmenity(images, imageRequests, amenityData, propertyId);
         return new ResponseEntity<>((new ApiResponse<>(true, "Amenity created successfully!", "created")), HttpStatus.CREATED);
@@ -76,13 +76,13 @@ public class AmenityController {
     public ResponseEntity<ApiResponse<String>> updateFlat (
             @PathVariable("amenityId") UUID amenityId,
             @RequestParam("images") List<MultipartFile> images,
-            @RequestParam("imageDetails") String imageDetails,
+            @RequestPart("imageDetails") List<ImageRequest> imageDetails,
             @RequestPart("amenityData") AmenityRequest amenityData
             ) throws IOException{
         
         log.info("Received request to update amenity with Id: {}", amenityId);
         
-        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
+        List<ImageRequest> imageRequests = imageValidator.validateImageAndDetails(images, imageDetails, MAX_IMAGE_COUNT);
         
         amenityService.updateAmenity(images, imageRequests, amenityData, amenityId);
         return new ResponseEntity<>((new ApiResponse<>(true, "amenity updated successfully!", "updated")), HttpStatus.OK); 

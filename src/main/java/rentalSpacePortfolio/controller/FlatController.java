@@ -26,7 +26,7 @@ import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.flat.FlatResponse;
 import rentalSpacePortfolio.service.impl.FlatService;
-import rentalSpacePortfolio.validation.ImageValidator;
+import rentalSpacePortfolio.validation.ImageValidatorService;
 
 @Slf4j
 @RestController
@@ -34,11 +34,11 @@ import rentalSpacePortfolio.validation.ImageValidator;
 public class FlatController {
     
     private final FlatService flatService;
-    private final ImageValidator imageValidator;
+    private final ImageValidatorService imageValidator;
     private static final int MAX_IMAGE_COUNT = 5;
     
     @Autowired
-    public FlatController(FlatService flatService, ImageValidator imageValidator){
+    public FlatController(FlatService flatService, ImageValidatorService imageValidator){
         this.flatService = flatService;
         this.imageValidator = imageValidator;
     }
@@ -51,12 +51,12 @@ public class FlatController {
 //            @RequestParam("step") int step,
 //            @RequestParam("tab") String tab,
             @RequestPart("images") List<MultipartFile> images,
-            @Valid @RequestPart("imageDetails") String imageDetails,
+            @Valid @RequestPart("imageDetails") List<ImageRequest> imageDetails,
             @Valid @RequestPart("flatData") FlatDataRequest flatData
             ) throws IOException{
         
         log.info("Received request to add new property flat");
-        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
+        List<ImageRequest> imageRequests = imageValidator.validateImageAndDetails(images, imageDetails, MAX_IMAGE_COUNT);
         
         flatService.saveFlat(images, imageRequests, flatData, propertyId);
         return new ResponseEntity<>((new ApiResponse<>(true, "Flat added successfully!", "Empty")), HttpStatus.CREATED);
@@ -70,13 +70,13 @@ public class FlatController {
 //            @RequestParam("tab") String tab,
             @PathVariable("flatId") UUID flatId,
             @RequestParam("images") List<MultipartFile> images,
-            @RequestParam("imageDetails") String imageDetails,
+            @RequestPart("imageDetails") List<ImageRequest> imageDetails,
             @RequestPart("flatData") FlatDataRequest flatData
             ) throws IOException{
         
         log.info("Received request to update flat with Id: {}", flatId);
         
-        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
+        List<ImageRequest> imageRequests = imageValidator.validateImageAndDetails(images, imageDetails, MAX_IMAGE_COUNT);
         
         flatService.updateFlat(images, imageRequests, flatData, flatId);
         return new ResponseEntity<>((new ApiResponse<>(true, "flat updated successfully!", "updated")), HttpStatus.OK); 

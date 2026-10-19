@@ -23,7 +23,7 @@ import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.PropertyService;
-import rentalSpacePortfolio.validation.ImageValidator;
+import rentalSpacePortfolio.validation.ImageValidatorService;
 
 @Slf4j
 @RestController
@@ -31,11 +31,11 @@ import rentalSpacePortfolio.validation.ImageValidator;
 public class PropertyController {
         
     private final PropertyService propertyService;
-    private final ImageValidator imageValidator;
+    private final ImageValidatorService imageValidator;
     private static final int MAX_IMAGE_COUNT = 5;
     
     @Autowired
-    public PropertyController(PropertyService propertyService, ImageValidator imageValidator){
+    public PropertyController(PropertyService propertyService, ImageValidatorService imageValidator){
         this.propertyService = propertyService;
         this.imageValidator = imageValidator;
     }
@@ -44,14 +44,14 @@ public class PropertyController {
     @PostMapping(value = "/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createProperty (
             @RequestParam("images") List<MultipartFile> images,
-            @RequestParam("imageDetails") String imageDetails,
+            @RequestPart("imageDetails") List<ImageRequest> imageDetails,
             @RequestPart("propertyData") PropertyRequest propertyData
             ) throws IOException{     
         
         log.info("Received request to add new property");
         
         String ownerId = SecurityUnits.getCurrentUserId();
-        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
+        List<ImageRequest> imageRequests = imageValidator.validateImageAndDetails(images, imageDetails, MAX_IMAGE_COUNT);
         
         propertyService.createProperty(images, imageRequests, propertyData, UUID.fromString(ownerId));
         return new ResponseEntity<>((new ApiResponse<>(true, "Property added successfully!", "Empty")), HttpStatus.CREATED); 
@@ -62,14 +62,14 @@ public class PropertyController {
     public ResponseEntity<?> updateProperty (
             @PathVariable("propertyId") UUID propertyId,
             @RequestParam("images") List<MultipartFile> images,
-            @RequestParam("imageDetails") String imageDetails,
+            @RequestPart("imageDetails") List<ImageRequest> imageDetails,
             @RequestPart("propertyData") PropertyRequest propertyData
             ) throws IOException{     
         
         log.info("Received request to update property with Id: {}", propertyId);
         
         String ownerId = SecurityUnits.getCurrentUserId();
-        List<ImageRequest> imageRequests = imageValidator.validateAndParseRequest(images, imageDetails, MAX_IMAGE_COUNT);
+        List<ImageRequest> imageRequests = imageValidator.validateImageAndDetails(images, imageDetails, MAX_IMAGE_COUNT);
         
         propertyService.updateProperty(images, imageRequests, propertyData, propertyId, UUID.fromString(ownerId));
         return new ResponseEntity<>((new ApiResponse<>(true, "Property updated successfully!", "updated")), HttpStatus.CREATED); 
