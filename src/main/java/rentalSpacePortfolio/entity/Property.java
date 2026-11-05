@@ -9,7 +9,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,31 +37,20 @@ public class Property extends BaseEnity{
    private String pinCode;
    
    @Enumerated(EnumType.STRING)
-   private PropertyStatus status;
-   
-   @Enumerated(EnumType.STRING)
    private PropertyVisbility visibility;
    
    @Enumerated(EnumType.STRING)
    @Column(name = "property_tier")
    private PropertyTier tier;
-   
-   private boolean isActive;
-   
+      
    private Double minimumRent;
    private Double maximumRent;
-   
-   private int step = 0;
-   private String tab = "property";
-   
+      
    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
    private List<PropertyImage> propertyImages = new ArrayList<>();
    
    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
    private List<Amenity> amenities = new ArrayList<>();
-   
-   @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
-   private List<Flat> flats = new ArrayList<>();
    
     @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
     private List<Admin> admins = new ArrayList<>(); 
@@ -71,7 +59,7 @@ public class Property extends BaseEnity{
    @JoinColumn(name = "owner_id")
    private User owner;
    
-//   @OneToMany(mappedBy = "property")
-//   private List<Building> buildings = new ArrayList();
+   @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+   private List<Building> buildings = new ArrayList();
 
 }

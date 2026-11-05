@@ -15,10 +15,8 @@ public class PropertyMapper {
         property.setCity(propertyData.getCity());
         property.setState(propertyData.getState());
         property.setPinCode(propertyData.getPinCode());
-        if(owner != null){
-            property.setOwner(owner);
-        }
-        property.setStatus(propertyData.getStatus());
+        property.setOwner(owner);
+//        property.setStatus(propertyData.getStatus());
         property.setTier(propertyData.getPropertyTier());
         property.setMinimumRent(propertyData.getMinimumRent());
         property.setMaximumRent(propertyData.getMaximumRent());        

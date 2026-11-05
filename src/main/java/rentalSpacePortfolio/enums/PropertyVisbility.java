@@ -1,4 +1,4 @@
 package rentalSpacePortfolio.enums;
 
 
-public enum PropertyVisbility {PUBLISHED, DRAFT}
+public enum PropertyVisbility {DRAFT, PUBLISHED, INACTIVE}

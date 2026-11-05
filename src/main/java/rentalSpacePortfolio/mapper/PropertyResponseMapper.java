@@ -24,7 +24,7 @@ public class PropertyResponseMapper {
         response.setDescription(request.getDescription());
         response.setCity(request.getCity());
         response.setState(request.getState());
-        response.setStatus(request.getStatus().toString());
+//        response.setStatus(request.getStatus().toString());
         response.setPropertyTier(request.getTier());
         response.setImages(mapToPropertyImageResponse(request.getPropertyImages()));
         response.setMiniumRent(request.getMinimumRent());

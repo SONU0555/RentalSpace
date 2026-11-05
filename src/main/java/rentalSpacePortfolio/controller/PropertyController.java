@@ -41,7 +41,7 @@ public class PropertyController {
     }
     
     // Endpoint to add new property
-    @PostMapping(value = "/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createProperty (
             @RequestParam("images") List<MultipartFile> images,
             @RequestPart("imageDetails") List<ImageRequest> imageDetails,

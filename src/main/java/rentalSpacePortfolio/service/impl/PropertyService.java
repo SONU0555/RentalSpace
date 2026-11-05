@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,7 +19,6 @@ import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.entity.*;
 import rentalSpacePortfolio.enums.AdminStatus;
 import rentalSpacePortfolio.enums.PropertyVisbility;
-import rentalSpacePortfolio.enums.Role;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.mapper.PropertyMapper;
@@ -70,7 +68,7 @@ public class PropertyService {
     @Transactional
     public void createProperty(List<MultipartFile> images, 
             List<ImageRequest> imageDetails, 
-            PropertyRequest propertyData, UUID ownerId) throws IOException{
+            PropertyRequest propertyData, UUID ownerId){
         
         User owner = userRepo.findById(ownerId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with Id: " + ownerId));
@@ -85,17 +83,20 @@ public class PropertyService {
        Property property = new Property();
        PropertyMapper.mapToPropertyDto(property, propertyData, owner);
         
-        Property savedProperty = propertyRepo.save(property);
-        log.info("Property data successfully added with Id: {}", savedProperty.getId());
+       property = propertyRepo.save(property);
+        log.info("Property data successfully added with Id: {}", property.getId());
                 
-        // save the list of images FK references in property
-        savedProperty.setPropertyImages(commonService.mapAndSaveImage(
-                images, imageDetails, savedProperty, "property", PropertyImage::new, propertyImgRepo
-        ));
-        savedProperty.setVisibility(PropertyVisbility.DRAFT);
-        propertyRepo.save(savedProperty);
+        try {
+            property.setPropertyImages(commonService.mapAndSaveImage(
+                    images, imageDetails, property, "property", PropertyImage::new, propertyImgRepo
+            ));
+            propertyRepo.save(property);
+        } catch (IOException e) {
+            log.error("Failed to save property images for property ID: {}", property.getId());
+            throw new RuntimeException("Failed to save property images", e);
+        }
                 
-        log.info("Property added successfully with Id: {}", savedProperty.getId());
+        log.info("Property added successfully with Id: {}", property.getId());
     }
     
     // Service to update property details
@@ -181,7 +182,7 @@ public class PropertyService {
                      return new ResourceNotFoundException("Property not found with Id: " + propertyId);
                 });
         
-        property.setActive(isActive);
+//        property.setActive(isActive);
         propertyRepo.save(property);
         log.info("Property: {} succefully deactivated", propertyId);
     }
