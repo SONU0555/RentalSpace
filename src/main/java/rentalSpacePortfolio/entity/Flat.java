@@ -46,9 +46,13 @@ public class Flat extends BaseEnity{
         @OneToMany(mappedBy = "flat", cascade = CascadeType.ALL)
         private List<FlatBooking> flatBookingList = new ArrayList<>();
         
+//        @ManyToOne(fetch = FetchType.LAZY)
+//        @JoinColumn(name = "property_id")
+//        private Property property;
+        
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "property_id")
-        private Property property;
+        @JoinColumn(name = "building_id")
+        private Building building;
         
         @OneToOne(mappedBy = "flat")
         private Tenant currentTenant;

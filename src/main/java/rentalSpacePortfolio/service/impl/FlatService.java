@@ -53,16 +53,16 @@ public class FlatService {
     }
     
     // Service to get all flat of specific property by Id
-    public List<FlatResponse> getPropertyAllFlat(UUID propertyId, int page, int size){
-        propertyRepo.findById(propertyId)
+    public List<FlatResponse> getPropertyAllFlat(UUID buildingId, int page, int size){
+        propertyRepo.findById(buildingId)
                 .orElseThrow(() -> {
-                    log.info("Faile to fetch Flats! property not found with Id: {}", propertyId);
-                    return new ResourceNotFoundException("Property not found with Id: " + propertyId);
+                    log.info("Faile to fetch Flats! property not found with Id: {}", buildingId);
+                    return new ResourceNotFoundException("Property not found with Id: " + buildingId);
                 });
         
         log.info("fetching data for db for page: {} and size: {}", page, size);
         Pageable pageable = PageRequest.of(page, size);
-        Page<Flat> flats = flatRepo.findAllWithImages(propertyId, pageable);
+        Page<Flat> flats = flatRepo.findAllWithImages(buildingId, pageable);
         return flats.stream().map(flat -> FlatResponseMapper.mapToFlatDto(flat)).collect(Collectors.toList());
     }
     

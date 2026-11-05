@@ -18,7 +18,7 @@ public class FlatMapper {
         flat.setStatus(flatData.getStatus());
         flat.setRentAmount(flatData.getRentAmount());
         flat.setSecurityDeposit(flatData.getSecurityDeposit());
-        flat.setProperty(property == null ? flat.getProperty() : property);
+//        flat.setProperty(property == null ? flat.getProperty() : property);
         flat.setStatus(flatData.getStatus());
     }
 

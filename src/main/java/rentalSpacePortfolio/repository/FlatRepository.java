@@ -2,7 +2,6 @@ package rentalSpacePortfolio.repository;
 
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -23,11 +22,11 @@ public interface FlatRepository extends JpaRepository<Flat, UUID>{
     @Query("SELECT f FROM Flat f WHERE f.id = :id")
     Optional<Flat> findByIdForUpdate(@Param("id") UUID id);
   
-    @Query("SELECT f FROM Flat f WHERE f.property.id = :propertyId")
-    List<Flat> findAllPropertyFlat(@Param("propertyId") UUID propertyId);
+//    @Query("SELECT f FROM Flat f WHERE f.property.id = :propertyId")
+//    List<Flat> findAllPropertyFlat(@Param("propertyId") UUID propertyId);
     
 
-    @Query("SELECT f FROM Flat f LEFT JOIN FETCH f.flatImages WHERE f.property.id = :flatId AND f.status = VACANT")
-    Page<Flat> findAllWithImages(@Param("flatId") UUID flatId, Pageable pageable);
+    @Query("SELECT f FROM Flat f LEFT JOIN FETCH f.flatImages WHERE f.building.id = :buildingId AND f.status = VACANT")
+    Page<Flat> findAllWithImages(@Param("buildingId") UUID buildingId, Pageable pageable);
     
 }
