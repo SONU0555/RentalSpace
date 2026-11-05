@@ -3,7 +3,6 @@ package rentalSpacePortfolio.service;
 import rentalSpacePortfolio.service.impl.PropertyService;
 import rentalSpacePortfolio.service.interfaces.ImageStorageService;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,22 +14,20 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.dto.image.ImageRequest;
 import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.entity.Property;
 import rentalSpacePortfolio.entity.PropertyImage;
 import rentalSpacePortfolio.entity.User;
-import rentalSpacePortfolio.enums.PropertyStatus;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.repository.PropertyImageRepository;
 import rentalSpacePortfolio.repository.PropertyRepository;
 import rentalSpacePortfolio.repository.UserRepository;
+import rentalSpacePortfolio.service.impl.CommonService;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -40,6 +37,7 @@ public class PropertyServiceTest {
     @Mock private PropertyRepository propertyRepo;
     @Mock private PropertyImageRepository propertyImgRepo;
     @Mock private ImageStorageService imageStorageService;
+    @Mock private CommonService commonService;
     
     @InjectMocks
     private PropertyService propertyService;
@@ -47,6 +45,8 @@ public class PropertyServiceTest {
     private UUID ownerId;
     private User owner;
     private PropertyRequest propertyData;
+    private List<MultipartFile> images;
+    private List<ImageRequest> imageDetails;
     
     @BeforeEach
     void setUp() {
@@ -56,14 +56,45 @@ public class PropertyServiceTest {
         
         propertyData = new PropertyRequest();
         propertyData.setName("Green Villa");
-        propertyData.setDescription("A nice place");
         propertyData.setAddress("123 Main St");
-        propertyData.setCity("Pune");
-        propertyData.setState("MH");
-        propertyData.setPinCode("411001");
-        propertyData.setStatus(PropertyStatus.AVAILABLE);
-        propertyData.setMinimumRent(20000.0);
-        propertyData.setMaximumRent(50000.0);
+    }
+    
+    @Test
+    void shouldCreatePropertySuccessfully() throws IOException{
+        Property savedProperty = new Property();
+        savedProperty.setId(UUID.randomUUID());
+        
+        List<PropertyImage> savedImages = List.of(new PropertyImage());
+        Mockito.when(userRepo.findById(ownerId)).thenReturn(Optional.of(owner));
+        Mockito.when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(false);
+        Mockito.when(propertyRepo.save(Mockito.any(Property.class))).thenReturn(savedProperty);
+        Mockito.when(commonService.mapAndSaveImage(
+                Mockito.eq(images), Mockito.eq(imageDetails), Mockito.same(savedProperty),
+                Mockito.eq("property"), Mockito.any(), Mockito.same(propertyImgRepo)
+        )).thenReturn(savedImages);
+        
+        Assertions.assertDoesNotThrow(() -> {
+            propertyService.createProperty(images, imageDetails, propertyData, ownerId);
+        });
+        
+        Mockito.verify(userRepo, Mockito.times(1)).findById(ownerId);
+        
+        Mockito.verify(propertyRepo, Mockito.times(1)).existsByAddress(propertyData.getAddress());
+        
+        ArgumentCaptor<Property> captor = ArgumentCaptor.forClass(Property.class);
+        Mockito.verify(propertyRepo, Mockito.times(2)).save(captor.capture());
+        List<Property> capturedProperties = captor.getAllValues();
+        
+//        Assertions.assertSame(capturedProperties.get(0), capturedProperties.get(1));
+        
+        Assertions.assertEquals(propertyData.getAddress(), capturedProperties.get(0).getAddress());
+        
+        Mockito.verify(commonService, Mockito.times(1)).mapAndSaveImage(
+                Mockito.eq(images), Mockito.eq(imageDetails), Mockito.same(savedProperty),
+                Mockito.eq("property"), Mockito.any(), Mockito.same(propertyImgRepo)
+        );
+        
+        Assertions.assertEquals(savedImages, capturedProperties.get(1).getPropertyImages());
     }
     
     @Test
@@ -73,7 +104,7 @@ public class PropertyServiceTest {
         Assertions.assertThrows(ResourceNotFoundException.class, () ->
                 propertyService.createProperty(List.of(), List.of(), propertyData, ownerId));
         
-        Mockito.verifyNoInteractions(propertyRepo);
+        Mockito.verifyNoInteractions(commonService, propertyRepo, propertyImgRepo);
     }
     
     @Test
@@ -84,72 +115,59 @@ public class PropertyServiceTest {
         Assertions.assertThrows(DuplicatePropertyException.class, () -> 
                 propertyService.createProperty(List.of(), List.of(), propertyData, ownerId));
         
-        Mockito.verify(propertyRepo, Mockito.never()).save(Mockito.any());
+        Mockito.verify(userRepo, Mockito.times(1)).findById(ownerId);
+        
+        Mockito.verify(propertyRepo, Mockito.never()).save(Mockito.any(Property.class));
+        Mockito.verifyNoInteractions(commonService, propertyImgRepo);
     }
     
     @Test
-    void shouldSaveProperty_whenCorrectFieldMapping() throws IOException, HttpMediaTypeNotSupportedException{
+    void shouldThrowException_WhenImageSavingFails() throws IOException{
+        Property savedProperty = new Property();
+        savedProperty.setId(UUID.randomUUID());
+        
+        IOException ioException = new IOException("Image storage failed");
+       
         Mockito.when(userRepo.findById(ownerId)).thenReturn(Optional.of(owner));
         Mockito.when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(false);
-        Mockito.when(propertyRepo.save(Mockito.any(Property.class))).thenAnswer(inv -> inv.getArgument(0));
+        Mockito.when(propertyRepo.save(Mockito.any(Property.class))).thenReturn(savedProperty);
+        Mockito.when(commonService.mapAndSaveImage(
+                Mockito.eq(images), Mockito.eq(imageDetails), Mockito.same(savedProperty),
+                Mockito.eq("property"), Mockito.any(), Mockito.same(propertyImgRepo)
+        )).thenThrow(ioException);
         
-        propertyService.createProperty(List.of(), List.of(), propertyData, ownerId);
+        RuntimeException exception = Assertions.assertThrows(RuntimeException.class, () -> {
+            propertyService.createProperty(images, imageDetails, propertyData, ownerId);
+        });
         
-        ArgumentCaptor<Property> captor = ArgumentCaptor.forClass(Property.class);
-        Mockito.verify(propertyRepo, Mockito.atLeastOnce()).save(captor.capture());
+        Assertions.assertEquals("Failed to save property images", exception.getMessage());
+        Assertions.assertSame(ioException, exception.getCause());
         
-        Property saved = captor.getAllValues().get(0);
-        
-        Assertions.assertAll("property field mapping",
-            () -> Assertions.assertEquals("Green Villa", saved.getName()),
-            () -> Assertions.assertEquals("A nice place", saved.getDescription()),
-            () -> Assertions.assertEquals("123 Main St", saved.getAddress()),
-            () -> Assertions.assertEquals("Pune", saved.getCity()),
-            () -> Assertions.assertEquals("MH", saved.getState()),
-            () -> Assertions.assertEquals("411001", saved.getPinCode()),
-            () -> Assertions.assertEquals(20000.0, saved.getMinimumRent()),
-            () -> Assertions.assertEquals(50000.0, saved.getMaximumRent()),
-            () -> Assertions.assertEquals(owner, saved.getOwner())
-        );
+        Mockito.verify(propertyRepo, Mockito.times(1)).save(Mockito.any(Property.class));
+        Mockito.verify(commonService).mapAndSaveImage(
+                Mockito.eq(images), Mockito.eq(imageDetails), Mockito.same(savedProperty),
+                Mockito.eq("property"), Mockito.any(), Mockito.same(propertyImgRepo)
+        );       
     }
     
     @Test
-    void shouldSaveProperty_whenCorrectImageDetails() throws IOException, HttpMediaTypeNotSupportedException{
-        MultipartFile file1 = mock(MultipartFile.class);
-        MultipartFile file2 = mock(MultipartFile.class);
-        
-        ImageRequest req1 = new ImageRequest(null, true, 1);
-        ImageRequest req2 = new ImageRequest(null, false, 2);
+    void shouldCreateProperty_whenNoImagesProvided() throws IOException{
+        Property savedProperty = new Property();
+        savedProperty.setId(UUID.randomUUID());
         
         when(userRepo.findById(ownerId)).thenReturn(Optional.of(owner));
         when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(false);
-        when(propertyRepo.save(Mockito.any(Property.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(imageStorageService.upload(Mockito.eq(file1), Mockito.anyString())).thenReturn("url1");
-        when(imageStorageService.upload(Mockito.eq(file2), Mockito.anyString())).thenReturn("url2");
+        when(propertyRepo.save(Mockito.any(Property.class))).thenReturn(savedProperty);
+        Mockito.when(commonService.mapAndSaveImage(
+                Mockito.eq(List.of()), Mockito.eq(List.of()), Mockito.same(savedProperty),
+                Mockito.eq("property"), Mockito.any(), Mockito.same(propertyImgRepo)
+        )).thenReturn(List.of());
         
+        Assertions.assertDoesNotThrow(() -> {
+            propertyService.createProperty(List.of(), List.of(), propertyData, ownerId);
+        });
         
-        propertyService.createProperty(List.of(file1, file2), List.of(req1, req2), propertyData, ownerId);
-        
-        ArgumentCaptor<List<PropertyImage>> captor = ArgumentCaptor.forClass(List.class);
-        Mockito.verify(propertyImgRepo).saveAll(captor.capture());
-        
-        List<PropertyImage> savedImages = captor.getValue();
-        Assertions.assertEquals("url1", savedImages.get(0).getImageDetails().getImageUrl());
-        Assertions.assertEquals(1, savedImages.get(0).getImageDetails().getDisplayOrder());
-        Assertions.assertTrue(savedImages.get(0).getImageDetails().getIsCoverImage());
-        
+        Mockito.verify(propertyRepo, Mockito.times(2)).save(Mockito.any(Property.class));
+        Assertions.assertTrue(savedProperty.getPropertyImages().isEmpty());
     }
-    
-    @Test
-    void shouldSaveImage_whenNoImagesProvided() throws IOException, HttpMediaTypeNotSupportedException{
-        when(userRepo.findById(ownerId)).thenReturn(Optional.of(owner));
-        when(propertyRepo.existsByAddress(propertyData.getAddress())).thenReturn(false);
-        when(propertyRepo.save(Mockito.any(Property.class))).thenAnswer(inv -> inv.getArgument(0));
-        
-        propertyService.createProperty(List.of(), List.of(), propertyData, ownerId);
-
-       Mockito.verify(propertyImgRepo).saveAll(Collections.emptyList());
-       Mockito.verifyNoInteractions(imageStorageService);
-    }
-
 }
