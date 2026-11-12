@@ -2,14 +2,14 @@ spring:
   application:
     name: rentalSpace
     
+  # Database configuration   
   datasource:
     url: jdbc:mysql://localhost:3306/rental_space_db
     username: root
     password: SK@0555
     driver-class-name: com.mysql.cj.jdbc.Driver
     
-  #Gmail configuration
-  
+  # Gmail configuration
   mail:
     host: smtp.gmail.com
     port: 587
@@ -34,7 +34,6 @@ spring:
         
         
 #flyway configuration
-  
   flyway:
     enabled: true              
     locations:                    
