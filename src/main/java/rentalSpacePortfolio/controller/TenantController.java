@@ -18,7 +18,6 @@ import rentalSpacePortfolio.dto.response.tenant.ProfileResponse;
 import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.TenantService;
-import rentalSpacePortfolio.service.impl.CommonService;
 
 @Slf4j
 @RestController
@@ -26,13 +25,10 @@ import rentalSpacePortfolio.service.impl.CommonService;
 public class TenantController {
     
     private final TenantService tenantService;
-    private final CommonService userCommonService;
     
     @Autowired
-    public TenantController(TenantService tenantService,
-            CommonService userCommonService){
+    public TenantController(TenantService tenantService){
         this.tenantService = tenantService;
-        this.userCommonService = userCommonService;
     }
     
     @GetMapping("/dashboard")
@@ -66,10 +62,9 @@ public class TenantController {
     @PreAuthorize("hasAnyRole('ADMIN','OWNER')")
     @GetMapping("/{tenantId}")
     public ResponseEntity<ApiResponse<TenantSummaryResponse>> getTenantById(@PathVariable String tenantId){
-        TenantSummaryResponse tenant = userCommonService.getTenantById(UUID.fromString(tenantId));
+        TenantSummaryResponse tenant = tenantService.getTenantById(UUID.fromString(tenantId));
         return ResponseEntity.ok(ApiResponse.success("Admin fetched by Id successfully", tenant));
     }
-    
     
     // Update users profile personal details
     @PutMapping("/profile")
@@ -90,6 +85,4 @@ public class TenantController {
             tenantService.aadhaarVerification(request, UUID.fromString(userId));
             return new ResponseEntity<>("Varification successfully completed", HttpStatus.ACCEPTED);
     }
-    
-    
 }

@@ -1,5 +1,6 @@
 package rentalSpacePortfolio.service.impl;
 
+import rentalSpacePortfolio.common.service.ImageService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +37,7 @@ public class FlatService {
     private final FlatRepository flatRepo;
     private final FlatImageRepository flatImageRepo;
     private final ImageStorageService imageStorageService;
-    private final CommonService commonService;
+    private final ImageService commonService;
     
     @Autowired
     public FlatService(
@@ -44,7 +45,7 @@ public class FlatService {
             FlatRepository flatRepo,
             ImageStorageService imageStorageService,
             FlatImageRepository flatImageRepo,
-            CommonService commonService){
+            ImageService commonService){
         this.propertyRepo = propertyRepo;
         this.flatRepo = flatRepo;
         this.imageStorageService = imageStorageService;

@@ -95,13 +95,13 @@ public class FlatController {
     
     // Endpoint to get all flats
     @PreAuthorize("hasRole('TENANT')")
-    @GetMapping("/property/{propertyId}/flats")
+    @GetMapping("/buildings/{buildingId}/flats")
     public ResponseEntity<ApiResponse<List<FlatResponse>>> getPropertyAllFlat(
-            @PathVariable("propertyId") UUID propertyId,
+            @PathVariable("buildingId") UUID buildingId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size){
-        log.info("Received request to fetch all flat of property: {}", propertyId);
-        List<FlatResponse> flats = flatService.getPropertyAllFlat(propertyId, page, size);
+        log.info("Received request to fetch all flat of building: {}", buildingId);
+        List<FlatResponse> flats = flatService.getPropertyAllFlat(buildingId, page, size);
         return ResponseEntity.ok(ApiResponse.success("All flats fetched succesfully", flats));
     }
 

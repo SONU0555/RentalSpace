@@ -53,6 +53,14 @@ public class TenantService {
         return TenantResponseMapper.mapToProfileResponse(user.getTenant());
     }
     
+//     Service to get tenant by Id
+    public TenantSummaryResponse getTenantById(UUID tenantId){
+        Tenant tenant = tenantRepo.findById(tenantId)
+                .orElseThrow(() -> new ResourceNotFoundException("User tenant not found"));
+        
+        return UserResponseMapper.mapToTenatResponseDto(tenant);
+    }
+    
     // Service to get all tenants
     public List<TenantSummaryResponse> getAllTenants(UUID userId){
         

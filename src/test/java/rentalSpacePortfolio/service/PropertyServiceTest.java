@@ -27,7 +27,7 @@ import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.repository.PropertyImageRepository;
 import rentalSpacePortfolio.repository.PropertyRepository;
 import rentalSpacePortfolio.repository.UserRepository;
-import rentalSpacePortfolio.service.impl.CommonService;
+import rentalSpacePortfolio.common.service.ImageService;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +37,7 @@ public class PropertyServiceTest {
     @Mock private PropertyRepository propertyRepo;
     @Mock private PropertyImageRepository propertyImgRepo;
     @Mock private ImageStorageService imageStorageService;
-    @Mock private CommonService commonService;
+    @Mock private ImageService commonService;
     
     @InjectMocks
     private PropertyService propertyService;

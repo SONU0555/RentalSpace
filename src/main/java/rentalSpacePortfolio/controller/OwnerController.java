@@ -12,7 +12,7 @@ import rentalSpacePortfolio.dto.response.ApiResponse;
 import rentalSpacePortfolio.dto.response.user.ProfileResponse;
 import rentalSpacePortfolio.security.SecurityUnits;
 import rentalSpacePortfolio.service.impl.OwnerService;
-import rentalSpacePortfolio.service.impl.CommonService;
+import rentalSpacePortfolio.common.service.ImageService;
 
 
 @RestController
@@ -21,12 +21,12 @@ public class OwnerController {
     
     private final OwnerService ownerService;
     private final AuthService authService;
-    private final CommonService userCommonService;
+    private final ImageService userCommonService;
     
     @Autowired
     public OwnerController(OwnerService ownerService,
             AuthService authService,
-            CommonService userCommonService){
+            ImageService userCommonService){
         this.ownerService = ownerService;
         this.authService  = authService;
         this.userCommonService = userCommonService;

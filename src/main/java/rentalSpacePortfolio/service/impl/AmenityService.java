@@ -1,5 +1,6 @@
     package rentalSpacePortfolio.service.impl;
 
+import rentalSpacePortfolio.common.service.ImageService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class AmenityService {
     private final AmenityRepository amenityRepo;
     private final PropertyRepository propertyRepo;
     private final AmenityImageRepository amenityImageRepo;
-    private final CommonService commonService;
+    private final ImageService commonService;
     private final ImageStorageService imageStorageService;
     
     @Autowired
@@ -43,7 +44,7 @@ public class AmenityService {
             AmenityRepository amenityRepo,
             PropertyRepository propertyRepo,
             AmenityImageRepository amenityImageRepo,
-            CommonService commonService,
+            ImageService commonService,
             ImageStorageService imageStorageService){
         this.amenityRepo = amenityRepo;
         this.propertyRepo = propertyRepo;

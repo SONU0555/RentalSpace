@@ -1,5 +1,6 @@
 package rentalSpacePortfolio.service.impl;
 
+import rentalSpacePortfolio.common.service.ImageService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,6 @@ import rentalSpacePortfolio.dto.request.property.PropertyRequest;
 import rentalSpacePortfolio.dto.response.property.PropertyResponse;
 import rentalSpacePortfolio.entity.*;
 import rentalSpacePortfolio.enums.AdminStatus;
-import rentalSpacePortfolio.enums.PropertyVisbility;
 import rentalSpacePortfolio.exception.DuplicatePropertyException;
 import rentalSpacePortfolio.exception.ResourceNotFoundException;
 import rentalSpacePortfolio.mapper.PropertyMapper;
@@ -36,7 +36,7 @@ public class PropertyService {
     private final AdminRepository adminRepo;
     private final PropertyImageRepository propertyImgRepo;
     private final ImageStorageService imageStorageService;
-    private final CommonService commonService;
+    private final ImageService commonService;
     
     @Autowired
     public PropertyService(PropertyRepository propertyRepo,
@@ -44,7 +44,7 @@ public class PropertyService {
             AdminRepository adminRepo,
             PropertyImageRepository propertyImgRepo,
             ImageStorageService imageStorageService,
-            CommonService commonService){
+            ImageService commonService){
         this.propertyRepo = propertyRepo;
         this.userRepo = userRepo;
         this.adminRepo = adminRepo;

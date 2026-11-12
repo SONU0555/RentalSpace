@@ -147,6 +147,7 @@ public class AdminServiceTest {
         Assertions.assertTrue(result.isEmpty());
     }
     
+    // Test cases for unassign the admin from property
     @Test
     void unassignAdmin_ShouldUpdateStatusAndSave_WhenAdminIsAssigned(){
         mockAdmin.setStatus(AdminStatus.ASSIGNED);

@@ -1,57 +1,28 @@
-package rentalSpacePortfolio.service.impl;
+package rentalSpacePortfolio.common.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import rentalSpacePortfolio.dto.image.ImageRequest;
-import rentalSpacePortfolio.exception.ResourceNotFoundException;
-import rentalSpacePortfolio.dto.response.tenant.TenantSummaryResponse;
 import rentalSpacePortfolio.entity.BelongingImage;
-import rentalSpacePortfolio.entity.Tenant;
-import rentalSpacePortfolio.mapper.UserResponseMapper;
-import rentalSpacePortfolio.repository.AdminRepository;
-import rentalSpacePortfolio.repository.TenantRepository;
-import rentalSpacePortfolio.repository.UserRepository;
 import rentalSpacePortfolio.service.interfaces.ImageStorageService;
 
 @Slf4j
 @Service
-public class CommonService {
+public class ImageService {
         
     private final ImageStorageService imageStorageService;
-    private final UserRepository userRepo;
-    private final TenantRepository tenantRepo;
-    private final AdminRepository adminRepo;
-    public final PasswordEncoder passwordEncoder;
     
     @Autowired
-    public CommonService(UserRepository userRepo,
-            TenantRepository tenantRepo,
-            AdminRepository adminRepo,
-            PasswordEncoder passwordEncoder,
+    public ImageService(
             ImageStorageService imageStorageService){
-        this.userRepo = userRepo;
-        this.tenantRepo = tenantRepo;
-        this.adminRepo = adminRepo;
-        this.passwordEncoder = passwordEncoder;
         this.imageStorageService = imageStorageService;
-    }
-    
-//     Service to get tenant by Id
-    public TenantSummaryResponse getTenantById(UUID tenantId){
-        Tenant tenant = tenantRepo.findById(tenantId)
-                .orElseThrow(() -> new ResourceNotFoundException("User tenant not found"));
-        
-        return UserResponseMapper.mapToTenatResponseDto(tenant);
     }
     
     // Service to store image to local disk and map to entity

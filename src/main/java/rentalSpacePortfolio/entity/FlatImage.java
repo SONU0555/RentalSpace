@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 public class FlatImage extends BaseEnity implements BelongingImage<Flat>{
 
     @Embedded
-    private ImageDetails imageDetails = new ImageDetails();
+    private ImageDetails imageDetails;
 
     @ManyToOne
     @JoinColumn(name = "Flat_id")
@@ -30,5 +30,4 @@ public class FlatImage extends BaseEnity implements BelongingImage<Flat>{
     public void setParent(Flat parentEntity) {
         this.flat = parentEntity;
     }
-
 }
